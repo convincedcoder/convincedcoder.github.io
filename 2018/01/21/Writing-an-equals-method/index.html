@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Writing an equals method - how hard can it be? – The Human Microphone – Software development blog with a focus on Java and Javascript</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="If you’ve ever had to write or test an equals method, you may have gotten a feel for how complex this can get. This post will explain a number of things that can go wrong, offer solutions, and explain how a library called EqualsVerifier can help you prevent unexpected behavior regarding object equality testing.
+
+" />
+    <meta property="og:description" content="If you’ve ever had to write or test an equals method, you may have gotten a feel for how complex this can get. This post will explain a number of things that can go wrong, offer solutions, and explain how a library called EqualsVerifier can help you prevent unexpected behavior regarding object equality testing.
+
+" />
+    
+    <meta name="author" content="The Human Microphone" />
+
+    
+    <meta property="og:title" content="Writing an equals method - how hard can it be?" />
+    <meta property="twitter:title" content="Writing an equals method - how hard can it be?" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="The Human Microphone - Software development blog with a focus on Java and Javascript" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+	<!-- using Ryan Fait's sticky footer to stick the footer at the bottom of the page or content, whichever is lower -->
+	
+	<div class="sticky-footer-wrapper">
+		<div class="wrapper-masthead">
+		  <div class="container">
+			<header class="masthead clearfix">
+			  <a href="/" class="site-avatar"><img src="/images/microphone.png" /></a>
+
+			  <div class="site-info">
+				<h1 class="site-name"><a href="/">The Human Microphone</a></h1>
+				<p class="site-description">Software development blog with a focus on Java and Javascript</p>
+			  </div>
+
+			  <nav>
+				<a href="/">Blog</a>
+				<a href="/about">About</a>
+			  </nav>
+			</header>
+		  </div>
+		</div>
+
+		<div id="main" role="main" class="container">
+		  <article class="post">
+    <h1>Writing an equals method - how hard can it be?</h1>
+    
+    <div class="date">
+        2018-01-21
+    </div>
+
+    <div class=post-tags>
+               
+                 
+            <a href="/tag/java" class="tag">java</a>
+        
+    </div>
+
+    <div class="entry">
+        <p>If you’ve ever had to write or test an <code class="highlighter-rouge">equals</code> method, you may have gotten a feel for how complex this can get. This post will explain a number of things that can go wrong, offer solutions, and explain how a library called <a href="http://jqno.nl/equalsverifier/">EqualsVerifier</a> can help you prevent unexpected behavior regarding object equality testing.</p>
+
+<blockquote>
+  <p>Note: this post is heavily based on the material offered by Jan Ouwens, the creator of the EqualsVerifier library.</p>
+</blockquote>
+
+<h2 id="why-override-the-default-equals-method-anyway">Why override the default <code class="highlighter-rouge">equals</code> method anyway?</h2>
+
+<p>By default, every Java object has an <code class="highlighter-rouge">equals(Object o)</code> method which is inherited from the <code class="highlighter-rouge">Object</code> class. The implementation of this <code class="highlighter-rouge">equals</code> method compares objects using their memory locations, meaning that two objects are only considered equal if they actually point to the exact same memory location and are thus really one and the same object.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">Object</span> <span class="n">object1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Object</span><span class="o">();</span>
+    <span class="n">Object</span> <span class="n">sameObject</span> <span class="o">=</span> <span class="n">object1</span><span class="o">;</span>
+    <span class="n">Object</span> <span class="n">object2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Object</span><span class="o">();</span>
+
+    <span class="n">assertTrue</span><span class="o">(</span><span class="n">object1</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">sameObject</span><span class="o">));</span> <span class="c1">// this succeeds</span>
+    <span class="n">assertTrue</span><span class="o">(</span><span class="n">object1</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">object2</span><span class="o">));</span> <span class="c1">// this fails</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>If you want to define equality in such a way that two objects can be considered equal even if they don’t point to the exact same memory location, you will need a custom <code class="highlighter-rouge">equals</code> implementation.</p>
+
+<h2 id="the-requirements-for-a-good-equals-method">The requirements for a good <code class="highlighter-rouge">equals</code> method</h2>
+
+<ul>
+  <li>Reflexivity: every object is equal to itself</li>
+  <li>Symmetry: if a is equal to b, then b is also equal to a</li>
+  <li>Transitivity: if a is equal to b and b is equal to c, then a is also equal to c</li>
+  <li>Consistency: if a is equal to b right now, then a is always equal to b</li>
+  <li>Non-nullity: a actual object is never equal to <code class="highlighter-rouge">null</code></li>
+</ul>
+
+<h2 id="introducing-the-point-class">Introducing the <code class="highlighter-rouge">Point</code> class</h2>
+
+<p>The <code class="highlighter-rouge">Point</code> class is the class we will be using as an example throughout this post. It is a simple class representing a point on a two-dimensional grid by means of an x coordinate and a y coordinate. We want to consider two <code class="highlighter-rouge">Point</code> objects to be equal if and only if they have the same x coordinate and the same y coordinate. Therefore, we will attempt to write an equals method that accomplishes this.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Point</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">x</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">y</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">Point</span><span class="o">(</span><span class="kt">int</span> <span class="n">x</span><span class="o">,</span> <span class="kt">int</span> <span class="n">y</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">// getters and setters for x and y here</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="the-journey-to-a-perfect-equals-method">The journey to a “perfect” <code class="highlighter-rouge">equals</code> method</h2>
+
+<h3 id="attempt-1">Attempt #1</h3>
+
+<p>Well, our class is simple, so let’s write a simple <code class="highlighter-rouge">equals</code> method. We add this method to our <code class="highlighter-rouge">Point</code> class:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="n">Point</span> <span class="n">other</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">x</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="na">x</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="o">.</span><span class="na">y</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="na">y</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Seems simple enough. Now, let’s test our <code class="highlighter-rouge">equals</code> method:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">Point</span> <span class="n">point1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+    <span class="n">Point</span> <span class="n">point2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;</span> <span class="n">points</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="n">point1</span><span class="o">);</span>
+				
+    <span class="n">assertTrue</span><span class="o">(</span><span class="n">point1</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">point2</span><span class="o">));</span> <span class="c1">// this succeeds</span>
+    <span class="n">assertTrue</span><span class="o">(</span><span class="n">points</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">point2</span><span class="o">));</span> <span class="c1">// this fails		</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>What happened? Well, the <code class="highlighter-rouge">contains</code> method takes an <code class="highlighter-rouge">Object</code> as its argument, which means that <code class="highlighter-rouge">point2</code> is passed as <code class="highlighter-rouge">Object</code>. Because our defined <code class="highlighter-rouge">equals</code> method takes a <code class="highlighter-rouge">Point</code> as parameter, it actually doesn’t override the default <code class="highlighter-rouge">equals(Object o)</code> method defined for the <code class="highlighter-rouge">Object</code> class. This means that, when the <code class="highlighter-rouge">contains</code> method checks for equality, the default <code class="highlighter-rouge">equals(Object o)</code> method is called. That method tells us that <code class="highlighter-rouge">point1</code> and <code class="highlighter-rouge">point2</code> are not equal because they do not point to the exact same memory location.</p>
+
+<h3 id="attempt-2-actually-overriding-the-default-equalsobject-o-method">Attempt #2: actually overriding the default <code class="highlighter-rouge">equals(Object o)</code> method</h3>
+
+<p>Ok, so let’s adjust our <code class="highlighter-rouge">equals</code> method as follows:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">o</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">o</span><span class="o">.</span><span class="na">getClass</span><span class="o">()</span> <span class="o">!=</span> <span class="k">this</span><span class="o">.</span><span class="na">getClass</span><span class="o">())</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="o">}</span>
+    
+    <span class="n">Point</span> <span class="n">other</span> <span class="o">=</span> <span class="o">(</span><span class="n">Point</span><span class="o">)</span> <span class="n">o</span><span class="o">;</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">x</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="na">x</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="o">.</span><span class="na">y</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="na">y</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Our tests from the previous attempt will now succeed. However, a new issue arises:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>        
+    <span class="n">Point</span> <span class="n">point1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+    <span class="n">Point</span> <span class="n">point2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+    <span class="n">Set</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;</span> <span class="n">points</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;();</span>
+    <span class="n">points</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">point1</span><span class="o">);</span>
+            
+    <span class="n">assertTrue</span><span class="o">(</span><span class="n">points</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">point2</span><span class="o">));</span> <span class="c1">// this fails        </span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p>The issue here is that, while we did override the default <code class="highlighter-rouge">equals</code> method, we didn’t override the default <code class="highlighter-rouge">hashCode</code> method. When our <code class="highlighter-rouge">HashSet</code> looks for <code class="highlighter-rouge">point2</code>, it only looks in the hash bucket that corresponds to <code class="highlighter-rouge">point2</code>’s hash code. Therefore, if two objects are considered equal, we must guarantee that their hash code will also be the same (<code class="highlighter-rouge">hashcode</code> needs to be consistent with <code class="highlighter-rouge">equals</code>). Note that it is ok for two different objects to have the same hash code, although it is better to avoid this as it can negatively impact the performance of data strucures that rely on hash codes.</p>
+
+<h3 id="attempt-3-overriding-hashcode-as-well">Attempt #3: overriding <code class="highlighter-rouge">hashCode</code> as well</h3>
+
+<p>Ok, let’s add a <code class="highlighter-rouge">hashCode</code> method that is consistent with our <code class="highlighter-rouge">equals</code> method (this method was actually generated automatically by my IDE):</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">int</span> <span class="nf">hashCode</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="kt">int</span> <span class="n">prime</span> <span class="o">=</span> <span class="mi">31</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">prime</span> <span class="o">*</span> <span class="n">result</span> <span class="o">+</span> <span class="n">x</span><span class="o">;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">prime</span> <span class="o">*</span> <span class="n">result</span> <span class="o">+</span> <span class="n">y</span><span class="o">;</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>The previous tests now pass, but we are still not quite there:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>    
+    <span class="n">Point</span> <span class="n">point1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+    <span class="n">Set</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;</span> <span class="n">points</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;();</span>
+    <span class="n">points</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">point1</span><span class="o">);</span>
+    
+    <span class="n">point1</span><span class="o">.</span><span class="na">setX</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
+            
+    <span class="n">assertTrue</span><span class="o">(</span><span class="n">points</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">point1</span><span class="o">));</span> <span class="c1">// this fails    </span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>This means that, although <code class="highlighter-rouge">point1</code> is the actual object we put in the set, the set doesn’t seem to contain <code class="highlighter-rouge">point1</code> anymore. When we added <code class="highlighter-rouge">point1</code> to the set, it got assigned to a hash bucket based on its hash code. However, by changing the point’s x coordinate, we have also changed its hash code. The <code class="highlighter-rouge">contains</code> method looks in the bucket corresponding to the new hash code and will not find our point there because it sits in the bucket corresponding to its original hash code.</p>
+
+<h3 id="attempt-4-making-instance-variables-final">Attempt #4: making instance variables final</h3>
+
+<p>Ok, let’s solve the previous issue by making the x and y coordinate <code class="highlighter-rouge">final</code>. This yields the following definition for our <code class="highlighter-rouge">Point</code> class:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Point</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">x</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">y</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">Point</span><span class="o">(</span><span class="kt">int</span> <span class="n">x</span><span class="o">,</span> <span class="kt">int</span> <span class="n">y</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">// getters for x and y here</span>
+    
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">o</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">o</span><span class="o">.</span><span class="na">getClass</span><span class="o">()</span> <span class="o">!=</span> <span class="k">this</span><span class="o">.</span><span class="na">getClass</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="o">}</span>
+        
+        <span class="n">Point</span> <span class="n">other</span> <span class="o">=</span> <span class="o">(</span><span class="n">Point</span><span class="o">)</span> <span class="n">o</span><span class="o">;</span>
+        <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">x</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="na">x</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="o">.</span><span class="na">y</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="na">y</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">hashCode</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="kt">int</span> <span class="n">prime</span> <span class="o">=</span> <span class="mi">31</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">prime</span> <span class="o">*</span> <span class="n">result</span> <span class="o">+</span> <span class="n">x</span><span class="o">;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">prime</span> <span class="o">*</span> <span class="n">result</span> <span class="o">+</span> <span class="n">y</span><span class="o">;</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+    <span class="o">}</span>    
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>This is already a pretty decent implementation. Our current <code class="highlighter-rouge">equals</code> method is actually equivalent to the one that my IDE generates automatically (using the default settings) and our <code class="highlighter-rouge">hashCode</code> method was already generated by my IDE. Therefore, if I let my IDE do the work for me, this is what I’m going to get by default. But is it enough?</p>
+
+<p>Spoiler alert: No, it isn’t. At least not once we start looking at subclasses.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>    
+    <span class="n">Point</span> <span class="n">point1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+    <span class="n">Point</span> <span class="n">point2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span> <span class="o">{};</span>
+
+    <span class="n">assertTrue</span><span class="o">(</span><span class="n">point1</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">point2</span><span class="o">));</span> <span class="c1">// this fails    </span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>In this test, <code class="highlighter-rouge">point2</code> is an instance of an anonymous subclass of <code class="highlighter-rouge">Point</code> that adds no additional behavior or state. Here, <code class="highlighter-rouge">point2</code> has the exact same x and y coordinate as <code class="highlighter-rouge">point1</code> (it actually even has exactly identical state and behavior). However, they are not considered to be equal at all. This in principle violates the <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov Substitution Principle</a> which basically states that everywhere an instance of a certain class is required, you can also pass an instance of a subclass of that class without it causing any unexpected effects. In this case, passing in the anonymous subclass of <code class="highlighter-rouge">Point</code> where a <code class="highlighter-rouge">Point</code> is required leads to an unexpected situation where we have two <code class="highlighter-rouge">Point</code>s that have the same x and y coordinates but are not equal to each other.</p>
+
+<p><em>Note that not everybody agrees with this interpretation of the Liskov Substitution Principle, see for example the end of <a href="http://www.artima.com/lejava/articles/equality.html">this article</a> which we will also refer to in the next section. However, it still seems reasonable to expect that an instance of a subclass of <code class="highlighter-rouge">Point</code> can be equal to a <code class="highlighter-rouge">Point</code> instance if both have exactly the same state.</em></p>
+
+<p>The reason why this test fails is that the <code class="highlighter-rouge">equals</code> method uses <code class="highlighter-rouge">getClass()</code> to verify if both objects belong to the same class and <code class="highlighter-rouge">getClass()</code> will actually return a different class for <code class="highlighter-rouge">point1</code> and <code class="highlighter-rouge">point2</code>.</p>
+
+<p>Although you will probably not create a lot of trivial anonymous subclasses in real life, you may sometimes want to create a subclass for a class that you defined a custom <code class="highlighter-rouge">equals</code> method for. Fortunately, we can improve our <code class="highlighter-rouge">equals</code> method by using <code class="highlighter-rouge">instanceof</code> instead of <code class="highlighter-rouge">getClass()</code>.</p>
+
+<h3 id="attempt-5-using-instanceof-instead-of-getclass">Attempt #5: using <code class="highlighter-rouge">instanceof</code> instead of <code class="highlighter-rouge">getClass()</code></h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(!(</span><span class="n">o</span> <span class="k">instanceof</span> <span class="n">Point</span><span class="o">))</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="o">}</span>
+    
+    <span class="n">Point</span> <span class="n">other</span> <span class="o">=</span> <span class="o">(</span><span class="n">Point</span><span class="o">)</span> <span class="n">o</span><span class="o">;</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">x</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="na">x</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="o">.</span><span class="na">y</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="na">y</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>This implementation is equivalent to the one generated by my IDE if I choose the option to use <code class="highlighter-rouge">instanceof</code> instead of <code class="highlighter-rouge">getClass()</code>. It passes all of our previous tests. In fact, as long as no subclass of <code class="highlighter-rouge">Point</code> ever overrides our <code class="highlighter-rouge">equals</code> (or <code class="highlighter-rouge">hashCode</code>) method, this will work just fine. This means that, when letting my IDE generate my <code class="highlighter-rouge">equals</code> and <code class="highlighter-rouge">hashCode</code> methods for me, I actually get a good implementation as long as I choose the right options.</p>
+
+<p>Things get more complicated if a subclass is going to add state and we want to include this state in its <code class="highlighter-rouge">equals</code> method. For example, let’s assume that we have an enum called <code class="highlighter-rouge">Color</code> and we create a class <code class="highlighter-rouge">ColorPoint</code> that extends the <code class="highlighter-rouge">Point</code> class with a specific color for a point.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="n">Color</span> <span class="o">{</span>    
+    <span class="n">BLUE</span><span class="o">,</span> <span class="n">RED</span><span class="o">,</span> <span class="n">YELLOW</span><span class="o">,</span> <span class="n">GREEN</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ColorPoint</span> <span class="kd">extends</span> <span class="n">Point</span> <span class="o">{</span>    
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Color</span> <span class="n">color</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">ColorPoint</span><span class="o">(</span><span class="kt">int</span> <span class="n">x</span><span class="o">,</span> <span class="kt">int</span> <span class="n">y</span><span class="o">,</span> <span class="n">Color</span> <span class="n">color</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">);</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">color</span> <span class="o">=</span> <span class="n">color</span><span class="o">;</span>
+    <span class="o">}</span>
+    
+    <span class="c1">// getter for color</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Now, what if we want to include the color in the <code class="highlighter-rouge">equals</code> method so that a <code class="highlighter-rouge">ColorPoint(1, 1, Color.RED)</code> is not equal to a <code class="highlighter-rouge">ColorPoint(1, 1, Color.BLUE)</code>? Well, there is a way to accomplish this, although it is somewhat complicated. It is described at the end of <a href="http://www.artima.com/lejava/articles/equality.html">this article</a> (which we referred to earlier) and it involves adding a <code class="highlighter-rouge">canEqual</code> method to our <code class="highlighter-rouge">Point</code> and <code class="highlighter-rouge">ColorPoint</code> classes.</p>
+
+<p>An important remark here is that, in that solution, a <code class="highlighter-rouge">Point</code> will never be able to be equal to a <code class="highlighter-rouge">ColorPoint</code>. The reason for this is that we need our <code class="highlighter-rouge">equals</code> method to be transitive. If we woud consider a <code class="highlighter-rouge">Point(1, 1)</code> to be equal to a <code class="highlighter-rouge">ColorPoint(1, 1, Color.RED)</code> and to a <code class="highlighter-rouge">ColorPoint(1, 1, Color.BLUE)</code>, which satisfies our original interpretation of the Liskov Substitution Principle, then transivity would imply that a <code class="highlighter-rouge">ColorPoint(1, 1, Color.RED)</code> and a <code class="highlighter-rouge">ColorPoint(1, 1, Color.BLUE)</code> must be equal to each other. However, that is exactly what we didn’t want.</p>
+
+<h2 id="how-to-handle-this-in-practice">How to handle this in practice</h2>
+
+<p>In practice, the approach that you’ll typically want to follow is this:</p>
+
+<ol>
+  <li>Let your IDE generate your <code class="highlighter-rouge">equals</code> (and <code class="highlighter-rouge">hashCode</code>) methods for you, using <code class="highlighter-rouge">instanceof</code> instead of <code class="highlighter-rouge">getClass()</code>.</li>
+  <li>Either make your class <code class="highlighter-rouge">final</code> or make your <code class="highlighter-rouge">equals</code> and <code class="highlighter-rouge">hashCode</code> methods <code class="highlighter-rouge">final</code>.</li>
+</ol>
+
+<p>Note that the two options outlined in step 2 have different effects:</p>
+
+<ul>
+  <li>Making your class <code class="highlighter-rouge">final</code> prevents any issues with subclasses by simply not allowing subclasses for your class.</li>
+  <li>Making your <code class="highlighter-rouge">equals</code> and <code class="highlighter-rouge">hashCode</code> methods <code class="highlighter-rouge">final</code> prevents subclasses from overriding your <code class="highlighter-rouge">equals</code> and <code class="highlighter-rouge">hashCode</code> methods and including additional state in them.</li>
+</ul>
+
+<p>In cases where this is not sufficient, consider having a look at the article that was mentioned earlier.</p>
+
+<h2 id="testing-your-equals-methods">Testing your <code class="highlighter-rouge">equals</code> methods</h2>
+
+<p>Testing an <code class="highlighter-rouge">equals</code> method by hand is a tedious task that will likely lead to pages and pages of error-prone testing code. Fortunately, there is a better solution: the <a href="http://jqno.nl/equalsverifier/">EqualsVerifier</a> library by Jan Ouwens. Using it is simple:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">equalsContract</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">EqualsVerifier</span><span class="o">.</span><span class="na">forClass</span><span class="o">(</span><span class="n">Point</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">verify</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>It uses reflection to inspect your class and test its <code class="highlighter-rouge">equals</code> and <code class="highlighter-rouge">hashCode</code> methods with 100% coverage. It recognizes all of the possible issues that were outlined in this arcticle (and some others as well). If you’re confused by an error message it produces, have a look at <a href="http://jqno.nl/equalsverifier/errormessages/">this overview</a>. If you understand why EqualsVerifier complains about a certain issue but you need it to be less restrictive, you can pass it an additional option to make it ignore that issue. This library should be able to make hand-written <code class="highlighter-rouge">equals</code> tests a thing of the past.</p>
+
+    </div>
+
+    
+</article>
+
+		</div>
+		
+		<div class="sticky-footer-push"></div>
+	</div>
+
+    <div class="wrapper-footer sticky-footer-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/thehumanmicrophone/thehumanmicrophone.github.io"><i class="svg-icon github"></i></a>
+
+
+
+
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>
