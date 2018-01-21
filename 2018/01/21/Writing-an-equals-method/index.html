@@ -106,7 +106,7 @@
 
 <h2 id="introducing-the-point-class">Introducing the <code class="highlighter-rouge">Point</code> class</h2>
 
-<p>The <code class="highlighter-rouge">Point</code> class is the class we will be using as an example throughout this post. It is a simple class representing a point on a two-dimensional grid by means of an x coordinate and a y coordinate. We want to consider two <code class="highlighter-rouge">Point</code> objects to be equal if and only if they have the same x coordinate and the same y coordinate. Therefore, we will attempt to write an equals method that accomplishes this.</p>
+<p>The <code class="highlighter-rouge">Point</code> class is the class we will be using as an example throughout this post. It is a simple class representing a point on a two-dimensional grid by means of an x coordinate and a y coordinate.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Point</span> <span class="o">{</span>
     <span class="kd">private</span> <span class="kt">int</span> <span class="n">x</span><span class="o">;</span>
@@ -120,6 +120,8 @@
     <span class="c1">// getters and setters for x and y here</span>
 <span class="o">}</span>
 </code></pre></div></div>
+
+<p>We want to consider two <code class="highlighter-rouge">Point</code> objects to be equal if and only if they have the same x coordinate and the same y coordinate. Therefore, we will attempt to write an equals method that accomplishes this.</p>
 
 <h2 id="the-journey-to-a-perfect-equals-method">The journey to a “perfect” <code class="highlighter-rouge">equals</code> method</h2>
 
