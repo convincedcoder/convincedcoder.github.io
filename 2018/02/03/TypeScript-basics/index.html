@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TypeScript basics – The Human Microphone – Software development blog with a focus on Java and Javascript</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="TypeScript is an open source programming language created and maintained by Microsoft. It is based on JavaScript and it extends the JavaScript language with static typing, classes, generics, etc.
+
+" />
+    <meta property="og:description" content="TypeScript is an open source programming language created and maintained by Microsoft. It is based on JavaScript and it extends the JavaScript language with static typing, classes, generics, etc.
+
+" />
+    
+    <meta name="author" content="The Human Microphone" />
+
+    
+    <meta property="og:title" content="TypeScript basics" />
+    <meta property="twitter:title" content="TypeScript basics" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="The Human Microphone - Software development blog with a focus on Java and Javascript" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+	<!-- using Ryan Fait's sticky footer to stick the footer at the bottom of the page or content, whichever is lower -->
+	
+	<div class="sticky-footer-wrapper">
+		<div class="wrapper-masthead">
+		  <div class="container">
+			<header class="masthead clearfix">
+			  <a href="/" class="site-avatar"><img src="/images/microphone.png" /></a>
+
+			  <div class="site-info">
+				<h1 class="site-name"><a href="/">The Human Microphone</a></h1>
+				<p class="site-description">Software development blog with a focus on Java and Javascript</p>
+			  </div>
+
+			  <nav>
+				<a href="/">Blog</a>
+				<a href="/about">About</a>
+			  </nav>
+			</header>
+		  </div>
+		</div>
+
+		<div id="main" role="main" class="container">
+		  <article class="post">
+    <h1>TypeScript basics</h1>
+    
+    <div class="date">
+        2018-02-03
+    </div>
+
+    <div class=post-tags>
+               
+                 
+            <a href="/tag/javascript" class="tag">javascript</a>
+               
+                 
+            <a href="/tag/typescript" class="tag">typescript</a>
+        
+    </div>
+
+    <div class="entry">
+        <p>TypeScript is an open source programming language created and maintained by Microsoft. It is based on JavaScript and it extends the JavaScript language with static typing, classes, generics, etc.</p>
+
+<p>TypeScript’s syntax is a strict superset of JavaScript, meaning that any valid JavaScript syntax is in principle also valid TypeScript syntax. Note, however, that this does not mean that TypeScript’s compiler will be happy with every piece of valid JavaScript. As an example, see the section on <code class="highlighter-rouge">type inference</code> below. TypeScript puts some restrictions on the way your code deals with types, with the goal of preventing mistakes and unexpected behavior.</p>
+
+<p>Instead of requiring a separate interpreter, Typescript compiles into plain JavaScript which can be executed by browsers, Node.js, or other JavaScript engines. Note that syntactically valid TypeScript code with compiler errors can still be compiled to JavaScript. The Typescript compiler is only warning us that we will likely see some unexpected behavior.</p>
+
+<h2 id="most-important-features">Most important features</h2>
+
+<h3 id="type-annotations">Type annotations</h3>
+
+<p>Let’s start from a simple piece of JavaScript where a function <code class="highlighter-rouge">greet</code> takes a string <code class="highlighter-rouge">person</code> and shows a message greeting the person.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">greet</span><span class="p">(</span><span class="nx">person</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">alert</span><span class="p">(</span><span class="s1">'Hello, '</span> <span class="o">+</span> <span class="nx">person</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">let</span> <span class="nx">user</span> <span class="o">=</span> <span class="s1">'user'</span><span class="p">;</span>
+
+<span class="nx">greet</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span> <span class="c1">// shows message saying "Hello, user"</span>
+</code></pre></div></div>
+
+<p>This <code class="highlighter-rouge">greet</code> function works when we pass it a string, but nothing prevents us from making a mistake and passing something else, yielding unexpected results.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">user</span> <span class="o">=</span> <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="s1">'visitor'</span> <span class="p">};</span>
+
+<span class="nx">greet</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span> <span class="c1">// shows message saying "Hello, [object Object]"</span>
+</code></pre></div></div>
+
+<p>Using TypeScript’s type annotations, we can actually enforce that the <code class="highlighter-rouge">person</code> parameter should be a string.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">greet</span><span class="p">(</span><span class="nx">person</span><span class="p">:</span> <span class="nx">string</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">alert</span><span class="p">(</span><span class="s1">'Hello, '</span> <span class="o">+</span> <span class="nx">person</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">let</span> <span class="nx">user</span> <span class="o">=</span> <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="s1">'visitor'</span> <span class="p">};</span>
+
+<span class="nx">greet</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span> <span class="c1">// typescript compiler error (type mismath)</span>
+</code></pre></div></div>
+
+<h3 id="type-inference">Type inference</h3>
+
+<p>When you declare a variable, TypeScript will infer the variable’s type and perform type checking based on that.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">user</span> <span class="o">=</span> <span class="s1">'test'</span><span class="p">;</span>
+
+<span class="c1">// some other code</span>
+
+<span class="nx">user</span> <span class="o">=</span> <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="s1">'test'</span> <span class="p">};</span> <span class="c1">// typescript compiler error</span>
+</code></pre></div></div>
+
+<p>Here, TypeScript infers that the type of the <code class="highlighter-rouge">user</code> variable is <code class="highlighter-rouge">string</code>. It then prevents you from assigning values of another type to that variable, as that is typically a source of errors and is generally considered bad practice. JavaScript is not able to enforce these kinds of restrictions.</p>
+
+<p>You can also explicitly specify the type of a variable.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">user</span><span class="p">:</span> <span class="nx">string</span> <span class="o">=</span> <span class="s1">'test'</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h3 id="interfaces">Interfaces</h3>
+
+<p>Interfaces allow you to describe what an object should look like. In the following example, we are defining <code class="highlighter-rouge">Person</code> as an object that has a firstName and lastName property (both strings).</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">Person</span> <span class="p">{</span>
+    <span class="nl">firstName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+    <span class="nl">lastName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">greetPerson</span><span class="p">(</span><span class="nx">person</span><span class="p">:</span> <span class="nx">Person</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">alert</span><span class="p">(</span><span class="s1">'Hello, '</span> <span class="o">+</span> <span class="nx">person</span><span class="p">.</span><span class="nx">firstName</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">person</span><span class="p">.</span><span class="nx">lastName</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">let</span> <span class="nx">user</span> <span class="o">=</span> <span class="p">{</span> <span class="na">firstName</span><span class="p">:</span> <span class="s1">'Test'</span><span class="p">,</span> <span class="na">lastName</span><span class="p">:</span> <span class="s1">'User'</span> <span class="p">};</span>
+
+<span class="nx">greetPerson</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>We don’t need to make it explicit that <code class="highlighter-rouge">user</code> is a <code class="highlighter-rouge">Person</code> when we declare it. When we pass <code class="highlighter-rouge">user</code> to the <code class="highlighter-rouge">greet</code> function, TypeScript will automatically check if it has the right structure.</p>
+
+<h3 id="classes">Classes</h3>
+
+<p>TypeScript supports class-based object-oriented programming.</p>
+
+<p>Let’s look at an example of what a class definition looks like.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nx">Student</span> <span class="p">{</span>
+    <span class="kr">public</span> <span class="nx">firstName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+    <span class="kr">public</span> <span class="nx">lastName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+    <span class="kr">public</span> <span class="nx">fullName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+
+    <span class="kd">constructor</span><span class="p">(</span><span class="nx">firstName</span><span class="p">:</span> <span class="nx">string</span><span class="p">,</span> <span class="nx">lastName</span><span class="p">:</span> <span class="nx">string</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">firstName</span> <span class="o">=</span> <span class="nx">firstName</span><span class="p">;</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">lastName</span> <span class="o">=</span> <span class="nx">lastName</span><span class="p">;</span>
+
+        <span class="k">this</span><span class="p">.</span><span class="nx">fullName</span> <span class="o">=</span> <span class="nx">firstName</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">lastName</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">let</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Student</span><span class="p">(</span><span class="s1">'Jane'</span><span class="p">,</span> <span class="s1">'User'</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">Student</code> class defines some name properties and a constructor for creating new instances.</p>
+
+<p>If you don’t like the repetition in the properties and constructor, TypeScript also allows you to explicitly declare properties in the constructor parameters. They are then called <code class="highlighter-rouge">parameter properties</code>. The following code is equivalent to the code above:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nx">Student</span> <span class="p">{</span>
+    <span class="kr">public</span> <span class="nx">fullName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+
+    <span class="kd">constructor</span><span class="p">(</span><span class="kr">public</span> <span class="nx">firstName</span><span class="p">:</span> <span class="nx">string</span><span class="p">,</span>
+            <span class="kr">public</span> <span class="nx">lastName</span><span class="p">:</span> <span class="nx">string</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">fullName</span> <span class="o">=</span> <span class="nx">firstName</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">lastName</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">let</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Student</span><span class="p">(</span><span class="s1">'Jane'</span><span class="p">,</span> <span class="s1">'User'</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>Note that classes and interfaces play well together. Because a <code class="highlighter-rouge">Student</code> has a <code class="highlighter-rouge">firstName</code> and <code class="highlighter-rouge">lastName</code>, we can pass it to a function expecting a <code class="highlighter-rouge">Person</code> (like for example our <code class="highlighter-rouge">greetPerson</code> function).</p>
+
+<h3 id="access-modifiers-and-readonly">Access modifiers and readonly</h3>
+
+<p>Class members (properties, constructors and methods) are <code class="highlighter-rouge">public</code> by default but can also be marked <code class="highlighter-rouge">private</code> (cannot be accessed from outside the class) and <code class="highlighter-rouge">protected</code> (like <code class="highlighter-rouge">private</code>, but can also be accessed from deriving classes).</p>
+
+<p>Properties can also be made <code class="highlighter-rouge">readonly</code>, meaning that they cannot be changed and they must be initialized at their declaration or from the constructor.</p>
+
+<h3 id="classes-implementing-interfaces">Classes implementing interfaces</h3>
+
+<p>Classes can implement interfaces. This way, an interface can enforce that a class meets a particular contract.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">Person</span> <span class="p">{</span>
+    <span class="nl">firstName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+    <span class="nl">lastName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nx">Student</span> <span class="kr">implements</span> <span class="nx">Person</span> <span class="p">{</span>
+    <span class="kr">public</span> <span class="nx">fullName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+
+    <span class="kd">constructor</span><span class="p">(</span><span class="kr">public</span> <span class="nx">firstName</span><span class="p">:</span> <span class="nx">string</span><span class="p">,</span>
+            <span class="kr">public</span> <span class="nx">lastName</span><span class="p">:</span> <span class="nx">string</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">fullName</span> <span class="o">=</span> <span class="nx">firstName</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">lastName</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Interfaces can also describe methods that a class should implement. Note that interfaces only describe the public contract of a class, you cannot use them to constrain the internal implementation of a class.</p>
+
+<h3 id="inheritance">Inheritance</h3>
+
+<p>TypeScript provides inheritance for interfaces and classes using the <code class="highlighter-rouge">extends</code> keyword.</p>
+
+<p>The following code provides an example of interface inheritance.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">Person</span> <span class="p">{</span>
+    <span class="nl">firstName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+    <span class="nl">lastName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kr">interface</span> <span class="nx">Employee</span> <span class="kd">extends</span> <span class="nx">Person</span> <span class="p">{</span>
+    <span class="nl">company</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">let</span> <span class="nx">employee</span><span class="p">:</span> <span class="nx">Employee</span> <span class="o">=</span> <span class="p">{</span> <span class="na">company</span><span class="p">:</span> <span class="s1">'ACME'</span><span class="p">}</span> <span class="c1">// compiler error</span>
+</code></pre></div></div>
+
+<p>The code yields a compiler error because the object literal we are passing has no <code class="highlighter-rouge">firstName</code> and <code class="highlighter-rouge">lastName</code>.</p>
+
+<p>Class inheritance lets you inherit and override methods.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nx">Animal</span> <span class="p">{</span>
+    <span class="nx">makeNoise</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">`Hello there!`</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nx">Dog</span> <span class="kd">extends</span> <span class="nx">Animal</span> <span class="p">{</span>
+    <span class="nx">makeNoise</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Woof! Woof!'</span><span class="p">);</span>
+        <span class="k">super</span><span class="p">.</span><span class="nx">makeNoise</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">let</span> <span class="nx">dog</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Dog</span><span class="p">();</span>
+
+<span class="nx">dog</span><span class="p">.</span><span class="nx">makeNoise</span><span class="p">();</span>
+<span class="c1">// Woof! Woof!</span>
+<span class="c1">// Hello there!</span>
+</code></pre></div></div>
+
+<h3 id="generics">Generics</h3>
+
+<p>TypeScript provides generics that you can use to create reusable components.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nx">Wrapper</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="kd">constructor</span><span class="p">(</span><span class="kr">public</span> <span class="na">wrapped</span><span class="p">:</span> <span class="nx">T</span><span class="p">)</span> <span class="p">{}</span>
+
+    <span class="kr">public</span> <span class="nx">replaceWrapped</span><span class="p">(</span><span class="na">newWrapped</span><span class="p">:</span> <span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">wrapped</span> <span class="o">=</span> <span class="nx">newWrapped</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">let</span> <span class="nx">wrapper</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Wrapper</span><span class="p">(</span><span class="s1">'test'</span><span class="p">);</span>
+<span class="nx">wrapper</span><span class="p">.</span><span class="nx">replaceWrapped</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="c1">// error: type mismatch</span>
+</code></pre></div></div>
+
+<h2 id="getting-started">Getting started</h2>
+
+<p>The <a href="https://www.typescriptlang.org/samples/index.html">TypeScript quickstart page</a> contains some resouces to get you started, including frameworks like Angular that use TypeScript.</p>
+
+<p>If you are just looking for a quick way to play around with the language, you can use the <a href="https://www.typescriptlang.org/play/index.html">Playground</a>.</p>
+
+<p>I only gave a very basic overview of the most important features here. For more details regarding the language, you can take a look at the <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html">Handbook</a>.</p>
+
+    </div>
+
+    
+</article>
+
+		</div>
+		
+		<div class="sticky-footer-push"></div>
+	</div>
+
+    <div class="wrapper-footer sticky-footer-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/thehumanmicrophone/thehumanmicrophone.github.io"><i class="svg-icon github"></i></a>
+
+
+
+
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>
