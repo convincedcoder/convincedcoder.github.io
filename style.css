@@ -302,11 +302,6 @@ nav a {
   border-bottom: 1px solid #eee;
 }
 
-.posts > .post:last-child {
-  padding-bottom: 1em;
-  border-bottom: none;
-}
-
 .post blockquote {
   margin: 1.8em .8em;
   border-left: 2px solid #666;
@@ -360,26 +355,43 @@ a.tag {
 #tag-cloud .set-1 {
   font-size: 100%;
   display: inline-block;
+  margin-bottom: 5px;
 }
 
 #tag-cloud .set-2 {
   font-size: 100%;
   display: inline-block;
+  margin-bottom: 5px;
 }
 
 #tag-cloud .set-3 {
   font-size: 100%;
   display: inline-block;
+  margin-bottom: 5px;
 }
 
 #tag-cloud .set-4 {
   font-size: 100%;
   display: inline-block;
+  margin-bottom: 5px;
 }
 
 #tag-cloud .set-5 {
   font-size: 100%;
   display: inline-block;
+  margin-bottom: 5px;
+}
+
+.pagination {
+  margin-top: 20px;
+}
+
+.page-number {
+  float: right !important;
+}
+
+.page-change-disabled {
+  color: #d0d0d0;
 }
 
 /* based on https://github.com/pages-themes/modernist/blob/master/_sass/rouge-base16-dark.scss */

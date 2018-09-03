@@ -71,9 +71,27 @@
     </div>
 
     <div class="entry">
-        <p>If you’ve ever had to write or test an <code class="highlighter-rouge">equals</code> method, you may have gotten a feel for how complex this can get. This post will explain a number of things that can go wrong, offer solutions, and explain how a library called <a href="http://jqno.nl/equalsverifier/">EqualsVerifier</a> can help you prevent unexpected behavior regarding object equality testing.</p>
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#why-override-the-default-equals-method-anyway">Why override the default equals method anyway?</a></li>
+<li class="toc-entry toc-h2"><a href="#the-requirements-for-a-good-equals-method">The requirements for a good equals method</a></li>
+<li class="toc-entry toc-h2"><a href="#introducing-the-point-class">Introducing the Point class</a></li>
+<li class="toc-entry toc-h2"><a href="#the-journey-to-a-perfect-equals-method">The journey to a “perfect” equals method</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#attempt-1">Attempt #1</a></li>
+<li class="toc-entry toc-h3"><a href="#attempt-2-actually-overriding-the-default-equalsobject-o-method">Attempt #2: actually overriding the default equals(Object o) method</a></li>
+<li class="toc-entry toc-h3"><a href="#attempt-3-overriding-hashcode-as-well">Attempt #3: overriding hashCode as well</a></li>
+<li class="toc-entry toc-h3"><a href="#attempt-4-making-instance-variables-final">Attempt #4: making instance variables final</a></li>
+<li class="toc-entry toc-h3"><a href="#attempt-5-using-instanceof-instead-of-getclass">Attempt #5: using instanceof instead of getClass()</a></li>
+<li class="toc-entry toc-h3"><a href="#what-if-a-subclass-needs-to-include-additional-state-in-equals">What if a subclass needs to include additional state in equals?</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#how-to-handle-this-in-practice">How to handle this in practice</a></li>
+<li class="toc-entry toc-h2"><a href="#testing-your-equals-methods">Testing your equals methods</a></li>
+<li class="toc-entry toc-h2"><a href="#resources">Resources</a></li>
+</ul><p>If you’ve ever had to write or test an <code class="highlighter-rouge">equals</code> method, you may have gotten a feel for how complex this can get. This post will explain a number of things that can go wrong, offer solutions, and explain how a library called <a href="http://jqno.nl/equalsverifier/">EqualsVerifier</a> can help you prevent unexpected behavior regarding object equality testing.</p>
 
-<h2 id="why-override-the-default-equals-method-anyway">Why override the default <code class="highlighter-rouge">equals</code> method anyway?</h2>
+<h2 id="why-override-the-default-equals-method-anyway">
+<a id="why-override-the-default-equals-method-anyway" class="anchor" href="#why-override-the-default-equals-method-anyway" aria-hidden="true"><span class="octicon octicon-link"></span></a>Why override the default <code class="highlighter-rouge">equals</code> method anyway?</h2>
 
 <p>By default, every Java object has an <code class="highlighter-rouge">equals(Object o)</code> method which is inherited from the <code class="highlighter-rouge">Object</code> class. The implementation of this <code class="highlighter-rouge">equals</code> method compares objects using their memory locations, meaning that two objects are only considered equal if they actually point to the exact same memory location and are thus really one and the same object.</p>
 
@@ -90,17 +108,20 @@
 
 <p>If you want to define equality in such a way that two objects can be considered equal even if they don’t point to the exact same memory location, you will need a custom <code class="highlighter-rouge">equals</code> implementation.</p>
 
-<h2 id="the-requirements-for-a-good-equals-method">The requirements for a good <code class="highlighter-rouge">equals</code> method</h2>
+<h2 id="the-requirements-for-a-good-equals-method">
+<a id="the-requirements-for-a-good-equals-method" class="anchor" href="#the-requirements-for-a-good-equals-method" aria-hidden="true"><span class="octicon octicon-link"></span></a>The requirements for a good <code class="highlighter-rouge">equals</code> method</h2>
 
 <ul>
   <li>Reflexivity: every object is equal to itself</li>
   <li>Symmetry: if a is equal to b, then b is also equal to a</li>
   <li>Transitivity: if a is equal to b and b is equal to c, then a is also equal to c</li>
   <li>Consistency: if a is equal to b right now, then a is always equal to b as long as none of their state that is used in the <code class="highlighter-rouge">equals</code> method has been modified</li>
-  <li>Non-nullity: a actual object is never equal to <code class="highlighter-rouge">null</code></li>
+  <li>Non-nullity: a actual object is never equal to <code class="highlighter-rouge">null</code>
+</li>
 </ul>
 
-<h2 id="introducing-the-point-class">Introducing the <code class="highlighter-rouge">Point</code> class</h2>
+<h2 id="introducing-the-point-class">
+<a id="introducing-the-point-class" class="anchor" href="#introducing-the-point-class" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introducing the <code class="highlighter-rouge">Point</code> class</h2>
 
 <p>The <code class="highlighter-rouge">Point</code> class is the class we will be using as an example throughout this post. It is a simple class representing a point on a two-dimensional grid by means of an x coordinate and a y coordinate.</p>
 
@@ -119,9 +140,11 @@
 
 <p>We want to consider two <code class="highlighter-rouge">Point</code> objects to be equal if and only if they have the same x coordinate and the same y coordinate. Therefore, we will attempt to write an equals method that accomplishes this.</p>
 
-<h2 id="the-journey-to-a-perfect-equals-method">The journey to a “perfect” <code class="highlighter-rouge">equals</code> method</h2>
+<h2 id="the-journey-to-a-perfect-equals-method">
+<a id="the-journey-to-a-perfect-equals-method" class="anchor" href="#the-journey-to-a-perfect-equals-method" aria-hidden="true"><span class="octicon octicon-link"></span></a>The journey to a “perfect” <code class="highlighter-rouge">equals</code> method</h2>
 
-<h3 id="attempt-1">Attempt #1</h3>
+<h3 id="attempt-1">
+<a id="attempt-1" class="anchor" href="#attempt-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Attempt #1</h3>
 
 <p>Well, our class is simple, so let’s write a simple <code class="highlighter-rouge">equals</code> method. We add this method to our <code class="highlighter-rouge">Point</code> class:</p>
 
@@ -164,7 +187,8 @@
 
 <p>In both cases, <code class="highlighter-rouge">Object</code>’s <code class="highlighter-rouge">equals(Object o)</code> method tells us that <code class="highlighter-rouge">point1</code> and <code class="highlighter-rouge">pointObject</code> are not equal because they do not point to the exact same memory location.</p>
 
-<h3 id="attempt-2-actually-overriding-the-default-equalsobject-o-method">Attempt #2: actually overriding the default <code class="highlighter-rouge">equals(Object o)</code> method</h3>
+<h3 id="attempt-2-actually-overriding-the-default-equalsobject-o-method">
+<a id="attempt-2-actually-overriding-the-default-equalsobject-o-method" class="anchor" href="#attempt-2-actually-overriding-the-default-equalsobject-o-method" aria-hidden="true"><span class="octicon octicon-link"></span></a>Attempt #2: actually overriding the default <code class="highlighter-rouge">equals(Object o)</code> method</h3>
 
 <p>Ok, so let’s adjust our <code class="highlighter-rouge">equals</code> method as follows:</p>
 
@@ -193,7 +217,8 @@
 </code></pre></div></div>
 <p>The issue here is that, while we did override the default <code class="highlighter-rouge">equals</code> method, we didn’t override the default <code class="highlighter-rouge">hashCode</code> method as well. When our <code class="highlighter-rouge">HashSet</code> looks for <code class="highlighter-rouge">point2</code>, it only looks in the hash bucket that corresponds to <code class="highlighter-rouge">point2</code>’s hash code. Therefore, if two objects are considered equal, we must guarantee that their hash code will also be the same (<code class="highlighter-rouge">hashcode</code> needs to be consistent with <code class="highlighter-rouge">equals</code>). Note that it is ok for two different objects to have the same hash code, although it is better to avoid this as it can negatively impact the performance of data strucures that rely on hash codes.</p>
 
-<h3 id="attempt-3-overriding-hashcode-as-well">Attempt #3: overriding <code class="highlighter-rouge">hashCode</code> as well</h3>
+<h3 id="attempt-3-overriding-hashcode-as-well">
+<a id="attempt-3-overriding-hashcode-as-well" class="anchor" href="#attempt-3-overriding-hashcode-as-well" aria-hidden="true"><span class="octicon octicon-link"></span></a>Attempt #3: overriding <code class="highlighter-rouge">hashCode</code> as well</h3>
 
 <p>Ok, let’s add a <code class="highlighter-rouge">hashCode</code> method that is consistent with our <code class="highlighter-rouge">equals</code> method (this method was actually generated automatically by my IDE):</p>
 
@@ -223,7 +248,8 @@
 
 <p>This means that, although <code class="highlighter-rouge">point1</code> is the actual object we put in the set, the set doesn’t seem to contain <code class="highlighter-rouge">point1</code> anymore. When we added <code class="highlighter-rouge">point1</code> to the set, it got assigned to a hash bucket based on its hash code. However, by changing the point’s x coordinate, we have also changed its hash code. The <code class="highlighter-rouge">contains</code> method looks in the bucket corresponding to the new hash code and will not find our point there because it sits in the bucket corresponding to its original hash code.</p>
 
-<h3 id="attempt-4-making-instance-variables-final">Attempt #4: making instance variables final</h3>
+<h3 id="attempt-4-making-instance-variables-final">
+<a id="attempt-4-making-instance-variables-final" class="anchor" href="#attempt-4-making-instance-variables-final" aria-hidden="true"><span class="octicon octicon-link"></span></a>Attempt #4: making instance variables final</h3>
 
 <p>Ok, let’s solve the previous issue by making the x and y coordinate <code class="highlighter-rouge">final</code>. This yields the following definition for our <code class="highlighter-rouge">Point</code> class:</p>
 
@@ -278,7 +304,9 @@
 
 <p>Although you will probably not create a lot of trivial anonymous subclasses in real life, you may sometimes want to subclass a class that you defined a custom <code class="highlighter-rouge">equals</code> method for. Fortunately, we can improve our <code class="highlighter-rouge">equals</code> method by using <code class="highlighter-rouge">instanceof</code> instead of <code class="highlighter-rouge">getClass()</code>.</p>
 
-<h3 id="attempt-5-using-instanceof-instead-of-getclass">Attempt #5: using <code class="highlighter-rouge">instanceof</code> instead of <code class="highlighter-rouge">getClass()</code></h3>
+<h3 id="attempt-5-using-instanceof-instead-of-getclass">
+<a id="attempt-5-using-instanceof-instead-of-getclass" class="anchor" href="#attempt-5-using-instanceof-instead-of-getclass" aria-hidden="true"><span class="octicon octicon-link"></span></a>Attempt #5: using <code class="highlighter-rouge">instanceof</code> instead of <code class="highlighter-rouge">getClass()</code>
+</h3>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
 <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
@@ -292,6 +320,9 @@
 </code></pre></div></div>
 
 <p>This implementation is equivalent to the one generated by my IDE if I choose the option to use <code class="highlighter-rouge">instanceof</code> instead of <code class="highlighter-rouge">getClass()</code>. It passes all of our previous tests. In fact, as long as no subclass of <code class="highlighter-rouge">Point</code> ever overrides our <code class="highlighter-rouge">equals</code> (or <code class="highlighter-rouge">hashCode</code>) method, this will work just fine. This means that, when letting my IDE generate my <code class="highlighter-rouge">equals</code> and <code class="highlighter-rouge">hashCode</code> methods for me, I actually get a good implementation as long as I choose the right options.</p>
+
+<h3 id="what-if-a-subclass-needs-to-include-additional-state-in-equals">
+<a id="what-if-a-subclass-needs-to-include-additional-state-in-equals" class="anchor" href="#what-if-a-subclass-needs-to-include-additional-state-in-equals" aria-hidden="true"><span class="octicon octicon-link"></span></a>What if a subclass needs to include additional state in <code class="highlighter-rouge">equals</code>?</h3>
 
 <p>Things get more complicated if a subclass is going to add state and we want to include this state in its <code class="highlighter-rouge">equals</code> method. For example, let’s assume that we have an enum called <code class="highlighter-rouge">Color</code> and we create a class <code class="highlighter-rouge">ColorPoint</code> that extends the <code class="highlighter-rouge">Point</code> class with a specific color for a point.</p>
 
@@ -373,7 +404,7 @@
 
 <p>The <code class="highlighter-rouge">Point</code> and <code class="highlighter-rouge">ColorPoint</code> classes both satisfy all of the previous tests. If we would create a new subclass of <code class="highlighter-rouge">Point</code> or <code class="highlighter-rouge">ColorPoint</code> without overriding <code class="highlighter-rouge">equals</code>, <code class="highlighter-rouge">canEqual</code> or <code class="highlighter-rouge">hashCode</code> nothing unexpected would happen. If we want to create a new subclass of <code class="highlighter-rouge">Point</code> or <code class="highlighter-rouge">ColorPoint</code> that adds additional state and includes this state in its <code class="highlighter-rouge">equals</code> method, we need to override both <code class="highlighter-rouge">equals</code> and <code class="highlighter-rouge">canEqual</code>.</p>
 
-<p>As stated before, the only big drawback of this solution is the fact that it violates our original contract saying that “two <code class="highlighter-rouge">Point</code>s are equal if and only if they have the same x coordinate and the same y coordinate”.</p>
+<p>As stated before, the only big drawback of this approach is the fact that it breaks our original contract saying that “two <code class="highlighter-rouge">Point</code>s are equal if and only if they have the same x coordinate and the same y coordinate”. A piece of code operating on <code class="highlighter-rouge">Point</code> instances can not longer make the assumption that, if two <code class="highlighter-rouge">Point</code>s are not equal to each other, there must be some difference in their x or y coordinates. Indeed, this assumption no longer holds if some of the instances are <code class="highlighter-rouge">ColorPoint</code> instances. This is essentially a violation of the <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution principle</a>, although the article linked above doesn’t seem to agree.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Test</span>
 <span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>    
@@ -386,7 +417,8 @@
 <span class="o">}</span>
 </code></pre></div></div>
 
-<h2 id="how-to-handle-this-in-practice">How to handle this in practice</h2>
+<h2 id="how-to-handle-this-in-practice">
+<a id="how-to-handle-this-in-practice" class="anchor" href="#how-to-handle-this-in-practice" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to handle this in practice</h2>
 
 <p>In practice, the approach that you’ll typically want to follow is this:</p>
 
@@ -404,7 +436,8 @@
 
 <p>In cases where this is not sufficient (you want subclasses to include additional state in their <code class="highlighter-rouge">equals</code> method), consider using the solution involving the <code class="highlighter-rouge">canEqual</code> method.</p>
 
-<h2 id="testing-your-equals-methods">Testing your <code class="highlighter-rouge">equals</code> methods</h2>
+<h2 id="testing-your-equals-methods">
+<a id="testing-your-equals-methods" class="anchor" href="#testing-your-equals-methods" aria-hidden="true"><span class="octicon octicon-link"></span></a>Testing your <code class="highlighter-rouge">equals</code> methods</h2>
 
 <p>Testing an <code class="highlighter-rouge">equals</code> method by hand is a tedious task that will likely lead to pages and pages of error-prone testing code. Fortunately, there is a better solution: the <a href="http://jqno.nl/equalsverifier/">EqualsVerifier</a> library by Jan Ouwens. Using it is simple:</p>
 
@@ -414,9 +447,10 @@
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>It uses reflection to inspect your class and test its <code class="highlighter-rouge">equals</code> and <code class="highlighter-rouge">hashCode</code> methods with 100% coverage. It recognizes all of the possible issues that were outlined in this arcticle (and some others as well). If you’re confused by an error message it produces, have a look at <a href="http://jqno.nl/equalsverifier/errormessages/">this overview</a>. If you understand why EqualsVerifier complains about a certain issue but you need it to be less restrictive, you can pass it an additional option to make it ignore that issue. This library should be able to make hand-written <code class="highlighter-rouge">equals</code> tests a thing of the past.</p>
+<p>It uses reflection to inspect your class and test its <code class="highlighter-rouge">equals</code> and <code class="highlighter-rouge">hashCode</code> methods with 100% coverage. It recognizes all of the possible issues that were outlined in this article (and some others as well). If you’re confused by an error message it produces, have a look at <a href="http://jqno.nl/equalsverifier/errormessages/">this overview</a>. If you understand why EqualsVerifier complains about a certain issue but you need it to be less restrictive, you can pass it an additional option to make it ignore that issue. This library should be able to make hand-written <code class="highlighter-rouge">equals</code> tests a thing of the past.</p>
 
-<h2 id="resources">Resources</h2>
+<h2 id="resources">
+<a id="resources" class="anchor" href="#resources" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resources</h2>
 
 <ul>
   <li><a href="http://jqno.nl/equalsverifier/">EqualsVerifier</a></li>

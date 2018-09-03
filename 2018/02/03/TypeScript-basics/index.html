@@ -74,15 +74,31 @@
     </div>
 
     <div class="entry">
-        <p>TypeScript is an open source programming language created and maintained by Microsoft. It is based on JavaScript and it extends the JavaScript language with static typing, classes, generics, etc.</p>
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#most-important-features">Most important features</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#type-annotations">Type annotations</a></li>
+<li class="toc-entry toc-h3"><a href="#type-inference">Type inference</a></li>
+<li class="toc-entry toc-h3"><a href="#interfaces">Interfaces</a></li>
+<li class="toc-entry toc-h3"><a href="#classes">Classes</a></li>
+<li class="toc-entry toc-h3"><a href="#access-modifiers-and-readonly">Access modifiers and readonly</a></li>
+<li class="toc-entry toc-h3"><a href="#classes-implementing-interfaces">Classes implementing interfaces</a></li>
+<li class="toc-entry toc-h3"><a href="#inheritance">Inheritance</a></li>
+<li class="toc-entry toc-h3"><a href="#generics">Generics</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#getting-started">Getting started</a></li>
+</ul><p>TypeScript is an open source programming language created and maintained by Microsoft. It is based on JavaScript and it extends the JavaScript language with static typing, classes, generics, etc.</p>
 
 <p>TypeScript’s syntax is a strict superset of JavaScript, meaning that any valid JavaScript syntax is in principle also valid TypeScript syntax. Note, however, that this does not mean that TypeScript’s compiler will be happy with every piece of valid JavaScript. As an example, see the section on <code class="highlighter-rouge">type inference</code> below. TypeScript puts some restrictions on the way your code deals with types, with the goal of preventing mistakes and unexpected behavior.</p>
 
 <p>Instead of requiring a separate interpreter, Typescript compiles into plain JavaScript which can be executed by browsers, Node.js, or other JavaScript engines. Note that syntactically valid TypeScript code with compiler errors can still be compiled to JavaScript. The Typescript compiler is only warning us that we will likely see some unexpected behavior.</p>
 
-<h2 id="most-important-features">Most important features</h2>
+<h2 id="most-important-features">
+<a id="most-important-features" class="anchor" href="#most-important-features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Most important features</h2>
 
-<h3 id="type-annotations">Type annotations</h3>
+<h3 id="type-annotations">
+<a id="type-annotations" class="anchor" href="#type-annotations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Type annotations</h3>
 
 <p>Let’s start from a simple piece of JavaScript where a function <code class="highlighter-rouge">greet</code> takes a string <code class="highlighter-rouge">person</code> and shows a message greeting the person.</p>
 
@@ -110,10 +126,11 @@
 
 <span class="kd">let</span> <span class="nx">user</span> <span class="o">=</span> <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="s1">'visitor'</span> <span class="p">};</span>
 
-<span class="nx">greet</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span> <span class="c1">// typescript compiler error (type mismath)</span>
+<span class="nx">greet</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span> <span class="c1">// typescript compiler error (type mismatch)</span>
 </code></pre></div></div>
 
-<h3 id="type-inference">Type inference</h3>
+<h3 id="type-inference">
+<a id="type-inference" class="anchor" href="#type-inference" aria-hidden="true"><span class="octicon octicon-link"></span></a>Type inference</h3>
 
 <p>When you declare a variable, TypeScript will infer the variable’s type and perform type checking based on that.</p>
 
@@ -131,7 +148,8 @@
 <div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">user</span><span class="p">:</span> <span class="nx">string</span> <span class="o">=</span> <span class="s1">'test'</span><span class="p">;</span>
 </code></pre></div></div>
 
-<h3 id="interfaces">Interfaces</h3>
+<h3 id="interfaces">
+<a id="interfaces" class="anchor" href="#interfaces" aria-hidden="true"><span class="octicon octicon-link"></span></a>Interfaces</h3>
 
 <p>Interfaces allow you to describe what an object should look like. In the following example, we are defining <code class="highlighter-rouge">Person</code> as an object that has a firstName and lastName property (both strings).</p>
 
@@ -151,7 +169,8 @@
 
 <p>We don’t need to make it explicit that <code class="highlighter-rouge">user</code> is a <code class="highlighter-rouge">Person</code> when we declare it. When we pass <code class="highlighter-rouge">user</code> to the <code class="highlighter-rouge">greet</code> function, TypeScript will automatically check if it has the right structure.</p>
 
-<h3 id="classes">Classes</h3>
+<h3 id="classes">
+<a id="classes" class="anchor" href="#classes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Classes</h3>
 
 <p>TypeScript supports class-based object-oriented programming.</p>
 
@@ -191,13 +210,15 @@
 
 <p>Note that classes and interfaces play well together. Because a <code class="highlighter-rouge">Student</code> has a <code class="highlighter-rouge">firstName</code> and <code class="highlighter-rouge">lastName</code>, we can pass it to a function expecting a <code class="highlighter-rouge">Person</code> (like for example our <code class="highlighter-rouge">greetPerson</code> function).</p>
 
-<h3 id="access-modifiers-and-readonly">Access modifiers and readonly</h3>
+<h3 id="access-modifiers-and-readonly">
+<a id="access-modifiers-and-readonly" class="anchor" href="#access-modifiers-and-readonly" aria-hidden="true"><span class="octicon octicon-link"></span></a>Access modifiers and readonly</h3>
 
 <p>Class members (properties, constructors and methods) are <code class="highlighter-rouge">public</code> by default but can also be marked <code class="highlighter-rouge">private</code> (cannot be accessed from outside the class) and <code class="highlighter-rouge">protected</code> (like <code class="highlighter-rouge">private</code>, but can also be accessed from deriving classes).</p>
 
 <p>Properties can also be made <code class="highlighter-rouge">readonly</code>, meaning that they cannot be changed and they must be initialized at their declaration or from the constructor.</p>
 
-<h3 id="classes-implementing-interfaces">Classes implementing interfaces</h3>
+<h3 id="classes-implementing-interfaces">
+<a id="classes-implementing-interfaces" class="anchor" href="#classes-implementing-interfaces" aria-hidden="true"><span class="octicon octicon-link"></span></a>Classes implementing interfaces</h3>
 
 <p>Classes can implement interfaces. This way, an interface can enforce that a class meets a particular contract.</p>
 
@@ -218,7 +239,8 @@
 
 <p>Interfaces can also describe methods that a class should implement. Note that interfaces only describe the public contract of a class, you cannot use them to constrain the internal implementation of a class.</p>
 
-<h3 id="inheritance">Inheritance</h3>
+<h3 id="inheritance">
+<a id="inheritance" class="anchor" href="#inheritance" aria-hidden="true"><span class="octicon octicon-link"></span></a>Inheritance</h3>
 
 <p>TypeScript provides inheritance for interfaces and classes using the <code class="highlighter-rouge">extends</code> keyword.</p>
 
@@ -260,7 +282,8 @@
 <span class="c1">// Hello there!</span>
 </code></pre></div></div>
 
-<h3 id="generics">Generics</h3>
+<h3 id="generics">
+<a id="generics" class="anchor" href="#generics" aria-hidden="true"><span class="octicon octicon-link"></span></a>Generics</h3>
 
 <p>TypeScript provides generics that you can use to create reusable components.</p>
 
@@ -276,9 +299,10 @@
 <span class="nx">wrapper</span><span class="p">.</span><span class="nx">replaceWrapped</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="c1">// error: type mismatch</span>
 </code></pre></div></div>
 
-<h2 id="getting-started">Getting started</h2>
+<h2 id="getting-started">
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting started</h2>
 
-<p>The <a href="https://www.typescriptlang.org/samples/index.html">TypeScript quickstart page</a> contains some resouces to get you started, including frameworks like Angular that use TypeScript.</p>
+<p>The <a href="https://www.typescriptlang.org/samples/index.html">TypeScript quickstart page</a> contains some resources to get you started, including frameworks like Angular that use TypeScript.</p>
 
 <p>If you are just looking for a quick way to play around with the language, you can use the <a href="https://www.typescriptlang.org/play/index.html">Playground</a>.</p>
 

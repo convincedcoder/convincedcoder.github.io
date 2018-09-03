@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>It depends - the best answer to most software development questions – The Human Microphone – Software development blog with a focus on Java and Javascript</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="I think I have finally discovered the best answer to most software development questions. It goes like this: “It depends”.
+
+" />
+    <meta property="og:description" content="I think I have finally discovered the best answer to most software development questions. It goes like this: “It depends”.
+
+" />
+    
+    <meta name="author" content="The Human Microphone" />
+
+    
+    <meta property="og:title" content="It depends - the best answer to most software development questions" />
+    <meta property="twitter:title" content="It depends - the best answer to most software development questions" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="The Human Microphone - Software development blog with a focus on Java and Javascript" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+	<!-- using Ryan Fait's sticky footer to stick the footer at the bottom of the page or content, whichever is lower -->
+	
+	<div class="sticky-footer-wrapper">
+		<div class="wrapper-masthead">
+		  <div class="container">
+			<header class="masthead clearfix">
+			  <a href="/" class="site-avatar"><img src="/images/microphone.png" /></a>
+
+			  <div class="site-info">
+				<h1 class="site-name"><a href="/">The Human Microphone</a></h1>
+				<p class="site-description">Software development blog with a focus on Java and Javascript</p>
+			  </div>
+
+			  <nav>
+				<a href="/">Blog</a>
+				<a href="/about">About</a>
+			  </nav>
+			</header>
+		  </div>
+		</div>
+
+		<div id="main" role="main" class="container">
+		  <article class="post">
+    <h1>It depends - the best answer to most software development questions</h1>
+    
+    <div class="date">
+        2018-08-31
+    </div>
+
+    <div class=post-tags>
+               
+                 
+            <a href="/tag/software-development" class="tag">software-development</a>
+        
+    </div>
+
+    <div class="entry">
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#stop-looking-for-perfect-solutions">Stop looking for perfect solutions</a></li>
+<li class="toc-entry toc-h2"><a href="#start-looking-for-good-solutions-and-flexibility">Start looking for good solutions and flexibility</a></li>
+<li class="toc-entry toc-h2"><a href="#what-about-best-practices">What about best practices?</a></li>
+<li class="toc-entry toc-h2"><a href="#documentation-of-the-decision-process">Documentation of the decision process</a></li>
+<li class="toc-entry toc-h2"><a href="#moving-to-a-different-solution">Moving to a different solution</a></li>
+</ul><p>I think I have finally discovered the best answer to most software development questions. It goes like this: <em>“It depends”</em>.</p>
+
+<ul>
+  <li>Should I use Java or Node.js? <em>It depends</em>
+</li>
+  <li>Should I use SQL Server or MongoDB? <em>It depends</em>
+</li>
+  <li>Should I really have more unit than integration tests? <em>It depends</em>
+</li>
+  <li>Should I apply DDD when building this large application? <em>It depends</em>
+</li>
+</ul>
+
+<p>Of course, this answer in itself doesn’t get you anywhere. However, I do believe that almost every decision you make when developing or designing software is a trade-off. There are a lot of areas to consider, including development effort, maintenance effort, correctness, performance, usability, etc. Not only are most of these hard to quantify at the moment when you make the decision, but typically we also need to make tradeoffs within those areas. We may trade development time right now for development time when we are adding features. We may trade performance in handling use case A for performance in handling use case B.</p>
+
+<h2 id="stop-looking-for-perfect-solutions">
+<a id="stop-looking-for-perfect-solutions" class="anchor" href="#stop-looking-for-perfect-solutions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Stop looking for perfect solutions</h2>
+
+<p>When you are facing a challenge, it is very tempting to go looking for the perfect solution. I also regularly catch myself attempting to find <em>The Best Solution®</em> or to do something <em>The Right Way™</em>. The problem with this is that you are looking for something which probably doesn’t exist. Any approach you choose will likely have some drawbacks or limitations that some other approach doesn’t have. However, that other approach will likely have some drawbacks or limitations of its own. Everything is a tradeoff.</p>
+
+<p>This is what makes software development so interesting. It’s also what can make software development extremely frustrating at times.</p>
+
+<h2 id="start-looking-for-good-solutions-and-flexibility">
+<a id="start-looking-for-good-solutions-and-flexibility" class="anchor" href="#start-looking-for-good-solutions-and-flexibility" aria-hidden="true"><span class="octicon octicon-link"></span></a>Start looking for good solutions and flexibility</h2>
+
+<p>What should we look for, if we shouldn’t look for perfect solutions? I think we should be looking for two things:</p>
+
+<ul>
+  <li>Good solutions that make sense and for which we don’t see an alternative that is clearly much better</li>
+  <li>Flexibility through good architecture and coding practices</li>
+</ul>
+
+<p>If you are facing a challenge, there are likely several good solutions that will work well. After you’ve spent a reasonable amount of time thinking of solutions and researching existing ones, you will probably have a set of alternatives to choose from. If there is one solution that stands out, for example because its drawbacks are less relevant to your specific challenge than the drawbacks of the others, simply go with that solution. If you have a hard time choosing between a set of alternative solutions, the best course of action is probably to just choose one of them. The harder it is to decide between alternative solutions, the more likely it is that all of them are equally good. Just choosing one of them and implementing it will provide you with (hopefully) a working solution as well as a better understanding of both the challenge you are facing and the approach you have currently chosen.</p>
+
+<p>The application of good architecture and coding practices should provide you with some degree of flexibility, making it relatively easy to make changes to your software. These changes can include switching to a different solution from your set of alternatives, either because you discovered some new benefits or drawbacks of an approach or because your specific situation has changed. Do note, however, that the question of how much flexibility you need is also best answered using <em>“It depends”</em>. Additional flexibility typically comes a the expense of additional layers of abstraction, which may or may not be overkill for your application and team.</p>
+
+<h2 id="what-about-best-practices">
+<a id="what-about-best-practices" class="anchor" href="#what-about-best-practices" aria-hidden="true"><span class="octicon octicon-link"></span></a>What about best practices?</h2>
+
+<p>Best practices are widely accepted as good solutions, but that doesn’t mean they are perfect. Most best practices come with a warning label stating that there are probably some situations where you would want to use another option. This means that it is perfectly possible that you know a best practice, understand its benefits, but still choose to use a different solution. It’s not even that unusual that there are different best practice solutions to the same problem that use a completely different approach. If you see two schools of thought vehemently arguing over which is best, it is likely that they both have a good approach that will work.</p>
+
+<p>Then again, if there is one clear best practice approach regarding your problem and you don’t see a significant reason not to use it, you are probably better off going with that approach.</p>
+
+<h2 id="documentation-of-the-decision-process">
+<a id="documentation-of-the-decision-process" class="anchor" href="#documentation-of-the-decision-process" aria-hidden="true"><span class="octicon octicon-link"></span></a>Documentation of the decision process</h2>
+
+<p>When I am trying to find a good solution for a problem I’m facing, I find it helpful to document the benefits and drawbacks of the different alternatives, along with the reasons why I chose a particular one of them. If you need to reevaluate your approach at some point in time, you can use this documentation as a starting point for your analysis.</p>
+
+<h2 id="moving-to-a-different-solution">
+<a id="moving-to-a-different-solution" class="anchor" href="#moving-to-a-different-solution" aria-hidden="true"><span class="octicon octicon-link"></span></a>Moving to a different solution</h2>
+
+<p>What if, for some reason, you are convinced that the approach you are currently using is clearly inferior to some other approach? Even if your architecture and code are flexible, there are some costs and risks associated with making the change. The benefits of switching to the other approach may or may not outweigh those costs and risks. So, should you make the change? <em>It depends.</em></p>
+
+    </div>
+
+    
+</article>
+
+		</div>
+		
+		<div class="sticky-footer-push"></div>
+	</div>
+
+    <div class="wrapper-footer sticky-footer-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/thehumanmicrophone/thehumanmicrophone.github.io"><i class="svg-icon github"></i></a>
+
+
+
+
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>

@@ -74,9 +74,17 @@
     </div>
 
     <div class="entry">
-        <p>This post explains why I decided to use Jekyll for my blog and how you could set up your own blog using Jekyll and GitHub Pages.</p>
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#what-i-was-looking-for">What I was looking for</a></li>
+<li class="toc-entry toc-h2"><a href="#jekyll-and-github-pages">Jekyll and GitHub Pages</a></li>
+<li class="toc-entry toc-h2"><a href="#jekyll-now">Jekyll Now</a></li>
+<li class="toc-entry toc-h2"><a href="#structure-of-a-post">Structure of a post</a></li>
+<li class="toc-entry toc-h2"><a href="#running-jekyll-locally">Running Jekyll locally</a></li>
+<li class="toc-entry toc-h2"><a href="#resources">Resources</a></li>
+</ul><p>This post explains why I decided to use Jekyll for my blog and how you could set up your own blog using Jekyll and GitHub Pages.</p>
 
-<h2 id="what-i-was-looking-for">What I was looking for</h2>
+<h2 id="what-i-was-looking-for">
+<a id="what-i-was-looking-for" class="anchor" href="#what-i-was-looking-for" aria-hidden="true"><span class="octicon octicon-link"></span></a>What I was looking for</h2>
 
 <p>When deciding on which platform to use for my software development blog, I first looked at a number of popular services like Wordpress and Medium. However, none of them was able to satisfy my main requirements:</p>
 
@@ -85,7 +93,8 @@
   <li>Give me full control over the look and feel of my blog</li>
 </ul>
 
-<h2 id="jekyll-and-github-pages">Jekyll and GitHub Pages</h2>
+<h2 id="jekyll-and-github-pages">
+<a id="jekyll-and-github-pages" class="anchor" href="#jekyll-and-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Jekyll and GitHub Pages</h2>
 
 <p>If you’re a software developer looking to start a blog, <a href="https://jekyllrb.com/">Jekyll</a> is a great option. As the Jekyll documentation says:</p>
 
@@ -117,17 +126,19 @@ function () {
 
 <p>The fact that Jekyll generates your blog as a static website means that you can effortlessly host the generated files on a service like <a href="https://pages.github.com/">GitHub Pages</a>. However, GitHub Pages has another interesting feature: it has built-in Jekyll support. This means that you can put the source files for your Jekyll site inside your GitHub Pages repository and GitHub Pages will automatically generate your site for you and serve the generated pages.</p>
 
-<h2 id="jekyll-now">Jekyll Now</h2>
+<h2 id="jekyll-now">
+<a id="jekyll-now" class="anchor" href="#jekyll-now" aria-hidden="true"><span class="octicon octicon-link"></span></a>Jekyll Now</h2>
 
-<p><img src="/images/2018-01-20-How-I-created-this-blog/jekyll-now-theme-screenshot.jpg" alt="Jekyll Now screenshot" /></p>
+<p><img src="/images/2018-01-20-How-I-created-this-blog/jekyll-now-theme-screenshot.jpg" alt="Jekyll Now screenshot"></p>
 
 <p>If you are looking for a quick way to set up a Jekyll blog on GitHub Pages, <a href="https://github.com/barryclark/jekyll-now">Jekyll Now</a> is an excellent option. It contains all the necessary files to set up a basic Jekyll blog. Just fork the repository according to the instructions and you can immediately start putting your blog posts in the <code class="highlighter-rouge">_posts</code> directory. You don’t even have to install anything on your own machine if you don’t want to, as GitHub’s online editor has built-in Markdown support.</p>
 
 <p>If you want to modify the look and feel of your blog, you can start modifying <code class="highlighter-rouge">index.html</code>, <code class="highlighter-rouge">style.scss</code>, the layouts in the <code class="highlighter-rouge">_layouts</code> folder and the additional styles in the <code class="highlighter-rouge">_sass</code> folder.</p>
 
-<p>The look of any highlighted code on your blog is defined in the <code class="highlighter-rouge">_sass/_variables.scss</code> file. Jekyll uses <a href="http://rouge.jneen.net/">Rouge</a> for syntax highlighting. Rouge transforms source code into HTML where the code is divided into <code class="highlighter-rouge">&lt;span&gt;</code> elements with a class that indicates what they represent (keyword, string literal, …). The <code class="highlighter-rouge">_sass/_variables.scss</code> file then defines what color to use for each of those classes. I based my version of this file on <a href="https://github.com/pages-themes/modernist/blob/master/_sass/rouge-base16-dark.scss">the highlighing style used by the GitHub Pages Modernist theme</a>.</p>
+<p>The look of any highlighted code on your blog is defined in the <code class="highlighter-rouge">_sass/_variables.scss</code> file. Jekyll uses <a href="http://rouge.jneen.net/">Rouge</a> for syntax highlighting. Rouge transforms source code into HTML where the code is divided into <code class="highlighter-rouge">&lt;span&gt;</code> elements with a class that indicates what they represent (keyword, string literal, …). The <code class="highlighter-rouge">_sass/_variables.scss</code> file then defines what color to use for each of those classes. I based my version of this file on <a href="https://github.com/pages-themes/modernist/blob/master/_sass/rouge-base16-dark.scss">the highlighting style used by the GitHub Pages Modernist theme</a>.</p>
 
-<h2 id="structure-of-a-post">Structure of a post</h2>
+<h2 id="structure-of-a-post">
+<a id="structure-of-a-post" class="anchor" href="#structure-of-a-post" aria-hidden="true"><span class="octicon octicon-link"></span></a>Structure of a post</h2>
 
 <p>Every blog post is a file that starts with <a href="https://jekyllrb.com/docs/frontmatter/">YAML front matter</a>. This is what the front matter for this post looks like:</p>
 
@@ -144,7 +155,8 @@ tags: jekyll github-pages
 
 <p>If you want to have a look at what the Markdown file for this post looks like, you can find it <a href="https://github.com/thehumanmicrophone/thehumanmicrophone.github.io-source/blob/master/_posts/2018-01-20-How-I-created-this-blog.md">here</a>.</p>
 
-<h2 id="running-jekyll-locally">Running Jekyll locally</h2>
+<h2 id="running-jekyll-locally">
+<a id="running-jekyll-locally" class="anchor" href="#running-jekyll-locally" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running Jekyll locally</h2>
 
 <p>If you’re using Jekyll Now with GitHub Pages, you can in principle create a blog without having to install Jekyll (and Ruby, which is what Jekyll runs on) on your local machine. A big drawback of this approach is that, in order to see the result of any changes you make, you need to commit them to your GitHub Pages repository and wait for your site to be generated again. If you want to make some significant changes to the look and feel of your site, I would recommend to install Jekyll locally. This way, you can generate your site locally during development and only push to GitHub when you are satisfied with the result. See <a href="https://help.github.com/articles/setting-up-your-github-pages-site-locally-with-jekyll/">this guide</a> for more information on how to do that. An important part of this setup is the <code class="highlighter-rouge">github-pages</code> gem, which contains Jekyll and the Jekyll Plugins supported by GitHub Pages. If you let GitHub Pages generate your site for you, it is important to keep you local version of the <code class="highlighter-rouge">github-pages</code> gem up to date so the way your site is generated locally is consistent with the way it will be generated by GitHub Pages.</p>
 
@@ -155,9 +167,10 @@ tags: jekyll github-pages
   <li>If GitHub Pages makes any changes to the way their built-in Jekyll behaves, you can decide if and when you are going to adjust your site and local setup.</li>
 </ul>
 
-<p>These advantages are the reason why I chose to generate my site locally and only upload the generated site to GitHub Pages. Of course, this approach has the disadvantage that it is now your own responsibility to make sure that your generated site is consistent with the source files. However, as I am the only person maintaining this blog, that shouldn’t be a problem.</p>
+<p>These advantages are the reason why I chose to generate my site locally and only upload the generated site to GitHub Pages. Of course, this approach has the disadvantage that it is now my own responsibility to make sure that my generated site is consistent with the source files. However, as I am the only person maintaining this blog, that shouldn’t be a problem.</p>
 
-<h2 id="resources">Resources</h2>
+<h2 id="resources">
+<a id="resources" class="anchor" href="#resources" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resources</h2>
 
 <ul>
   <li><a href="https://jekyllrb.com/">Jekyll</a></li>
