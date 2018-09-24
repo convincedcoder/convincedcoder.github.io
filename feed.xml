@@ -1,4 +1,151 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-09-03T23:35:50+02:00</updated><id>http://localhost:4000/</id><title type="html">thehumanmicrophone.github.io-source.git</title><subtitle>Software development blog with a focus on Java and Javascript</subtitle><entry><title type="html">Optimistic and pessimistic locking with SQL</title><link href="http://localhost:4000/2018/09/01/Optimistic-pessimistic-locking-sql/" rel="alternate" type="text/html" title="Optimistic and pessimistic locking with SQL" /><published>2018-09-01T00:00:00+02:00</published><updated>2018-09-01T00:00:00+02:00</updated><id>http://localhost:4000/2018/09/01/Optimistic-pessimistic-locking-sql</id><content type="html" xml:base="http://localhost:4000/2018/09/01/Optimistic-pessimistic-locking-sql/">&lt;p&gt;This post explains the optimistic and pessimistic locking strategies with a focus on their application in systems interacting with relational databases. Regardless of the focus on SQL, the main concepts discussed here are not SQL-specific and are also applicable in other areas.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-09-24T18:06:36+02:00</updated><id>http://localhost:4000/</id><title type="html">thehumanmicrophone.github.io-source.git</title><subtitle>Software development blog with a focus on Java and Javascript</subtitle><entry><title type="html">SQL, NoSQL and NewSQL</title><link href="http://localhost:4000/2018/09/08/SQL-NoSQL-NewSQL/" rel="alternate" type="text/html" title="SQL, NoSQL and NewSQL" /><published>2018-09-08T00:00:00+02:00</published><updated>2018-09-08T00:00:00+02:00</updated><id>http://localhost:4000/2018/09/08/SQL-NoSQL-NewSQL</id><content type="html" xml:base="http://localhost:4000/2018/09/08/SQL-NoSQL-NewSQL/">&lt;p&gt;This post is my attempt at providing a very high-level overview of the data store landscape, covering relational databases (SQL), NoSQL and NewSQL data stores.&lt;/p&gt;
+
+&lt;h2 id=&quot;relational-databases-sql&quot;&gt;Relational databases (SQL)&lt;/h2&gt;
+
+&lt;p&gt;Relational databases have been around for several decades. The first commercial relational database management system (RDBMS) was Oracle and became available in 1979, almost 40 years ago at the time of writing. Today, an enormous number of applications use an RDBMS as their main data storage. Popular RDBMSes include Oracle, MySQL, Microsoft SQL Server and PostgreSQL.&lt;/p&gt;
+
+&lt;p&gt;Today’s relational databases are mature systems and there are lots of developers and database administrators that have several years of experience in dealing with them. This means that there is a wealth of knowledge available on best practices, how to tackle certain issues, etc.&lt;/p&gt;
+
+&lt;p&gt;Although there is an SQL standard describing the query language and behavior of relational databases, different databases typically provide a different dialect of that query language and they may differ significantly in their behavior in some cases (although possibly all within the bounds of the standard).&lt;/p&gt;
+
+&lt;h3 id=&quot;tables-rows-relationships-and-schemas&quot;&gt;Tables, rows, relationships and schemas&lt;/h3&gt;
+
+&lt;p&gt;In relational databases, data is stored in tables (actually called relations in relational terminology). Each table has a set of columns, each of a certain type, that can hold data for the rows in the table. Typically, each table has a subset of columns, the table’s primary key (PK), that uniquely identifies each row in the table. There may also be other subsets of columns uniquely identifying each row in the table , known as alternate keys (AK). Indexes can be defined on columns or sets of columns. The columns in an index may or may not form a key.&lt;/p&gt;
+
+&lt;p&gt;Rows and different tables can be linked to each other through relationships. A table can link to another table by including the column(s) of that table’s primary Key. This is called a foreign key (FK). This way, it is possible to link rows in a table to rows in another table, forming one-to-one relationships and one-to-many relationships. It is also possible to represent many-to-many relationships by using an intermediate table to store foreign keys to both tables in the relationship.&lt;/p&gt;
+
+&lt;p&gt;All of the tables, columns, keys, relationships, etc. are defined in the database schema. The database actively enforces the schema and forbids data that doesn’t match it (incorrect data type for a column, foreign key linking to a row that doesn’t exist, …).&lt;/p&gt;
+
+&lt;h3 id=&quot;sql&quot;&gt;SQL&lt;/h3&gt;
+
+&lt;p&gt;All popular relational databases use SQL (Structured Query Language), a declarative language that allows performing CRUD operations on the data and the database schema as SQL queries. The fact that SQL is declarative means that you specify &lt;em&gt;what&lt;/em&gt; you want your query to do instead of &lt;em&gt;how&lt;/em&gt; to do it. The database system itself figures out a how exactly the query will be performed. This can simplify things, but it can also make it challenging to optimize queries that get executed in a sub-optimal way.&lt;/p&gt;
+
+&lt;h3 id=&quot;acid-properties&quot;&gt;ACID properties&lt;/h3&gt;
+
+&lt;p&gt;An important feature of RDBMSes is that they provide transactions. A transaction is a set of database operations that act as a single operation. Transactions have four main characteristics (also known as the ACID properties):&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;em&gt;Atomicity&lt;/em&gt;: A transaction is treated as a single unit that either succeeds completely or fails completely. If some operation fails as part of a transaction, the entire transaction is rolled back, including the changes that other operations may have performed. The system must guarantee this in every situation, even if the system crashes right after a transaction is successfully committed.&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;Consistency&lt;/em&gt;: The execution of the transaction must bring the database to a valid state, respecting the database’s schema.&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;Isolation&lt;/em&gt;: Isolation means that, although multiple transactions may be running concurrently, their effects on each other’s execution are limited. Relational database systems typically provide multiple isolation levels, where higher levels protect against more concurrency-induced phenomena than lower levels. The highest level, &lt;em&gt;Serializable&lt;/em&gt;, guarantees that the effect of multiple transactions executing concurrently is the same as the effect of some possible sequential execution of those transactions. My post about optimistic and pessimistic locking using SQL contains some more info regarding transaction levels. Note that the behavior of isolation levels may vary widely across relational database systems.&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;Durability&lt;/em&gt;: Once a transaction has been successfully committed, it will remain so, even if the system crashes, power is shut off, etc. right after the transaction has completed.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;These ACID properties provide guarantees that come in very handy when developing applications that perform concurrent operations on the database. For example, no matter how many concurrent transactions are executing, you will never be able to set a foreign key from a row to another row that does not exist (but maybe did exist when you retrieved your data).&lt;/p&gt;
+
+&lt;h3 id=&quot;normalization&quot;&gt;Normalization&lt;/h3&gt;
+
+&lt;p&gt;In designing the schema of a relational database, normalization is something to take into account. I won’t go into detail here, but basically normalization boils down to preventing the existence of redundant data in your database as it is a source of possible inconsistencies. The way to get rid of this redundant data is generally to introduce a new table.&lt;/p&gt;
+
+&lt;p&gt;As an example, consider you have a table with of items with item id, description, manufacturer name and manufacturer country. In this case, storing the manufacturer’s country in every row is a form of redundant data: if we know the manufacturer, we also know the country. And what if we change the manufacturer for a row but forget to change the country? The solution here is to create a separate table for manufacturers, with their country, and refer to that table from the items table.&lt;/p&gt;
+
+&lt;h2 id=&quot;nosql&quot;&gt;NoSQL&lt;/h2&gt;
+
+&lt;p&gt;NoSQL databases became popular in the early twenty-first century, mainly because of the limitations in the scalability of relational databases.&lt;/p&gt;
+
+&lt;p&gt;When you need to scale up because your current setup has trouble handling its load, your generally have two options:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Vertical scaling: make your machines more powerful by adding CPU power, memory, faster disks, etc.&lt;/li&gt;
+  &lt;li&gt;Horizontal scaling: add more machines and distribute the load between them&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Once you reach a certain scale, horizontal scaling becomes cheaper than vertical scaling (cheaper to have several modest machines than to have one extremely powerful machine). Additionally, horizontal scaling allows you to easily scale up further by adding additional machines. Unfortunately, horizontal scaling is not something that traditional relational database are good at.&lt;/p&gt;
+
+&lt;p&gt;The term NoSQL encompasses lots of different data stores with different concepts, approaches, query languages, etc. that offer a solution to some problem for which relational databases are maybe not an ideal solution. However, in order to achieve this, they generally need to make compromises in terms of features and the guarantees offered by the data store. This could lead to you having to implement some things on the application side that would just be handled by the database if you were using an RDBMS.&lt;/p&gt;
+
+&lt;h3 id=&quot;the-cap-theorem&quot;&gt;The CAP theorem&lt;/h3&gt;
+
+&lt;p&gt;NoSQL databases are often deployed in a distributed fashion, either for horizontal scalability or for high availability (failure of a few instances doesn’t bring the entire system down). A well-known concept in the world of distributed data stores is the CAP theorem. It is centered around three properties:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;em&gt;Consistency&lt;/em&gt;: Every read returns either the relevant value as it was written by the latest successful write or an error.&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;Availability&lt;/em&gt;: Every request receives a non-error response.&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;Partition tolerance&lt;/em&gt;: The system keeps working, even if any number of messages is dropped or delayed by the network that connects the different instances. Consider for example the effect of a network partition, where sections of the network get cut off from each other.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The CAP theorem states that, for a distributed data store, it is not possible to provide more than two out of the above three properties. Because no network is safe from failures, a distributed system typically has no other choice than to be partition tolerant to some extent. This means that a choice should be made between availability and consistency.&lt;/p&gt;
+
+&lt;p&gt;Different NoSQL data stores focus on different properties regarding their distributed deployment. A CP system will behave in a consistent fashion but stop working if there is a network partition. An AP system will always keep working (as long as some active nodes survive) but may behave in an inconsistent fashion (e.g., returning stale data because the most recent write was not yet replicated to the node(s) answering your query).&lt;/p&gt;
+
+&lt;h4 id=&quot;cap-consistency-vs-acid-consistency&quot;&gt;CAP consistency vs. ACID consistency&lt;/h4&gt;
+
+&lt;p&gt;Note that CAP’s consistency is not the same as ACID’s consistency. In fact, when relational databases are deployed in a distributed fashion, there are typically different modes available that have an impact on CAP consistency. For example, when settings up a high-availability cluster for Microsoft SQL Server, you have the choice between the availability modes &lt;em&gt;synchronous commit&lt;/em&gt; and &lt;em&gt;asynchronous commit&lt;/em&gt;. Synchronous commit waits to return for a transaction until it has effectively been synchronized to other instances. Keeping instances synchronized means that no data is lost if the primary instance crashes and another instance takes over, but a transaction may not be able to complete if there are network failures that hinder the synchronization. On the other hand, asynchronous commit does not wait for other instances to catch up. This means that freshly-committed data may be lost if the primary instance crashes before the secondary instances have caught up.&lt;/p&gt;
+
+&lt;h4 id=&quot;nosql-vs-acid&quot;&gt;NoSQL vs. ACID&lt;/h4&gt;
+
+&lt;p&gt;NoSQL systems differ in what they offer in terms of the ACID guarantees that relational databases provide. Some NoSQL systems may not even provide any form of transactions at all. Others may only provide transactional integrity at the level of a single entry (which may contain structured data or an array of values). When having to deal with a lack of transactional support, here are a couple of possible strategies:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Redesign your data model so you don’t need more transactional support than what the system offers&lt;/li&gt;
+  &lt;li&gt;Perform the required concurrency control at the level of your application&lt;/li&gt;
+  &lt;li&gt;Tolerate the possible concurrency issues caused by not having transactions and adjust your application and possibly your users’ expectations to this&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;People that are used to working with a non-distributed relational database should be especially careful when working with a system that decided to limit CAP consistency. Depending on the system and maybe its configuration, the system may introduce the possibility for inconsistencies in areas where you took consistency for granted.&lt;/p&gt;
+
+&lt;h3 id=&quot;types-of-nosql-data-stores&quot;&gt;Types of NoSQL data stores&lt;/h3&gt;
+
+&lt;p&gt;This section includes some well-known types of NoSQL data stores. This is not intended to be complete list of all possible types.&lt;/p&gt;
+
+&lt;h4 id=&quot;document-store&quot;&gt;Document store&lt;/h4&gt;
+
+&lt;p&gt;Document stores may be the first thing you think about when you think about NoSQL. They are typically the main candidate for storing your application’s domain data if you don’t want to store that data in a relational database. A very well-known example of a document store is MongoDB.&lt;/p&gt;
+
+&lt;p&gt;In a document store, your data is stored as documents containing structured data (think something JSON-like). When performing queries, you can typically retrieve or filter on data inside the documents.&lt;/p&gt;
+
+&lt;p&gt;A document store can be a good fit for data that has a hierarchical structure, as you can just put the entire structure in a document. This works well for one-to-one and one-to-many relationships, but many-to-many relationships can be hard to model in a document database. Suppose, for example, that you want to store information on actors, movies and which actors played in which movies. One option is to include the data regarding actors inside the documents for the movies or vice versa. This is denormalization (see also normalization in the SQL part) and will lead to duplicate data and the possibility for inconsistencies. Another approach is to have documents for actors, documents for movies, and storing references to movies inside actors. This is similar to the concept of foreign keys in relational databases. However, document stores often do not offer real foreign key constraints, so there is nothing on the database level preventing you from deleting an actor that a movie still refers to.&lt;/p&gt;
+
+&lt;p&gt;Often, document stores are schemaless, meaning that the database does not enforce a certain structure of the documents you store in it. Typically, this does not mean that there is no schema for the data, but it means that that schema is either implicitly or explicitly defined by your application rather than at the database level. A schemaless database offers more flexibility in the face of changes to the structure of your data. Specifically, it allows data with the old structure to sit next to data with the new structure, without forcing you to migrate the old data to the new structure (yet). The drawback of this is that your application needs to be able to handle the different structures and that the existence of documents of the same type with different structures can make maintenance difficult if you don’t take care to document the changes to the data’s structure and migrate old data when it makes sense.&lt;/p&gt;
+
+&lt;p&gt;One more thing to note with regards to document stores is that some relational databases actually offer document store capabilities. For example, newer versions of PostgreSQL allows storing JSON data and performing queries based on the contents of that JSON data. This can be a good option if some of your data is hierarchical in nature but you still want ACID capabilities. If you don’t need to query based on the actual contents of the structured data, you can even just use any relational database and store the data as text in a column.&lt;/p&gt;
+
+&lt;h4 id=&quot;key-value-store&quot;&gt;Key-value store&lt;/h4&gt;
+
+&lt;p&gt;A key-value store is made for storing data as a dictionary. This means that all the data is stored in the database as a value with a unique key identifying that value. Values for different keys can have different data types. Data types offered by a key-value store may include strings, lists of strings, sets of strings and even key-value maps. It is up to the application to determine what the keys look like. For example, if you want to store data for users, you may use the key &lt;code class=&quot;highlighter-rouge&quot;&gt;user:1&lt;/code&gt; for the user with id 1.&lt;/p&gt;
+
+&lt;p&gt;A popular use case for key-value stores is setting up clusters of key-value stores that store data in-memory and using them as a very fast distributed cache for often-retrieved data.&lt;/p&gt;
+
+&lt;h4 id=&quot;graph-database&quot;&gt;Graph database&lt;/h4&gt;
+
+&lt;p&gt;Graph databases are a good fit when your data can naturally be represented as a network of nodes connected by edges that represent relationships between nodes. An example of this are people on a social network site and their friends. If you model this as each person being a node and each friendship being an edge connecting nodes, storing the data in a graph database hep you recommend friends of friends, identify clusters of people that are all friends of each other, etc.&lt;/p&gt;
+
+&lt;p&gt;A well-known example of a graph database is Neo4j. It is also interesting to know that there actually exist extensions to RBMSes (for example PostgreSQL) that offer graph database capabilities as well.&lt;/p&gt;
+
+&lt;h4 id=&quot;time-series-database&quot;&gt;Time-series database&lt;/h4&gt;
+
+&lt;p&gt;Time-series databases are aimed at storing values that change throughout time. An obvious use case for this is storing data obtained from sensors that are constantly measuring values like temperature, humidity, etc. Time-series databases have storage engines and query languages that are optimized for storing time-series data, making it easy and efficient to perform time-based queries. An example would be to take a year’s worth of temperature measurements (one measurement each minute) and then retrieve the maximum and minimum measured temperature per week.&lt;/p&gt;
+
+&lt;p&gt;Some example of time-series databases are InfluxDB and SiriDB. Also note that there exist extensions to RBMSes that offer time-series database capabilities. A example of this is Timescale, which builds upon PostgreSQL.&lt;/p&gt;
+
+&lt;h2 id=&quot;newsql&quot;&gt;NewSQL&lt;/h2&gt;
+
+&lt;p&gt;NewSQL systems are a class of relational database management systems that aim at providing the ACID guarantees of relational databases with the horizontal scalability of NoSQL databases. There are several categories of NewSQL databases:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Completely new systems, often built from scratch with distributed deployment being a major focus. They often use techniques that are similar to the techniques used by NoSQL databases. Examples include Google Spanner and CockroachDB. These systems typically have some limitations with regards to the features they support or the extent to which they provide true ACID guarantees.&lt;/li&gt;
+  &lt;li&gt;SQL storage engines optimized for horizontal scalability, replacing the default storage engines of relational databases. These storage engines may have some limitations that are not present in the database’s default storage engine.&lt;/li&gt;
+  &lt;li&gt;Middleware that sits on top of a cluster of relational database instances. An example is Vitess. Note that these systems may not offer ACID guarantees.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;which-one-to-use&quot;&gt;Which one to use?&lt;/h2&gt;
+
+&lt;p&gt;As is often the case, choosing which data store to use is a tradeoff and their is likely no “wrong” or “right” choice. Your choice will likely depend on the kind of data you need to store, the scalability you need, the consistency you need, the knowledge of your team, etc.&lt;/p&gt;
+
+&lt;p&gt;Also note that there is no rule stating that you should use either SQL, NoSQL or NewSQL. For example, it is very common to use a relational database for your application’s domain data but use a key-value store for caching purposes. Additionally, it could be a good idea to store parts of your domain data in a relational database and other parts in a document database, depending on which one is a better fit for which part of the data. Of course, using multiple systems also means having to keep multiple systems running smoothly.&lt;/p&gt;
+
+&lt;h2 id=&quot;resources&quot;&gt;Resources&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Relational_database&quot;&gt;Relational database&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/ACID_(computer_science)&quot;&gt;ACID (computer science)&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Database_normalization&quot;&gt;Database normalization&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/NoSQL&quot;&gt;NoSQL&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/CAP_theorem&quot;&gt;CAP theorem&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/sql/database-engine/availability-groups/windows/availability-modes-always-on-availability-groups?view=sql-server-2017&quot;&gt;SQL Server Availability Modes&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://stackoverflow.com/a/39210371&quot;&gt;Living Without Transactions&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://stackoverflow.com/questions/5029580/patterns-for-schema-changes-in-document-databases&quot;&gt;Patterns for Schema Changes in Document Databases&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/NewSQL&quot;&gt;NewSQL&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><category term="sql" /><category term="nosql" /><category term="newsql" /><summary type="html">This post is my attempt at providing a very high-level overview of the data store landscape, covering relational databases (SQL), NoSQL and NewSQL data stores.</summary></entry><entry><title type="html">Optimistic and pessimistic locking with SQL</title><link href="http://localhost:4000/2018/09/01/Optimistic-pessimistic-locking-sql/" rel="alternate" type="text/html" title="Optimistic and pessimistic locking with SQL" /><published>2018-09-01T00:00:00+02:00</published><updated>2018-09-01T00:00:00+02:00</updated><id>http://localhost:4000/2018/09/01/Optimistic-pessimistic-locking-sql</id><content type="html" xml:base="http://localhost:4000/2018/09/01/Optimistic-pessimistic-locking-sql/">&lt;p&gt;This post explains the optimistic and pessimistic locking strategies with a focus on their application in systems interacting with relational databases. Regardless of the focus on SQL, the main concepts discussed here are not SQL-specific and are also applicable in other areas.&lt;/p&gt;
 
 &lt;h2 id=&quot;why-locking&quot;&gt;Why locking?&lt;/h2&gt;
 
@@ -24,6 +171,8 @@
 
 &lt;p&gt;The typical use case for optimistic locking is retrieving an object, making some changes to it (possibly done by a user) and then saving the result while verifying that no other changes have been made in the meantime. However, it also allows you to lock objects that you need to stay unchanged until after you complete your operation. You can achieve this by simply saving the object as you retrieved it. If this doesn’t yield a conflict, you know that the object hasn’t changed in the meantime. This strategy could be applicable to our example with items being linked to a group.&lt;/p&gt;
 
+&lt;h4 id=&quot;benefits-and-drawbacks&quot;&gt;Benefits and drawbacks&lt;/h4&gt;
+
 &lt;p&gt;A big benefit of optimistic locking is the flexibility it offers. You don’t have to care about when and where the “base version” of your object was retrieved. There’s no need for it to be retrieved inside the same transaction where you save the object. This is especially desirable when you need to wait for user input to make the changes, like in our example with users editing descriptions. In such a case, it would be very impractical to keep a database transaction open while a users edits an item. Typically, the user will make separate calls to retrieve the item and to save it, which may even be handled by different instances of your application in a cluster.&lt;/p&gt;
 
 &lt;p&gt;Some sources claim that, when using optimistic locking, deadlocks are not possible because it never issues any database-level locks. Further down this post, I will show that this is not true and that optimistic locking (combined with the common transaction isolation level Read Committed) actually acquires a database-level lock from when you save data until your transaction is committed. However, the flexibility of optimistic locking makes it straightforward to prevent deadlocks by always saving objects in the same order (and thus always acquiring database-level locks in the same order).&lt;/p&gt;
@@ -35,6 +184,8 @@
 &lt;p&gt;Pessimistic locking, as the name implies, uses a less optimistic approach. It assumes that conflicts will occur and it actively blocks anything that could possibly cause a conflict.&lt;/p&gt;
 
 &lt;p&gt;When interacting with a relational database, this is done by actively locking database rows or even database tables when you retrieve the data you will operate on. The locks will be held until your transaction completes. There are generally two types of locks: shared locks (read locks) and exclusive locks (write locks). Shared locks are used for reading data that you simply need to stay the same until your operation completes. A shared lock allows others to take a shared lock as well (you still allow others to read the object as this does not create a conflict). Exclusive locks are used for reading and updating data that you want to change. Exclusive locks do not allow anyone else to take a lock on the same data. Any attempts to obtain a lock when it’s not allowed at the time will block until the conflicting locks are released.&lt;/p&gt;
+
+&lt;h4 id=&quot;benefits-and-drawbacks-1&quot;&gt;Benefits and drawbacks&lt;/h4&gt;
 
 &lt;p&gt;The main benefit of pessimistic locking is that you can completely prevent conflicts from occurring, meaning that you don’t have to deal with the situation where you have a conflict. This can also make it the best-performing strategy in high-concurrency environments where the chance of having conflicts is high.&lt;/p&gt;
 
@@ -50,8 +201,6 @@
 
 &lt;p&gt;Note that it is possible for different locking strategies to exist at different levels in your application. As an example, let’s take the application where users can edit items and their descriptions. A possible approach could be to require users to “check out” items before editing them, blocking other users from editing those items while they are checked out. The system would use an additional table to store which item is checked out by which user. This is a form of pessimistic locking. However, at the level of the communication with the database, conflicts caused by users concurrently trying to check out the same item could be dealt with using optimistic locking.&lt;/p&gt;
 
-&lt;p&gt;It is in principle even possible use different locking strategies in the way different parts of your application communicate with your relational database.&lt;/p&gt;
-
 &lt;h2 id=&quot;implementation-using-sql&quot;&gt;Implementation using SQL&lt;/h2&gt;
 
 &lt;p&gt;Note: for my comments regarding database-level locking in this section, I am assuming a transaction isolation level of Read Committed, which is the default level in several popular relational databases (and even the lowest available level for some). For SQL that differs between databases, I am using the PostgreSQL dialect here.&lt;/p&gt;
@@ -66,29 +215,33 @@
 &lt;span class=&quot;k&quot;&gt;BEGIN&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TRANSACTION&lt;/span&gt;               &lt;span class=&quot;k&quot;&gt;BEGIN&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TRANSACTION&lt;/span&gt;
 
 &lt;span class=&quot;k&quot;&gt;UPDATE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;                    &lt;span class=&quot;k&quot;&gt;UPDATE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;items&lt;/span&gt; 
-&lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;       &lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'newNameA'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;          &lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'newNameB'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;          &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
 
 &lt;span class=&quot;k&quot;&gt;UPDATE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;                    &lt;span class=&quot;k&quot;&gt;UPDATE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;items&lt;/span&gt; 
-&lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;       &lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'newNameD'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;          &lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'newNameC'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;          &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
 
 &lt;span class=&quot;k&quot;&gt;COMMIT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TRANSACTION&lt;/span&gt;              &lt;span class=&quot;k&quot;&gt;COMMIT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TRANSACTION&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;Let’s assume that these transactions execute concurrently and that both have executed their first UPDATE statement. If transaction A then executes its second update statement, it will block and wait for transaction B to either commit or roll back (the result of the statement depends on uncommitted changes made by transaction B). If transaction B then executes its second update statement, we have a deadlock.&lt;/p&gt;
+&lt;p&gt;Let’s assume that these transactions execute concurrently and that both have executed their first UPDATE statement. If transaction A then executes its second update statement, it will block and wait for transaction B to either commit or roll back (the result of the statement depends on uncommitted changes made by transaction B). If transaction B then executes its second update statement, we have a deadlock. Fortunately, the flexibility of optimistic locking makes it easy to prevent deadlocks by always locking rows in the same order.&lt;/p&gt;
 
-&lt;h3 id=&quot;optimistic-locking-using-outputreturning&quot;&gt;Optimistic locking using OUTPUT/RETURNING&lt;/h3&gt;
+&lt;h3 id=&quot;optimistic-locking-using-outputreturning-or-a-separate-select-query&quot;&gt;Optimistic locking using OUTPUT/RETURNING or a separate SELECT query&lt;/h3&gt;
 
-&lt;p&gt;Another way of implementing optimistic locking is using the OUTPUT (SQL Server) or RETURNING (PostgreSQL) statement that allows an UPDATE statement to return the updated data. Note that not all relational databases offer this kind of statement. Here is an example of such a statement.&lt;/p&gt;
+&lt;p&gt;Another way of implementing optimistic locking is by obtaining the resulting version number after the update. If it’s more than one higher than the original version, you know there has been another change in the meantime. This strategy can be implemented using the OUTPUT (SQL Server) or RETURNING (PostgreSQL) statement that allows an UPDATE statement to return the updated data. Note that not all relational databases offer this kind of statement. Here is an example of such a statement.&lt;/p&gt;
 
 &lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;UPDATE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'newName'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
 &lt;span class=&quot;n&quot;&gt;RETURNING&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;In this case, the update returns the actual version resulting from the update and your application can check if this matches the expected new version number. Just like the first implementation, this locks the updated rows until the end of the transaction.&lt;/p&gt;
+
+&lt;p&gt;For databases not supporting the OUTPUT or RETURNING clause, a separate SELECT statement can be used. Note that, even without the RETURNING statement, the above query locks the row until the end of the transaction.&lt;/p&gt;
 
 &lt;h3 id=&quot;pessimistic-locking-1&quot;&gt;Pessimistic locking&lt;/h3&gt;
 
@@ -128,7 +281,7 @@
 
 &lt;p&gt;One alternative to optimistic and pessimistic locking is to structure your data and application in such a way that all of your updates are made using atomic UPDATE statements that only update the actually changed data. If an item has both a code and a name, you could foresee separate calls to update either one of them and implement those using simple UPDATE statements that update only the new code or name. This could be a good solution for concurrency issues encountered in a simple CRUD application where the typical retrieve-modify-save approach of ORMs can lead to data being lost. Do note, however, that this may get tricky when relations are involved. There may also be situations where the new value to save depends on other existing values.&lt;/p&gt;
 
-&lt;p&gt;This approach could also be applicable when the validity of an update depends on the status of a related object, but only if we move the checks for that to the database. For example, if we want to update an item’s group and be entirely sure that we don’t link to an inactive group, we could foresee a separate table with the IDs of active groups and link items to that table. However, if you choose this approach, you need a good way of handling errors.&lt;/p&gt;
+&lt;p&gt;This approach could also be applicable when the validity of an update depends on the status of a related object, but only if we move the checks for that to the database. For example, if we want to update an item’s group and be entirely sure that we don’t link to an inactive group, we could foresee a separate table with the IDs of active groups and link items to that table.&lt;/p&gt;
 
 &lt;p&gt;An important remark is that this approach does not solve the problem of data being lost if multiple users concurrently edit the description for the same item based on the same initial version.&lt;/p&gt;
 
@@ -172,10 +325,10 @@
 &lt;/ul&gt;</content><author><name></name></author><category term="concurrency" /><category term="sql" /><summary type="html">This post explains the optimistic and pessimistic locking strategies with a focus on their application in systems interacting with relational databases. Regardless of the focus on SQL, the main concepts discussed here are not SQL-specific and are also applicable in other areas.</summary></entry><entry><title type="html">It depends - the best answer to most software development questions</title><link href="http://localhost:4000/2018/08/31/It-depends/" rel="alternate" type="text/html" title="It depends - the best answer to most software development questions" /><published>2018-08-31T00:00:00+02:00</published><updated>2018-08-31T00:00:00+02:00</updated><id>http://localhost:4000/2018/08/31/It-depends</id><content type="html" xml:base="http://localhost:4000/2018/08/31/It-depends/">&lt;p&gt;I think I have finally discovered the best answer to most software development questions. It goes like this: &lt;em&gt;“It depends”&lt;/em&gt;.&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;Should I use Java or Node.js? &lt;em&gt;It depends&lt;/em&gt;&lt;/li&gt;
-  &lt;li&gt;Should I use SQL Server or MongoDB? &lt;em&gt;It depends&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;Should I use Java or Node.js for my web application’s back end? &lt;em&gt;It depends&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;Should I use a relational or NoSQL database? And which one? &lt;em&gt;It depends&lt;/em&gt;&lt;/li&gt;
   &lt;li&gt;Should I really have more unit than integration tests? &lt;em&gt;It depends&lt;/em&gt;&lt;/li&gt;
-  &lt;li&gt;Should I apply DDD when building this large application? &lt;em&gt;It depends&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;Is it bad to have an anemic domain model? &lt;em&gt;It depends&lt;/em&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;Of course, this answer in itself doesn’t get you anywhere. However, I do believe that almost every decision you make when developing or designing software is a trade-off. There are a lot of areas to consider, including development effort, maintenance effort, correctness, performance, usability, etc. Not only are most of these hard to quantify at the moment when you make the decision, but typically we also need to make tradeoffs within those areas. We may trade development time right now for development time when we are adding features. We may trade performance in handling use case A for performance in handling use case B.&lt;/p&gt;
@@ -201,7 +354,7 @@
 
 &lt;h2 id=&quot;what-about-best-practices&quot;&gt;What about best practices?&lt;/h2&gt;
 
-&lt;p&gt;Best practices are widely accepted as good solutions, but that doesn’t mean they are perfect. Most best practices come with a warning label stating that there are probably some situations where you would want to use another option. This means that it is perfectly possible that you know a best practice, understand its benefits, but still choose to use a different solution. It’s not even that unusual that there are different best practice solutions to the same problem that use a completely different approach. If you see two schools of thought vehemently arguing over which is best, it is likely that they both have a good approach that will work.&lt;/p&gt;
+&lt;p&gt;Best practices are widely accepted as good solutions, but that doesn’t mean they are perfect. Most best practices come with a warning label stating that there are probably some situations where you would want to use another option. This means that it is perfectly possible that you know a best practice, understand its benefits, but still choose to use a different solution. There may even be different best practice solutions to the same problem that use a completely different approach. If you see two schools of thought vehemently arguing over which is best, it is likely that they both have a good approach that will work.&lt;/p&gt;
 
 &lt;p&gt;Then again, if there is one clear best practice approach regarding your problem and you don’t see a significant reason not to use it, you are probably better off going with that approach.&lt;/p&gt;
 
