@@ -1,4 +1,310 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-09-29T15:59:32+02:00</updated><id>http://localhost:4000/</id><title type="html">thehumanmicrophone.github.io-source.git</title><subtitle>Software development blog with a focus on Java and Javascript</subtitle><entry><title type="html">SQL, NoSQL and NewSQL</title><link href="http://localhost:4000/2018/09/08/SQL-NoSQL-NewSQL/" rel="alternate" type="text/html" title="SQL, NoSQL and NewSQL" /><published>2018-09-08T00:00:00+02:00</published><updated>2018-09-08T00:00:00+02:00</updated><id>http://localhost:4000/2018/09/08/SQL-NoSQL-NewSQL</id><content type="html" xml:base="http://localhost:4000/2018/09/08/SQL-NoSQL-NewSQL/">&lt;p&gt;This post is my attempt at providing a very high-level overview of the data store landscape, covering relational databases (SQL), NoSQL and NewSQL data stores.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-11-06T11:18:59+01:00</updated><id>http://localhost:4000/</id><title type="html">thehumanmicrophone.github.io-source.git</title><subtitle>Software development blog with a focus on Java and Javascript</subtitle><entry><title type="html">Java generics, wildcards and type erasure</title><link href="http://localhost:4000/2018/09/29/Java-generics-wildcards-type-erasure/" rel="alternate" type="text/html" title="Java generics, wildcards and type erasure" /><published>2018-09-29T00:00:00+02:00</published><updated>2018-09-29T00:00:00+02:00</updated><id>http://localhost:4000/2018/09/29/Java-generics-wildcards-type-erasure</id><content type="html" xml:base="http://localhost:4000/2018/09/29/Java-generics-wildcards-type-erasure/">&lt;p&gt;This post contains a high-level review of Java generics.&lt;/p&gt;
+
+&lt;h2 id=&quot;introducing-the-animal-and-dog-class&quot;&gt;Introducing the Animal and Dog class&lt;/h2&gt;
+
+&lt;p&gt;This post will assume that we have two extremely simple classes, &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;Dog&lt;/code&gt;, where the latter is a subclass of the former.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Animal&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;makeSound&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;I'm an animal!&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Dog&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;makeSound&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Woof!&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;generics-basics&quot;&gt;Generics basics&lt;/h2&gt;
+
+&lt;p&gt;Java generics allow to define classes, interfaces and methods that work with different types. This happens by adding one or more type parameters.&lt;/p&gt;
+
+&lt;p&gt;A simple example of a generic interface is the List interface, which allows to specify the type of objects in the list.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ArrayList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dog&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Object&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// compiler error&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The following is an example of a simple generic method.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getFirstAnimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;animals&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;animals&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The above example also shows an example of a &lt;em&gt;type bound&lt;/em&gt;: it allows &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt; to be the &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt; class or any of its subclasses. The same mechanism can be used for the type parameters of generic classes. Also note that the type parameter can be used inside the class.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AnimalWrapper&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
+    &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wrappedAnimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;AnimalWrapper&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wrappedAnimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;wrappedAnimal&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wrappedAnimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getWrappedAnimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;wrappedAnimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;wildcards&quot;&gt;Wildcards&lt;/h2&gt;
+
+&lt;p&gt;Suppose that you need a list of &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt;s for something and you define it as a &lt;code class=&quot;highlighter-rouge&quot;&gt;List&amp;lt;Animal&amp;gt;&lt;/code&gt;. Can you just pass a &lt;code class=&quot;highlighter-rouge&quot;&gt;List&amp;lt;Dog&amp;gt;&lt;/code&gt; in that case?&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ArrayList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;animalList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// compiler error&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The reason why this fails is that a proper &lt;code class=&quot;highlighter-rouge&quot;&gt;List&amp;lt;Animal&amp;gt;&lt;/code&gt; allows adding any &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt;, while a &lt;code class=&quot;highlighter-rouge&quot;&gt;List&amp;lt;Dog&amp;gt;&lt;/code&gt; should only allow adding &lt;code class=&quot;highlighter-rouge&quot;&gt;Dog&lt;/code&gt;s. This means that the two types are not compatible. However, if we only care about the fact that our List contains some kind of &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt;s, we can use type wildcards to define this.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ArrayList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;?&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;extendsAnimalList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// works&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;If we define our List as a &lt;code class=&quot;highlighter-rouge&quot;&gt;List&amp;lt;? extends Animal&amp;gt;&lt;/code&gt;, we specify that this is a List of &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt; or one of its subclasses. This means that each element in the list is some kind of &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt;. Note that this does not allow us to add any kind of &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt; to the list, because as for all we know, the List might be a &lt;code class=&quot;highlighter-rouge&quot;&gt;List&amp;lt;Dog&amp;gt;&lt;/code&gt; or a List of some other subclass of &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;? extends Animal&lt;/code&gt; is called a &lt;em&gt;subtype wildcard&lt;/em&gt;. Another type of wildcard is the &lt;em&gt;supertype wildcard&lt;/em&gt;, for example &lt;code class=&quot;highlighter-rouge&quot;&gt;? super Dog&lt;/code&gt;. If we define a &lt;code class=&quot;highlighter-rouge&quot;&gt;List&amp;lt;? super Dog&amp;gt;&lt;/code&gt;, we know that we have a List of &lt;code class=&quot;highlighter-rouge&quot;&gt;Dog&lt;/code&gt; or one of its supertypes. This means that, whatever the specific type of the List is, the list will always allow us to add a &lt;code class=&quot;highlighter-rouge&quot;&gt;Dog&lt;/code&gt; object to it. However, we cannot make any assumptions regarding the types of objects in the list.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ArrayList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;();&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;?&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;extendsAnimalList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;animal&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;extendsAnimalList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// works&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;extendsAnimalList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// compiler error&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;?&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;super&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;superDogList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;animal2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;superDogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// compiler error&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;superDogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// works&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;You could also use a wildcard without bounds when you are doing something very generic and don’t care at all about the value of the type parameter.&lt;/p&gt;
+
+&lt;h2 id=&quot;generics-in-the-java-virtual-machine&quot;&gt;Generics in the Java Virtual Machine&lt;/h2&gt;
+
+&lt;p&gt;In order to get a better understanding of how generics behave in Java, it helps to take a look at what’s happening under the hood.&lt;/p&gt;
+
+&lt;h3 id=&quot;type-erasure&quot;&gt;Type erasure&lt;/h3&gt;
+
+&lt;p&gt;Java only added generics in version 1.5. Before that, instead of the generic &lt;code class=&quot;highlighter-rouge&quot;&gt;ArrayList&amp;lt;T&amp;gt;&lt;/code&gt;, there was just the class &lt;code class=&quot;highlighter-rouge&quot;&gt;ArrayList&lt;/code&gt;. When introducing generics, the Java team decided to maintain compatibility by actually erasing the generic type information at compile time, meaning that the byte code running in the Java Virtual Machine does not know anything about generics.&lt;/p&gt;
+
+&lt;p&gt;As an example, consider let’s go back to our &lt;code class=&quot;highlighter-rouge&quot;&gt;AnimalWrapper&lt;/code&gt; class.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AnimalWrapper&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
+    &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wrappedAnimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;AnimalWrapper&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wrappedAnimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;wrappedAnimal&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wrappedAnimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getWrappedAnimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;wrappedAnimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This generic type is compiled into the follow &lt;em&gt;raw&lt;/em&gt; type:&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AnimalWrapper&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
+    &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wrappedAnimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;AnimalWrapper&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wrappedAnimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;wrappedAnimal&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wrappedAnimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getWrappedAnimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;wrappedAnimal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Note that the wrappedAnimal has now become an &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt; after type erasure. This makes sense: our type bound restricted the type T to be &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt; or one of its subclasses. Type parameters without type bounds are erased to &lt;code class=&quot;highlighter-rouge&quot;&gt;Object&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Before erasing the types, the compiler checks for errors involving generic types. For example, it will forbid wrapping an &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt; in an &lt;code class=&quot;highlighter-rouge&quot;&gt;AnimalWrapper&amp;lt;Dog&amp;gt;&lt;/code&gt;. This means that, although the types are erased later on, we know that the type variables are respected.&lt;/p&gt;
+
+&lt;h3 id=&quot;cast-insertion&quot;&gt;Cast insertion&lt;/h3&gt;
+
+&lt;p&gt;Although the compiler checks for generic type mismatches, that this in itself is not always enough. An example is the following code:&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ArrayList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;();&lt;/span&gt;        
+&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rawList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;        
+&lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;animal&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;rawList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The code will generate compiler warnings, but if you ignore those, it can compile and run without issues. This is strange, because we now have an &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt; object sitting in a &lt;code class=&quot;highlighter-rouge&quot;&gt;List&amp;lt;Dog&amp;gt;&lt;/code&gt;. This is known as &lt;em&gt;heap pollution&lt;/em&gt;. What about type safety?&lt;/p&gt;
+
+&lt;p&gt;Well, the way this is handled in Java is that the compiler inserts a cast whenever the code &lt;em&gt;reads&lt;/em&gt; from an expression with erased type. This means that, while we can add the &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt; to our &lt;code class=&quot;highlighter-rouge&quot;&gt;List&amp;lt;Dog&amp;gt;&lt;/code&gt;, we will get a &lt;code class=&quot;highlighter-rouge&quot;&gt;ClassCastException&lt;/code&gt; if we try to retrieve that &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt; as a &lt;code class=&quot;highlighter-rouge&quot;&gt;Dog&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ArrayList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;();&lt;/span&gt;  
+&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rawList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;animal&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;rawList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;retrievedAnimal&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// works&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;retrievedDog&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// ClassCastException&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The behavior of the above code can be explained by looking at the compiled code, which is equivalent to the code below.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ArrayList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;  
+&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rawList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;animal&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;rawList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// note that the erased List.get() method returns an Object&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// cast insertion generates casts based on target type&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;retrievedAnimal&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// works&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;retrievedDog&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// ClassCastException&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Note that we don’t get an exception when we try to retrieve the &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt; as an actual &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt;. Also note that, when we get the &lt;code class=&quot;highlighter-rouge&quot;&gt;ClassCastException&lt;/code&gt; on the last line, that does not help us to find the actual source of the problem (which is the code where we inserted an &lt;code class=&quot;highlighter-rouge&quot;&gt;Animal&lt;/code&gt; inside a &lt;code class=&quot;highlighter-rouge&quot;&gt;List&amp;lt;Dog&amp;gt;&lt;/code&gt;). When debugging such problem, it can be useful to use a checked view of the &lt;code class=&quot;highlighter-rouge&quot;&gt;List&lt;/code&gt;. This checks the type of inserted objects as they are inserted.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 
+    &lt;span class=&quot;n&quot;&gt;Collections&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;checkedList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ArrayList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rawList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;animal&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;rawList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// ClassCastException&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Note the use of &lt;code class=&quot;highlighter-rouge&quot;&gt;Dog.class&lt;/code&gt;, a &lt;code class=&quot;highlighter-rouge&quot;&gt;Class&amp;lt;Dog&amp;gt;&lt;/code&gt; instance which is needed to know the actual value of the type parameter for the &lt;code class=&quot;highlighter-rouge&quot;&gt;List&lt;/code&gt;. We will revisit the &lt;code class=&quot;highlighter-rouge&quot;&gt;Class&amp;lt;T&amp;gt;&lt;/code&gt; class further down this post.&lt;/p&gt;
+
+&lt;h3 id=&quot;bridge-methods&quot;&gt;Bridge methods&lt;/h3&gt;
+
+&lt;p&gt;In some cases, basic type erasure would lead to problems with method overriding. In order to prevent this, the Java compiler sometimes generates &lt;em&gt;bridge methods&lt;/em&gt;. As an example, consider the class &lt;code class=&quot;highlighter-rouge&quot;&gt;GoodBoyList&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;GoodBoyList&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ArrayList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;{&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;pet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;():&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Now, let’s say we use this class in the following way:&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;GoodBoyList&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;goodBoyList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;GoodBoyList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;ArrayList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;goodBoyList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;dogList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;After erasure, the last line calls the erased &lt;code class=&quot;highlighter-rouge&quot;&gt;add(Object)&lt;/code&gt; method on the &lt;code class=&quot;highlighter-rouge&quot;&gt;ArrayList&lt;/code&gt; class. We would expect the &lt;code class=&quot;highlighter-rouge&quot;&gt;add(Dog)&lt;/code&gt; method on &lt;code class=&quot;highlighter-rouge&quot;&gt;GoodBoyList&lt;/code&gt; to override that method, but the problem is that the method signatures are different.&lt;/p&gt;
+
+&lt;p&gt;The compiler solves this by inserting a bridge method &lt;code class=&quot;highlighter-rouge&quot;&gt;add(Object)&lt;/code&gt; into the &lt;code class=&quot;highlighter-rouge&quot;&gt;GoodBoyList&lt;/code&gt; class. That method looks like this:&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// overrides ArrayList.add(Object)&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; 
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// calls add(Dog) &lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;After erasure, it is the bridge method actually overrides the &lt;code class=&quot;highlighter-rouge&quot;&gt;ArrayList.add(Object)&lt;/code&gt; method. It then calls the &lt;code class=&quot;highlighter-rouge&quot;&gt;GoodBoyList.add(Dog)&lt;/code&gt; method.&lt;/p&gt;
+
+&lt;p&gt;Bridge methods can also be used when the return type varies. For example, imagine that our &lt;code class=&quot;highlighter-rouge&quot;&gt;GoodBoyList&lt;/code&gt; also overrides the &lt;code class=&quot;highlighter-rouge&quot;&gt;get(int)&lt;/code&gt; method.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;GoodBoyList&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ArrayList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;{&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dog&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;pet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;():&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;After erasure, we need a bridge method to make overriding work here. This way, we get two &lt;code class=&quot;highlighter-rouge&quot;&gt;get&lt;/code&gt; methods in &lt;code class=&quot;highlighter-rouge&quot;&gt;GoodBoyList&lt;/code&gt;:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Dog get(int)&lt;/code&gt;: this is the actual method as defined in &lt;code class=&quot;highlighter-rouge&quot;&gt;GoodBoyList&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Object get(int)&lt;/code&gt;: this is a generated bridge method that overrides the &lt;code class=&quot;highlighter-rouge&quot;&gt;Object get(int)&lt;/code&gt; method in &lt;code class=&quot;highlighter-rouge&quot;&gt;ArrayList&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This may seem strange, because the compiler would never allow you to write a class with two methods with the same name taking the same number and type of arguments. However, inside the Java Virtual Machine, a method is defined by its name, the number and types of its arguments &lt;em&gt;and&lt;/em&gt; by its return type. This is why the bridge method is needed, and also why it is allowed to exist.&lt;/p&gt;
+
+&lt;p&gt;The compiler takes care of the generation of bridge methods, so in principle you don’t have to worry about them. However, they may show up in stack traces or explain why the compiler complains about certain pieces of code.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-class-class&quot;&gt;The Class class&lt;/h2&gt;
+
+&lt;p&gt;The Java language has a &lt;code class=&quot;highlighter-rouge&quot;&gt;Class&amp;lt;T&amp;gt;&lt;/code&gt; class. A &lt;code class=&quot;highlighter-rouge&quot;&gt;Class&amp;lt;T&amp;gt;&lt;/code&gt; object represent the class &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt;. This class object can directly be obtained from the class &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt;. It is also possible to to get a &lt;code class=&quot;highlighter-rouge&quot;&gt;Class&lt;/code&gt; object from an instance of a class, but in that case you are getting the actual run-time type of that instance, which may be a subclass of its compile-time type.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;Class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;test&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// ok&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;test2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// error&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;?&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;test3&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// ok&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;You can use the &lt;code class=&quot;highlighter-rouge&quot;&gt;Class&lt;/code&gt; class to get more information regarding the value of a type variable at run-time (so after type erasure). As an example, the below code for the &lt;code class=&quot;highlighter-rouge&quot;&gt;Test&lt;/code&gt; class forces you to pass a &lt;code class=&quot;highlighter-rouge&quot;&gt;Class&amp;lt;T&amp;gt;&lt;/code&gt; object where &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt; is exactly value of the type variable of class &lt;code class=&quot;highlighter-rouge&quot;&gt;Test&lt;/code&gt;. Even though the generic type information is erased during compilation, you can still determine the type of objects you are dealing with by looking at the &lt;code class=&quot;highlighter-rouge&quot;&gt;Class&lt;/code&gt; instance.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
+    &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;object&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;objectClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Main&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;            
+        &lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dog&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Animal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Note that the &lt;code class=&quot;highlighter-rouge&quot;&gt;Class&lt;/code&gt; object we receive is the exact class of the type parameter’s value, but it is not necessarily the exact class of the object that we receive. That object may be an instance of a subclass.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Class&amp;lt;T&amp;gt;&lt;/code&gt; object is also very useful when using reflection. For example, it can help you access the constructor(s) for the class.&lt;/p&gt;
+
+&lt;h2 id=&quot;generics-restrictions&quot;&gt;Generics restrictions&lt;/h2&gt;
+
+&lt;h3 id=&quot;type-arguments-cannot-be-primitives&quot;&gt;Type arguments cannot be primitives&lt;/h3&gt;
+
+&lt;p&gt;A type parameter must always be &lt;code class=&quot;highlighter-rouge&quot;&gt;Object&lt;/code&gt; or a subclass of &lt;code class=&quot;highlighter-rouge&quot;&gt;Object&lt;/code&gt;. This means that, for example, it is not possible to define an &lt;code class=&quot;highlighter-rouge&quot;&gt;ArrayList&amp;lt;int&amp;gt;&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;at-runtime-all-types-are-raw&quot;&gt;At runtime, all types are raw&lt;/h3&gt;
+
+&lt;p&gt;Type erasure means that, at runtime, all types are raw. Therefore, something like &lt;code class=&quot;highlighter-rouge&quot;&gt;if (object instanceof ArrayList&amp;lt;Dog&amp;gt;)&lt;/code&gt; will not compile because this check is impossible to execute at compile time.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Class&lt;/code&gt; instances that you get are also always raw types. There is no &lt;code class=&quot;highlighter-rouge&quot;&gt;ArrayList&amp;lt;Dog&amp;gt;.class&lt;/code&gt;, only &lt;code class=&quot;highlighter-rouge&quot;&gt;ArrayList.class&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;type-variables-cannot-be-instantiated&quot;&gt;Type variables cannot be instantiated&lt;/h3&gt;
+
+&lt;p&gt;If you have a type variable &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt;, you cannot do &lt;code class=&quot;highlighter-rouge&quot;&gt;new T(...)&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;new T[...]&lt;/code&gt; (array). This is forbidden because of type erasure (you would be instantiating the erased value for &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt;, not &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt; itself).&lt;/p&gt;
+
+&lt;p&gt;If you want to construct objects of type &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt; or arrays of type &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt; inside a generic method, you will have to ask the caller for the right object or array constructor or for a &lt;code class=&quot;highlighter-rouge&quot;&gt;Class&lt;/code&gt; object.&lt;/p&gt;
+
+&lt;p&gt;Note that, while you cannot instantiate an array of type &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt;, you can easily create an &lt;code class=&quot;highlighter-rouge&quot;&gt;ArrayList&amp;lt;T&amp;gt;&lt;/code&gt;. This is because &lt;code class=&quot;highlighter-rouge&quot;&gt;ArrayList&lt;/code&gt; is a generic type itself, while in order to create an array of type &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt; we would need the exact type &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt; at runtime.&lt;/p&gt;
+
+&lt;h3 id=&quot;its-impossible-to-create-arrays-of-parameterized-types&quot;&gt;It’s impossible to create arrays of parameterized types&lt;/h3&gt;
+
+&lt;p&gt;Although you can declare arrays of a parameterized type (e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;AnimalWrapper&amp;lt;Dog&amp;gt;[]&lt;/code&gt;), it is not possible to instantiate an array of that type. This is because, after erasure, we would just get an &lt;code class=&quot;highlighter-rouge&quot;&gt;AnimalWrapper[]&lt;/code&gt; array that allows any kind of &lt;code class=&quot;highlighter-rouge&quot;&gt;AnimalWrapper&lt;/code&gt; without throwing an &lt;code class=&quot;highlighter-rouge&quot;&gt;ArrayStoreException&lt;/code&gt;. If that is what you want, you can create an &lt;code class=&quot;highlighter-rouge&quot;&gt;AnimalWrapper[]&lt;/code&gt; and then cast it to &lt;code class=&quot;highlighter-rouge&quot;&gt;AnimalWrapper&amp;lt;Dog&amp;gt;[]&lt;/code&gt; (this will generate compiler warnings though).&lt;/p&gt;
+
+&lt;p&gt;The simplest solution if often to just create an &lt;code class=&quot;highlighter-rouge&quot;&gt;ArrayList&amp;lt;AnimalWrapper&amp;lt;Dog&amp;gt;&amp;gt;&lt;/code&gt; instead.&lt;/p&gt;
+
+&lt;h3 id=&quot;class-type-variables-are-not-valid-in-static-contexts&quot;&gt;Class type variables are not valid in static contexts&lt;/h3&gt;
+
+&lt;p&gt;Type variables defined at the level of the class cannot be used in static contexts (static variables and static methods). For example, if you have a class with type parameter &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt;, you cannot have a static variable of type &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt;. This makes sense: you can use a class multiple times with different values for &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt; but a static variable only exists once (on the raw type), so it’s impossible to have a static variable with the exact type &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt; for each of those values.&lt;/p&gt;
+
+&lt;p&gt;Remember that you can still use type variables in static contexts if they are not defined at the level of the class. For example, you can have a static method parameterized with type &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt; if that type parameter is declared at the level of the method.&lt;/p&gt;
+
+&lt;h3 id=&quot;methods-may-not-clash-after-erasure&quot;&gt;Methods may not clash after erasure&lt;/h3&gt;
+
+&lt;p&gt;You are not allowed to declare methods that would clash after erasure (meaning that, after erasure, there would be two methods with the same signature).&lt;/p&gt;
+
+&lt;p&gt;Note that this includes bridge methods! If you get a compiler error about methods clashing after erasure, it’s possible that the clash is generated by the bridge methods generated by the compiler. This is why it’s important to have some understanding of what these bridge methods are.&lt;/p&gt;
+
+&lt;h3 id=&quot;exceptions-and-generics&quot;&gt;Exceptions and generics&lt;/h3&gt;
+
+&lt;p&gt;It’s not possible to throw objects of a generic class. This makes sense, because catching instances of a generic class with a specific type parameter would require information that is not available at runtime.&lt;/p&gt;
+
+&lt;p&gt;However, it is allowed to have a type variable in your &lt;code class=&quot;highlighter-rouge&quot;&gt;throws&lt;/code&gt; declaration, as this is checked by the compiler.&lt;/p&gt;
+
+&lt;h2 id=&quot;resources&quot;&gt;Resources&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Core Java SE 9 for the Impatient (book by Cay S. Horstmann)&lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><category term="java" /><summary type="html">This post contains a high-level review of Java generics.</summary></entry><entry><title type="html">SQL, NoSQL and NewSQL</title><link href="http://localhost:4000/2018/09/08/SQL-NoSQL-NewSQL/" rel="alternate" type="text/html" title="SQL, NoSQL and NewSQL" /><published>2018-09-08T00:00:00+02:00</published><updated>2018-09-08T00:00:00+02:00</updated><id>http://localhost:4000/2018/09/08/SQL-NoSQL-NewSQL</id><content type="html" xml:base="http://localhost:4000/2018/09/08/SQL-NoSQL-NewSQL/">&lt;p&gt;This post is my attempt at providing a very high-level overview of the data store landscape, covering relational databases (SQL), NoSQL and NewSQL data stores.&lt;/p&gt;
 
 &lt;h2 id=&quot;relational-databases-sql&quot;&gt;Relational databases (SQL)&lt;/h2&gt;
 
@@ -109,13 +415,13 @@
 
 &lt;p&gt;Graph databases are a good fit when your data can naturally be represented as a network of nodes connected by edges that represent relationships between nodes. An example of this are people on a social network site and their friends. If you model this as each person being a node and each friendship being an edge connecting nodes, storing the data in a graph database hep you recommend friends of friends, identify clusters of people that are all friends of each other, etc.&lt;/p&gt;
 
-&lt;p&gt;A well-known example of a graph database is Neo4j. It is also interesting to know that there actually exist extensions to RBMSes (for example PostgreSQL) that offer graph database capabilities as well.&lt;/p&gt;
+&lt;p&gt;A well-known example of a graph database is Neo4j. It is also interesting to know that there actually exist extensions to RDBMSes (for example PostgreSQL) that offer graph database capabilities as well.&lt;/p&gt;
 
 &lt;h4 id=&quot;time-series-database&quot;&gt;Time-series database&lt;/h4&gt;
 
 &lt;p&gt;Time-series databases are aimed at storing values that change throughout time. An obvious use case for this is storing data obtained from sensors that are constantly measuring values like temperature, humidity, etc. Time-series databases have storage engines and query languages that are optimized for storing time-series data, making it easy and efficient to perform time-based queries. An example would be to take a year’s worth of temperature measurements (one measurement each minute) and then retrieve the maximum and minimum measured temperature per week.&lt;/p&gt;
 
-&lt;p&gt;Some example of time-series databases are InfluxDB and SiriDB. Also note that there exist extensions to RBMSes that offer time-series database capabilities. A example of this is Timescale, which builds upon PostgreSQL.&lt;/p&gt;
+&lt;p&gt;Some example of time-series databases are InfluxDB and SiriDB. Also note that there exist extensions to RDBMSes that offer time-series database capabilities. A example of this is Timescale, which builds upon PostgreSQL.&lt;/p&gt;
 
 &lt;h2 id=&quot;newsql&quot;&gt;NewSQL&lt;/h2&gt;
 
@@ -602,7 +908,7 @@
   &lt;li&gt;Symmetry: if a is equal to b, then b is also equal to a&lt;/li&gt;
   &lt;li&gt;Transitivity: if a is equal to b and b is equal to c, then a is also equal to c&lt;/li&gt;
   &lt;li&gt;Consistency: if a is equal to b right now, then a is always equal to b as long as none of their state that is used in the &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method has been modified&lt;/li&gt;
-  &lt;li&gt;Non-nullity: a actual object is never equal to &lt;code class=&quot;highlighter-rouge&quot;&gt;null&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Non-nullity: an actual object is never equal to &lt;code class=&quot;highlighter-rouge&quot;&gt;null&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&quot;introducing-the-point-class&quot;&gt;Introducing the &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt; class&lt;/h2&gt;
@@ -642,9 +948,9 @@
     &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;point1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;point2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;points&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Arrays&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;asList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-				
+                
     &lt;span class=&quot;n&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;equals&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// this succeeds&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;points&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;contains&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// this fails		&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;points&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;contains&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// this fails&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -662,16 +968,27 @@
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
+&lt;h4 id=&quot;short-aside-method-overloading-and-overriding-rules-in-java&quot;&gt;Short aside: method overloading and overriding rules in Java&lt;/h4&gt;
+
+&lt;p&gt;When calling methods, Java determines the exact method to call in a way that can be confusing. There are basically two steps:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;At compile time, the number and compile-time types of the arguments are used to determine the exact &lt;em&gt;signature&lt;/em&gt; of the method that will be invoked.&lt;/li&gt;
+  &lt;li&gt;At runtime, if the method to be invoked is an instance method, the actual method to invoke will be determined using dynamic method lookup based on the actual run time type of the object and the structure of the inheritance hierarchy.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;In the code above, we have two classes: &lt;code class=&quot;highlighter-rouge&quot;&gt;Object&lt;/code&gt;, which has a method &lt;code class=&quot;highlighter-rouge&quot;&gt;equals(Object)&lt;/code&gt;, and the class &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt;, which has a method &lt;code class=&quot;highlighter-rouge&quot;&gt;equals(Point)&lt;/code&gt; and also inherits the &lt;code class=&quot;highlighter-rouge&quot;&gt;equals(Object)&lt;/code&gt; method from &lt;code class=&quot;highlighter-rouge&quot;&gt;Object&lt;/code&gt;. What happens in the code is the following:&lt;/p&gt;
+
 &lt;ul&gt;
-  &lt;li&gt;The first assertion fails because our &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt; class does not define an &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method that takes an &lt;code class=&quot;highlighter-rouge&quot;&gt;Object&lt;/code&gt; as its parameter. This means that the &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method being called is actually the &lt;code class=&quot;highlighter-rouge&quot;&gt;equals(Object o)&lt;/code&gt; method that our class inherits from the &lt;code class=&quot;highlighter-rouge&quot;&gt;Object&lt;/code&gt; class.&lt;/li&gt;
-  &lt;li&gt;The second assertion fails because Object only has an &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method taking an &lt;code class=&quot;highlighter-rouge&quot;&gt;Object&lt;/code&gt; as parameter and we don’t override that method in our &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt; class.  This means that the &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method being called is actually the &lt;code class=&quot;highlighter-rouge&quot;&gt;equals(Object o)&lt;/code&gt; method defined on &lt;code class=&quot;highlighter-rouge&quot;&gt;Object&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;In the first assertion, we are calling a method with signature &lt;code class=&quot;highlighter-rouge&quot;&gt;equals(Object)&lt;/code&gt; on an object with compile-time type &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt;. As &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt; does not implement a method with that signature, the best match is the &lt;code class=&quot;highlighter-rouge&quot;&gt;equals(Object)&lt;/code&gt; method inherited from &lt;code class=&quot;highlighter-rouge&quot;&gt;Object&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;In the second assertion, we are calling a method with signature &lt;code class=&quot;highlighter-rouge&quot;&gt;equals(Point)&lt;/code&gt; on an object with compile-time type &lt;code class=&quot;highlighter-rouge&quot;&gt;Object&lt;/code&gt;. As &lt;code class=&quot;highlighter-rouge&quot;&gt;Object&lt;/code&gt; does not have an &lt;code class=&quot;highlighter-rouge&quot;&gt;equals(Point)&lt;/code&gt; method, the best match at compile time is its &lt;code class=&quot;highlighter-rouge&quot;&gt;equals(Object)&lt;/code&gt; method. And, beause &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt; (the run-time type of &lt;code class=&quot;highlighter-rouge&quot;&gt;pointObject&lt;/code&gt;) does not override that method, the actual implementation that gets called is still the one defined in &lt;code class=&quot;highlighter-rouge&quot;&gt;Object&lt;/code&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;In both cases, &lt;code class=&quot;highlighter-rouge&quot;&gt;Object&lt;/code&gt;’s &lt;code class=&quot;highlighter-rouge&quot;&gt;equals(Object o)&lt;/code&gt; method tells us that &lt;code class=&quot;highlighter-rouge&quot;&gt;point1&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;pointObject&lt;/code&gt; are not equal because they do not point to the exact same memory location.&lt;/p&gt;
 
 &lt;h3 id=&quot;attempt-2-actually-overriding-the-default-equalsobject-o-method&quot;&gt;Attempt #2: actually overriding the default &lt;code class=&quot;highlighter-rouge&quot;&gt;equals(Object o)&lt;/code&gt; method&lt;/h3&gt;
 
-&lt;p&gt;Ok, so let’s adjust our &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method as follows:&lt;/p&gt;
+&lt;p&gt;Ok, so let’s properly override &lt;code class=&quot;highlighter-rouge&quot;&gt;Object&lt;/code&gt;’s &lt;code class=&quot;highlighter-rouge&quot;&gt;equals(Object)&lt;/code&gt; method:&lt;/p&gt;
 
 &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
 &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;equals&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;o&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
@@ -693,7 +1010,7 @@
     &lt;span class=&quot;n&quot;&gt;Set&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;points&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HashSet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;();&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;points&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
             
-    &lt;span class=&quot;n&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;points&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;contains&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// this fails        &lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;points&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;contains&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// this fails&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;p&gt;The issue here is that, while we did override the default &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method, we didn’t override the default &lt;code class=&quot;highlighter-rouge&quot;&gt;hashCode&lt;/code&gt; method as well. When our &lt;code class=&quot;highlighter-rouge&quot;&gt;HashSet&lt;/code&gt; looks for &lt;code class=&quot;highlighter-rouge&quot;&gt;point2&lt;/code&gt;, it only looks in the hash bucket that corresponds to &lt;code class=&quot;highlighter-rouge&quot;&gt;point2&lt;/code&gt;’s hash code. Therefore, if two objects are considered equal, we must guarantee that their hash code will also be the same (&lt;code class=&quot;highlighter-rouge&quot;&gt;hashcode&lt;/code&gt; needs to be consistent with &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt;). Note that it is ok for two different objects to have the same hash code, although it is better to avoid this as it can negatively impact the performance of data strucures that rely on hash codes.&lt;/p&gt;
@@ -722,7 +1039,7 @@
     
     &lt;span class=&quot;n&quot;&gt;point1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setX&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
             
-    &lt;span class=&quot;n&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;points&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;contains&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// this fails    &lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;points&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;contains&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// this fails&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -764,16 +1081,16 @@
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;Our current &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method is actually equivalent to the one that my IDE generates automatically (using the default settings) and our &lt;code class=&quot;highlighter-rouge&quot;&gt;hashCode&lt;/code&gt; method was already generated by my IDE. Therefore, if I let my IDE do the work for me, this is what I’m going to get by default. But is it enough?&lt;/p&gt;
+&lt;p&gt;Our current &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method is functionally equivalent to the one that my IDE generates automatically (using the default settings) and our &lt;code class=&quot;highlighter-rouge&quot;&gt;hashCode&lt;/code&gt; method was already generated by my IDE. Therefore, if I let my IDE do the work for me, this is what I’m going to get by default. But is it enough?&lt;/p&gt;
 
-&lt;p&gt;Spoiler alert: No, it isn’t. At least not once we start looking at subclasses.&lt;/p&gt;
+&lt;p&gt;Well, it is enough if we don’t have to care about subclasses. If there are subclasses involved, things get a bit more interesting.&lt;/p&gt;
 
 &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Test&lt;/span&gt;
 &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
     &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;point1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;point2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{};&lt;/span&gt;
 
-    &lt;span class=&quot;n&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;equals&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// this fails    &lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;equals&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// this fails&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -781,7 +1098,7 @@
 
 &lt;p&gt;The reason why this test fails is that the &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method uses &lt;code class=&quot;highlighter-rouge&quot;&gt;getClass()&lt;/code&gt; to verify if both objects belong to the same class and &lt;code class=&quot;highlighter-rouge&quot;&gt;getClass()&lt;/code&gt; will actually return a different class for &lt;code class=&quot;highlighter-rouge&quot;&gt;point1&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;point2&lt;/code&gt;.&lt;/p&gt;
 
-&lt;p&gt;Although you will probably not create a lot of trivial anonymous subclasses in real life, you may sometimes want to subclass a class that you defined a custom &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method for. Fortunately, we can improve our &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method by using &lt;code class=&quot;highlighter-rouge&quot;&gt;instanceof&lt;/code&gt; instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;getClass()&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Although you will probably not create a lot of trivial anonymous subclasses in real life, you may sometimes want to subclass a class that you defined a custom &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method for and allow objects of the subclass to equal objects of the superclass. Fortunately, we can provide this behavior by using &lt;code class=&quot;highlighter-rouge&quot;&gt;instanceof&lt;/code&gt; instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;getClass()&lt;/code&gt;.&lt;/p&gt;
 
 &lt;h3 id=&quot;attempt-5-using-instanceof-instead-of-getclass&quot;&gt;Attempt #5: using &lt;code class=&quot;highlighter-rouge&quot;&gt;instanceof&lt;/code&gt; instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;getClass()&lt;/code&gt;&lt;/h3&gt;
 
@@ -796,17 +1113,34 @@
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;This implementation is equivalent to the one generated by my IDE if I choose the option to use &lt;code class=&quot;highlighter-rouge&quot;&gt;instanceof&lt;/code&gt; instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;getClass()&lt;/code&gt;. It passes all of our previous tests. In fact, as long as no subclass of &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt; ever overrides our &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; (or &lt;code class=&quot;highlighter-rouge&quot;&gt;hashCode&lt;/code&gt;) method, this will work just fine. This means that, when letting my IDE generate my &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;hashCode&lt;/code&gt; methods for me, I actually get a good implementation as long as I choose the right options.&lt;/p&gt;
+&lt;p&gt;This implementation’s behavior is equivalent to that of the implementation generated by my IDE if I choose the option to use &lt;code class=&quot;highlighter-rouge&quot;&gt;instanceof&lt;/code&gt; instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;getClass()&lt;/code&gt;. It passes all of our previous tests. In fact, as long as no subclass of &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt; ever overrides our &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; (or &lt;code class=&quot;highlighter-rouge&quot;&gt;hashCode&lt;/code&gt;) method, this will work just fine. This means that, when letting my IDE generate my &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;hashCode&lt;/code&gt; methods for me, I actually get a good implementation as long as I choose the right options.&lt;/p&gt;
+
+&lt;p&gt;One additional thing that the version generated by my IDE does is that it starts by checking for actual identity. This is a very inexpensive test, making this a good optimization if it is common for equal objects to also be identical.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;equals&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;o&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;o&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(!(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;o&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;instanceof&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;other&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;o&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;other&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;y&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;other&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;h3 id=&quot;what-if-a-subclass-needs-to-include-additional-state-in-equals&quot;&gt;What if a subclass needs to include additional state in &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt;?&lt;/h3&gt;
 
 &lt;p&gt;Things get more complicated if a subclass is going to add state and we want to include this state in its &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method. For example, let’s assume that we have an enum called &lt;code class=&quot;highlighter-rouge&quot;&gt;Color&lt;/code&gt; and we create a class &lt;code class=&quot;highlighter-rouge&quot;&gt;ColorPoint&lt;/code&gt; that extends the &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt; class with a specific color for a point.&lt;/p&gt;
 
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;enum&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Color&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;enum&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Color&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;BLUE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;RED&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;YELLOW&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;GREEN&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 
-&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ColorPoint&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ColorPoint&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Color&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
 
     &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ColorPoint&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Color&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
@@ -826,7 +1160,7 @@
 
 &lt;p&gt;The solution involves introducing a &lt;code class=&quot;highlighter-rouge&quot;&gt;canEqual&lt;/code&gt; method and letting custom &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; methods call that method on the &lt;em&gt;other&lt;/em&gt; object.&lt;/p&gt;
 
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Point&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Point&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;c1&quot;&gt;// ...&lt;/span&gt;
     
     &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
@@ -848,10 +1182,10 @@
         &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;o&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;instanceof&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
     &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;    
     
-    &lt;span class=&quot;c1&quot;&gt;// ...    &lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// ...&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 
-&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ColorPoint&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ColorPoint&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;c1&quot;&gt;// ...&lt;/span&gt;
 
     &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
@@ -874,24 +1208,30 @@
         &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;o&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;instanceof&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ColorPoint&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
     &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
     
-    &lt;span class=&quot;c1&quot;&gt;// ...    &lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// ...&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;ColorPoint&lt;/code&gt; classes both satisfy all of the previous tests. If we would create a new subclass of &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;ColorPoint&lt;/code&gt; without overriding &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;canEqual&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;hashCode&lt;/code&gt; nothing unexpected would happen. If we want to create a new subclass of &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;ColorPoint&lt;/code&gt; that adds additional state and includes this state in its &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method, we need to override both &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;canEqual&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;ColorPoint&lt;/code&gt; classes both satisfy all of the previous tests. If we would create a new subclass of &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;ColorPoint&lt;/code&gt; without overriding &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;canEqual&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;hashCode&lt;/code&gt;, instances oft the subclass can still be equal to instances of the superclass. If we want to create a new subclass of &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;ColorPoint&lt;/code&gt; that adds additional state and includes this state in its &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method, we need to override both &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;canEqual&lt;/code&gt;.&lt;/p&gt;
 
 &lt;p&gt;As stated before, the only big drawback of this approach is the fact that it breaks our original contract saying that “two &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt;s are equal if and only if they have the same x coordinate and the same y coordinate”. A piece of code operating on &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt; instances can not longer make the assumption that, if two &lt;code class=&quot;highlighter-rouge&quot;&gt;Point&lt;/code&gt;s are not equal to each other, there must be some difference in their x or y coordinates. Indeed, this assumption no longer holds if some of the instances are &lt;code class=&quot;highlighter-rouge&quot;&gt;ColorPoint&lt;/code&gt; instances. This is essentially a violation of the &lt;a href=&quot;https://en.wikipedia.org/wiki/Liskov_substitution_principle&quot;&gt;Liskov substitution principle&lt;/a&gt;, although the article linked above doesn’t seem to agree.&lt;/p&gt;
 
 &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Test&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;point1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;point2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ColorPoint&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Color&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;BLUE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
             
     &lt;span class=&quot;n&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getX&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;point2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getX&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;point2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getY&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;equals&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// this fails    &lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;equals&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;point2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// this fails&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;a-simpler-solution-for-subclasses-that-include-additional-state-in-equals&quot;&gt;A simpler solution for subclasses that include additional state in &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt;&lt;/h3&gt;
+
+&lt;p&gt;The previous approach is relatively complex, mostly because we wanted to allow subclass objects to be equal to superclass objects as long as they don’t need to include additional state in their equals method.&lt;/p&gt;
+
+&lt;p&gt;If we’re okay with subclass objects never being equal to superclass objects, we can just go ahead and use the &lt;code class=&quot;highlighter-rouge&quot;&gt;getClass()&lt;/code&gt; approach.&lt;/p&gt;
 
 &lt;h2 id=&quot;how-to-handle-this-in-practice&quot;&gt;How to handle this in practice&lt;/h2&gt;
 
@@ -909,7 +1249,7 @@
   &lt;li&gt;Making your &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;hashCode&lt;/code&gt; methods &lt;code class=&quot;highlighter-rouge&quot;&gt;final&lt;/code&gt; prevents subclasses from overriding your &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;hashCode&lt;/code&gt; methods and including additional state in them.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;In cases where this is not sufficient (you want subclasses to include additional state in their &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method), consider using the solution involving the &lt;code class=&quot;highlighter-rouge&quot;&gt;canEqual&lt;/code&gt; method.&lt;/p&gt;
+&lt;p&gt;In cases where this is not sufficient (you want subclasses to include additional state in their &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method), consider using the solution involving the &lt;code class=&quot;highlighter-rouge&quot;&gt;canEqual&lt;/code&gt; method or the simpler solution if you’re ok with subclass instances never being equal to superclass instances.&lt;/p&gt;
 
 &lt;h2 id=&quot;testing-your-equals-methods&quot;&gt;Testing your &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; methods&lt;/h2&gt;
 
@@ -928,6 +1268,8 @@
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;http://jqno.nl/equalsverifier/&quot;&gt;EqualsVerifier&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;http://www.artima.com/lejava/articles/equality.html&quot;&gt;How to Write an Equality Method in Java&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Core Java SE 9 for the Impatient (book by Cay S. Horstmann)&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.oracle.com/javase/specs/jls/se10/html/jls-8.html#jls-8.4.9&quot;&gt;Overloading in the Java Language Specification&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</content><author><name></name></author><category term="java" /><summary type="html">If you’ve ever had to write or test an equals method, you may have gotten a feel for how complex this can get. This post will explain a number of things that can go wrong, offer solutions, and explain how a library called EqualsVerifier can help you prevent unexpected behavior regarding object equality testing.</summary></entry><entry><title type="html">How I created this blog</title><link href="http://localhost:4000/2018/01/20/How-I-created-this-blog/" rel="alternate" type="text/html" title="How I created this blog" /><published>2018-01-20T00:00:00+01:00</published><updated>2018-01-20T00:00:00+01:00</updated><id>http://localhost:4000/2018/01/20/How-I-created-this-blog</id><content type="html" xml:base="http://localhost:4000/2018/01/20/How-I-created-this-blog/">&lt;p&gt;This post explains why I decided to use Jekyll for my blog and how you could set up your own blog using Jekyll and GitHub Pages.&lt;/p&gt;
 
 &lt;h2 id=&quot;what-i-was-looking-for&quot;&gt;What I was looking for&lt;/h2&gt;

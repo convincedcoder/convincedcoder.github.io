@@ -77,12 +77,17 @@
 <li class="toc-entry toc-h2"><a href="#introducing-the-point-class">Introducing the Point class</a></li>
 <li class="toc-entry toc-h2"><a href="#the-journey-to-a-perfect-equals-method">The journey to a “perfect” equals method</a>
 <ul>
-<li class="toc-entry toc-h3"><a href="#attempt-1">Attempt #1</a></li>
+<li class="toc-entry toc-h3"><a href="#attempt-1">Attempt #1</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#short-aside-method-overloading-and-overriding-rules-in-java">Short aside: method overloading and overriding rules in Java</a></li>
+</ul>
+</li>
 <li class="toc-entry toc-h3"><a href="#attempt-2-actually-overriding-the-default-equalsobject-o-method">Attempt #2: actually overriding the default equals(Object o) method</a></li>
 <li class="toc-entry toc-h3"><a href="#attempt-3-overriding-hashcode-as-well">Attempt #3: overriding hashCode as well</a></li>
 <li class="toc-entry toc-h3"><a href="#attempt-4-making-instance-variables-final">Attempt #4: making instance variables final</a></li>
 <li class="toc-entry toc-h3"><a href="#attempt-5-using-instanceof-instead-of-getclass">Attempt #5: using instanceof instead of getClass()</a></li>
 <li class="toc-entry toc-h3"><a href="#what-if-a-subclass-needs-to-include-additional-state-in-equals">What if a subclass needs to include additional state in equals?</a></li>
+<li class="toc-entry toc-h3"><a href="#a-simpler-solution-for-subclasses-that-include-additional-state-in-equals">A simpler solution for subclasses that include additional state in equals</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#how-to-handle-this-in-practice">How to handle this in practice</a></li>
@@ -116,7 +121,7 @@
   <li>Symmetry: if a is equal to b, then b is also equal to a</li>
   <li>Transitivity: if a is equal to b and b is equal to c, then a is also equal to c</li>
   <li>Consistency: if a is equal to b right now, then a is always equal to b as long as none of their state that is used in the <code class="highlighter-rouge">equals</code> method has been modified</li>
-  <li>Non-nullity: a actual object is never equal to <code class="highlighter-rouge">null</code>
+  <li>Non-nullity: an actual object is never equal to <code class="highlighter-rouge">null</code>
 </li>
 </ul>
 
@@ -160,9 +165,9 @@
     <span class="n">Point</span> <span class="n">point1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
     <span class="n">Point</span> <span class="n">point2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
     <span class="n">List</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;</span> <span class="n">points</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="n">point1</span><span class="o">);</span>
-				
+                
     <span class="n">assertTrue</span><span class="o">(</span><span class="n">point1</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">point2</span><span class="o">));</span> <span class="c1">// this succeeds</span>
-    <span class="n">assertTrue</span><span class="o">(</span><span class="n">points</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">point2</span><span class="o">));</span> <span class="c1">// this fails		</span>
+    <span class="n">assertTrue</span><span class="o">(</span><span class="n">points</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">point2</span><span class="o">));</span> <span class="c1">// this fails</span>
 <span class="o">}</span>
 </code></pre></div></div>
 
@@ -180,9 +185,21 @@
 <span class="o">}</span>
 </code></pre></div></div>
 
+<h4 id="short-aside-method-overloading-and-overriding-rules-in-java">
+<a id="short-aside-method-overloading-and-overriding-rules-in-java" class="anchor" href="#short-aside-method-overloading-and-overriding-rules-in-java" aria-hidden="true"><span class="octicon octicon-link"></span></a>Short aside: method overloading and overriding rules in Java</h4>
+
+<p>When calling methods, Java determines the exact method to call in a way that can be confusing. There are basically two steps:</p>
+
+<ol>
+  <li>At compile time, the number and compile-time types of the arguments are used to determine the exact <em>signature</em> of the method that will be invoked.</li>
+  <li>At runtime, if the method to be invoked is an instance method, the actual method to invoke will be determined using dynamic method lookup based on the actual run time type of the object and the structure of the inheritance hierarchy.</li>
+</ol>
+
+<p>In the code above, we have two classes: <code class="highlighter-rouge">Object</code>, which has a method <code class="highlighter-rouge">equals(Object)</code>, and the class <code class="highlighter-rouge">Point</code>, which has a method <code class="highlighter-rouge">equals(Point)</code> and also inherits the <code class="highlighter-rouge">equals(Object)</code> method from <code class="highlighter-rouge">Object</code>. What happens in the code is the following:</p>
+
 <ul>
-  <li>The first assertion fails because our <code class="highlighter-rouge">Point</code> class does not define an <code class="highlighter-rouge">equals</code> method that takes an <code class="highlighter-rouge">Object</code> as its parameter. This means that the <code class="highlighter-rouge">equals</code> method being called is actually the <code class="highlighter-rouge">equals(Object o)</code> method that our class inherits from the <code class="highlighter-rouge">Object</code> class.</li>
-  <li>The second assertion fails because Object only has an <code class="highlighter-rouge">equals</code> method taking an <code class="highlighter-rouge">Object</code> as parameter and we don’t override that method in our <code class="highlighter-rouge">Point</code> class.  This means that the <code class="highlighter-rouge">equals</code> method being called is actually the <code class="highlighter-rouge">equals(Object o)</code> method defined on <code class="highlighter-rouge">Object</code>.</li>
+  <li>In the first assertion, we are calling a method with signature <code class="highlighter-rouge">equals(Object)</code> on an object with compile-time type <code class="highlighter-rouge">Point</code>. As <code class="highlighter-rouge">Point</code> does not implement a method with that signature, the best match is the <code class="highlighter-rouge">equals(Object)</code> method inherited from <code class="highlighter-rouge">Object</code>.</li>
+  <li>In the second assertion, we are calling a method with signature <code class="highlighter-rouge">equals(Point)</code> on an object with compile-time type <code class="highlighter-rouge">Object</code>. As <code class="highlighter-rouge">Object</code> does not have an <code class="highlighter-rouge">equals(Point)</code> method, the best match at compile time is its <code class="highlighter-rouge">equals(Object)</code> method. And, beause <code class="highlighter-rouge">Point</code> (the run-time type of <code class="highlighter-rouge">pointObject</code>) does not override that method, the actual implementation that gets called is still the one defined in <code class="highlighter-rouge">Object</code>.</li>
 </ul>
 
 <p>In both cases, <code class="highlighter-rouge">Object</code>’s <code class="highlighter-rouge">equals(Object o)</code> method tells us that <code class="highlighter-rouge">point1</code> and <code class="highlighter-rouge">pointObject</code> are not equal because they do not point to the exact same memory location.</p>
@@ -190,7 +207,7 @@
 <h3 id="attempt-2-actually-overriding-the-default-equalsobject-o-method">
 <a id="attempt-2-actually-overriding-the-default-equalsobject-o-method" class="anchor" href="#attempt-2-actually-overriding-the-default-equalsobject-o-method" aria-hidden="true"><span class="octicon octicon-link"></span></a>Attempt #2: actually overriding the default <code class="highlighter-rouge">equals(Object o)</code> method</h3>
 
-<p>Ok, so let’s adjust our <code class="highlighter-rouge">equals</code> method as follows:</p>
+<p>Ok, so let’s properly override <code class="highlighter-rouge">Object</code>’s <code class="highlighter-rouge">equals(Object)</code> method:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
 <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
@@ -212,7 +229,7 @@
     <span class="n">Set</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;</span> <span class="n">points</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;();</span>
     <span class="n">points</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">point1</span><span class="o">);</span>
             
-    <span class="n">assertTrue</span><span class="o">(</span><span class="n">points</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">point2</span><span class="o">));</span> <span class="c1">// this fails        </span>
+    <span class="n">assertTrue</span><span class="o">(</span><span class="n">points</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">point2</span><span class="o">));</span> <span class="c1">// this fails</span>
 <span class="o">}</span>
 </code></pre></div></div>
 <p>The issue here is that, while we did override the default <code class="highlighter-rouge">equals</code> method, we didn’t override the default <code class="highlighter-rouge">hashCode</code> method as well. When our <code class="highlighter-rouge">HashSet</code> looks for <code class="highlighter-rouge">point2</code>, it only looks in the hash bucket that corresponds to <code class="highlighter-rouge">point2</code>’s hash code. Therefore, if two objects are considered equal, we must guarantee that their hash code will also be the same (<code class="highlighter-rouge">hashcode</code> needs to be consistent with <code class="highlighter-rouge">equals</code>). Note that it is ok for two different objects to have the same hash code, although it is better to avoid this as it can negatively impact the performance of data strucures that rely on hash codes.</p>
@@ -242,7 +259,7 @@
     
     <span class="n">point1</span><span class="o">.</span><span class="na">setX</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
             
-    <span class="n">assertTrue</span><span class="o">(</span><span class="n">points</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">point1</span><span class="o">));</span> <span class="c1">// this fails    </span>
+    <span class="n">assertTrue</span><span class="o">(</span><span class="n">points</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">point1</span><span class="o">));</span> <span class="c1">// this fails</span>
 <span class="o">}</span>
 </code></pre></div></div>
 
@@ -285,16 +302,16 @@
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>Our current <code class="highlighter-rouge">equals</code> method is actually equivalent to the one that my IDE generates automatically (using the default settings) and our <code class="highlighter-rouge">hashCode</code> method was already generated by my IDE. Therefore, if I let my IDE do the work for me, this is what I’m going to get by default. But is it enough?</p>
+<p>Our current <code class="highlighter-rouge">equals</code> method is functionally equivalent to the one that my IDE generates automatically (using the default settings) and our <code class="highlighter-rouge">hashCode</code> method was already generated by my IDE. Therefore, if I let my IDE do the work for me, this is what I’m going to get by default. But is it enough?</p>
 
-<p>Spoiler alert: No, it isn’t. At least not once we start looking at subclasses.</p>
+<p>Well, it is enough if we don’t have to care about subclasses. If there are subclasses involved, things get a bit more interesting.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Test</span>
 <span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>    
     <span class="n">Point</span> <span class="n">point1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
     <span class="n">Point</span> <span class="n">point2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span> <span class="o">{};</span>
 
-    <span class="n">assertTrue</span><span class="o">(</span><span class="n">point1</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">point2</span><span class="o">));</span> <span class="c1">// this fails    </span>
+    <span class="n">assertTrue</span><span class="o">(</span><span class="n">point1</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">point2</span><span class="o">));</span> <span class="c1">// this fails</span>
 <span class="o">}</span>
 </code></pre></div></div>
 
@@ -302,7 +319,7 @@
 
 <p>The reason why this test fails is that the <code class="highlighter-rouge">equals</code> method uses <code class="highlighter-rouge">getClass()</code> to verify if both objects belong to the same class and <code class="highlighter-rouge">getClass()</code> will actually return a different class for <code class="highlighter-rouge">point1</code> and <code class="highlighter-rouge">point2</code>.</p>
 
-<p>Although you will probably not create a lot of trivial anonymous subclasses in real life, you may sometimes want to subclass a class that you defined a custom <code class="highlighter-rouge">equals</code> method for. Fortunately, we can improve our <code class="highlighter-rouge">equals</code> method by using <code class="highlighter-rouge">instanceof</code> instead of <code class="highlighter-rouge">getClass()</code>.</p>
+<p>Although you will probably not create a lot of trivial anonymous subclasses in real life, you may sometimes want to subclass a class that you defined a custom <code class="highlighter-rouge">equals</code> method for and allow objects of the subclass to equal objects of the superclass. Fortunately, we can provide this behavior by using <code class="highlighter-rouge">instanceof</code> instead of <code class="highlighter-rouge">getClass()</code>.</p>
 
 <h3 id="attempt-5-using-instanceof-instead-of-getclass">
 <a id="attempt-5-using-instanceof-instead-of-getclass" class="anchor" href="#attempt-5-using-instanceof-instead-of-getclass" aria-hidden="true"><span class="octicon octicon-link"></span></a>Attempt #5: using <code class="highlighter-rouge">instanceof</code> instead of <code class="highlighter-rouge">getClass()</code>
@@ -319,18 +336,35 @@
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>This implementation is equivalent to the one generated by my IDE if I choose the option to use <code class="highlighter-rouge">instanceof</code> instead of <code class="highlighter-rouge">getClass()</code>. It passes all of our previous tests. In fact, as long as no subclass of <code class="highlighter-rouge">Point</code> ever overrides our <code class="highlighter-rouge">equals</code> (or <code class="highlighter-rouge">hashCode</code>) method, this will work just fine. This means that, when letting my IDE generate my <code class="highlighter-rouge">equals</code> and <code class="highlighter-rouge">hashCode</code> methods for me, I actually get a good implementation as long as I choose the right options.</p>
+<p>This implementation’s behavior is equivalent to that of the implementation generated by my IDE if I choose the option to use <code class="highlighter-rouge">instanceof</code> instead of <code class="highlighter-rouge">getClass()</code>. It passes all of our previous tests. In fact, as long as no subclass of <code class="highlighter-rouge">Point</code> ever overrides our <code class="highlighter-rouge">equals</code> (or <code class="highlighter-rouge">hashCode</code>) method, this will work just fine. This means that, when letting my IDE generate my <code class="highlighter-rouge">equals</code> and <code class="highlighter-rouge">hashCode</code> methods for me, I actually get a good implementation as long as I choose the right options.</p>
+
+<p>One additional thing that the version generated by my IDE does is that it starts by checking for actual identity. This is a very inexpensive test, making this a good optimization if it is common for equal objects to also be identical.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="n">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="k">this</span> <span class="o">==</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="k">if</span> <span class="o">(!(</span><span class="n">o</span> <span class="k">instanceof</span> <span class="n">Point</span><span class="o">))</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="o">}</span>
+    
+    <span class="n">Point</span> <span class="n">other</span> <span class="o">=</span> <span class="o">(</span><span class="n">Point</span><span class="o">)</span> <span class="n">o</span><span class="o">;</span>
+    <span class="k">return</span> <span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">x</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="na">x</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="o">.</span><span class="na">y</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="na">y</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
 
 <h3 id="what-if-a-subclass-needs-to-include-additional-state-in-equals">
 <a id="what-if-a-subclass-needs-to-include-additional-state-in-equals" class="anchor" href="#what-if-a-subclass-needs-to-include-additional-state-in-equals" aria-hidden="true"><span class="octicon octicon-link"></span></a>What if a subclass needs to include additional state in <code class="highlighter-rouge">equals</code>?</h3>
 
 <p>Things get more complicated if a subclass is going to add state and we want to include this state in its <code class="highlighter-rouge">equals</code> method. For example, let’s assume that we have an enum called <code class="highlighter-rouge">Color</code> and we create a class <code class="highlighter-rouge">ColorPoint</code> that extends the <code class="highlighter-rouge">Point</code> class with a specific color for a point.</p>
 
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="n">Color</span> <span class="o">{</span>    
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="n">Color</span> <span class="o">{</span>
     <span class="n">BLUE</span><span class="o">,</span> <span class="n">RED</span><span class="o">,</span> <span class="n">YELLOW</span><span class="o">,</span> <span class="n">GREEN</span><span class="o">;</span>
 <span class="o">}</span>
 
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ColorPoint</span> <span class="kd">extends</span> <span class="n">Point</span> <span class="o">{</span>    
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ColorPoint</span> <span class="kd">extends</span> <span class="n">Point</span> <span class="o">{</span>
     <span class="kd">private</span> <span class="kd">final</span> <span class="n">Color</span> <span class="n">color</span><span class="o">;</span>
 
     <span class="kd">public</span> <span class="nf">ColorPoint</span><span class="o">(</span><span class="kt">int</span> <span class="n">x</span><span class="o">,</span> <span class="kt">int</span> <span class="n">y</span><span class="o">,</span> <span class="n">Color</span> <span class="n">color</span><span class="o">)</span> <span class="o">{</span>
@@ -350,7 +384,7 @@
 
 <p>The solution involves introducing a <code class="highlighter-rouge">canEqual</code> method and letting custom <code class="highlighter-rouge">equals</code> methods call that method on the <em>other</em> object.</p>
 
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Point</span> <span class="o">{</span>    
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Point</span> <span class="o">{</span>
     <span class="c1">// ...</span>
     
     <span class="nd">@Override</span>
@@ -372,10 +406,10 @@
         <span class="k">return</span> <span class="o">(</span><span class="n">o</span> <span class="k">instanceof</span> <span class="n">Point</span><span class="o">);</span>
     <span class="o">}</span>    
     
-    <span class="c1">// ...    </span>
+    <span class="c1">// ...</span>
 <span class="o">}</span>
 
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ColorPoint</span> <span class="kd">extends</span> <span class="n">Point</span> <span class="o">{</span>    
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ColorPoint</span> <span class="kd">extends</span> <span class="n">Point</span> <span class="o">{</span>
     <span class="c1">// ...</span>
 
     <span class="nd">@Override</span>
@@ -398,24 +432,32 @@
         <span class="k">return</span> <span class="o">(</span><span class="n">o</span> <span class="k">instanceof</span> <span class="n">ColorPoint</span><span class="o">);</span>
     <span class="o">}</span>
     
-    <span class="c1">// ...    </span>
+    <span class="c1">// ...</span>
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>The <code class="highlighter-rouge">Point</code> and <code class="highlighter-rouge">ColorPoint</code> classes both satisfy all of the previous tests. If we would create a new subclass of <code class="highlighter-rouge">Point</code> or <code class="highlighter-rouge">ColorPoint</code> without overriding <code class="highlighter-rouge">equals</code>, <code class="highlighter-rouge">canEqual</code> or <code class="highlighter-rouge">hashCode</code> nothing unexpected would happen. If we want to create a new subclass of <code class="highlighter-rouge">Point</code> or <code class="highlighter-rouge">ColorPoint</code> that adds additional state and includes this state in its <code class="highlighter-rouge">equals</code> method, we need to override both <code class="highlighter-rouge">equals</code> and <code class="highlighter-rouge">canEqual</code>.</p>
+<p>The <code class="highlighter-rouge">Point</code> and <code class="highlighter-rouge">ColorPoint</code> classes both satisfy all of the previous tests. If we would create a new subclass of <code class="highlighter-rouge">Point</code> or <code class="highlighter-rouge">ColorPoint</code> without overriding <code class="highlighter-rouge">equals</code>, <code class="highlighter-rouge">canEqual</code> or <code class="highlighter-rouge">hashCode</code>, instances oft the subclass can still be equal to instances of the superclass. If we want to create a new subclass of <code class="highlighter-rouge">Point</code> or <code class="highlighter-rouge">ColorPoint</code> that adds additional state and includes this state in its <code class="highlighter-rouge">equals</code> method, we need to override both <code class="highlighter-rouge">equals</code> and <code class="highlighter-rouge">canEqual</code>.</p>
 
 <p>As stated before, the only big drawback of this approach is the fact that it breaks our original contract saying that “two <code class="highlighter-rouge">Point</code>s are equal if and only if they have the same x coordinate and the same y coordinate”. A piece of code operating on <code class="highlighter-rouge">Point</code> instances can not longer make the assumption that, if two <code class="highlighter-rouge">Point</code>s are not equal to each other, there must be some difference in their x or y coordinates. Indeed, this assumption no longer holds if some of the instances are <code class="highlighter-rouge">ColorPoint</code> instances. This is essentially a violation of the <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution principle</a>, although the article linked above doesn’t seem to agree.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Test</span>
-<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>    
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>
     <span class="n">Point</span> <span class="n">point1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
     <span class="n">Point</span> <span class="n">point2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ColorPoint</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="n">Color</span><span class="o">.</span><span class="na">BLUE</span><span class="o">);</span>
             
     <span class="n">assertTrue</span><span class="o">(</span><span class="n">point1</span><span class="o">.</span><span class="na">getX</span><span class="o">()</span> <span class="o">==</span> <span class="n">point2</span><span class="o">.</span><span class="na">getX</span><span class="o">());</span>
     <span class="n">assertTrue</span><span class="o">(</span><span class="n">point1</span><span class="o">.</span><span class="na">getY</span><span class="o">()</span> <span class="o">==</span> <span class="n">point2</span><span class="o">.</span><span class="na">getY</span><span class="o">());</span>
-    <span class="n">assertTrue</span><span class="o">(</span><span class="n">point1</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">point2</span><span class="o">));</span> <span class="c1">// this fails    </span>
+    <span class="n">assertTrue</span><span class="o">(</span><span class="n">point1</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">point2</span><span class="o">));</span> <span class="c1">// this fails</span>
 <span class="o">}</span>
 </code></pre></div></div>
+
+<h3 id="a-simpler-solution-for-subclasses-that-include-additional-state-in-equals">
+<a id="a-simpler-solution-for-subclasses-that-include-additional-state-in-equals" class="anchor" href="#a-simpler-solution-for-subclasses-that-include-additional-state-in-equals" aria-hidden="true"><span class="octicon octicon-link"></span></a>A simpler solution for subclasses that include additional state in <code class="highlighter-rouge">equals</code>
+</h3>
+
+<p>The previous approach is relatively complex, mostly because we wanted to allow subclass objects to be equal to superclass objects as long as they don’t need to include additional state in their equals method.</p>
+
+<p>If we’re okay with subclass objects never being equal to superclass objects, we can just go ahead and use the <code class="highlighter-rouge">getClass()</code> approach.</p>
 
 <h2 id="how-to-handle-this-in-practice">
 <a id="how-to-handle-this-in-practice" class="anchor" href="#how-to-handle-this-in-practice" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to handle this in practice</h2>
@@ -434,7 +476,7 @@
   <li>Making your <code class="highlighter-rouge">equals</code> and <code class="highlighter-rouge">hashCode</code> methods <code class="highlighter-rouge">final</code> prevents subclasses from overriding your <code class="highlighter-rouge">equals</code> and <code class="highlighter-rouge">hashCode</code> methods and including additional state in them.</li>
 </ul>
 
-<p>In cases where this is not sufficient (you want subclasses to include additional state in their <code class="highlighter-rouge">equals</code> method), consider using the solution involving the <code class="highlighter-rouge">canEqual</code> method.</p>
+<p>In cases where this is not sufficient (you want subclasses to include additional state in their <code class="highlighter-rouge">equals</code> method), consider using the solution involving the <code class="highlighter-rouge">canEqual</code> method or the simpler solution if you’re ok with subclass instances never being equal to superclass instances.</p>
 
 <h2 id="testing-your-equals-methods">
 <a id="testing-your-equals-methods" class="anchor" href="#testing-your-equals-methods" aria-hidden="true"><span class="octicon octicon-link"></span></a>Testing your <code class="highlighter-rouge">equals</code> methods</h2>
@@ -455,6 +497,8 @@
 <ul>
   <li><a href="http://jqno.nl/equalsverifier/">EqualsVerifier</a></li>
   <li><a href="http://www.artima.com/lejava/articles/equality.html">How to Write an Equality Method in Java</a></li>
+  <li>Core Java SE 9 for the Impatient (book by Cay S. Horstmann)</li>
+  <li><a href="https://docs.oracle.com/javase/specs/jls/se10/html/jls-8.html#jls-8.4.9">Overloading in the Java Language Specification</a></li>
 </ul>
 
     </div>
