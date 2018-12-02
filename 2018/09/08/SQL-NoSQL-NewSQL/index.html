@@ -262,7 +262,7 @@
 <h2 id="which-one-to-use">
 <a id="which-one-to-use" class="anchor" href="#which-one-to-use" aria-hidden="true"><span class="octicon octicon-link"></span></a>Which one to use?</h2>
 
-<p>As is often the case, choosing which data store to use is a tradeoff and their is likely no “wrong” or “right” choice. Your choice will likely depend on the kind of data you need to store, the scalability you need, the consistency you need, the knowledge of your team, etc.</p>
+<p>As is often the case, choosing which data store to use is a tradeoff and there is likely no “wrong” or “right” choice. Your choice will likely depend on the kind of data you need to store, the scalability you need, the consistency you need, the knowledge of your team, etc.</p>
 
 <p>Also note that there is no rule stating that you should use either SQL, NoSQL or NewSQL. For example, it is very common to use a relational database for your application’s domain data but use a key-value store for caching purposes. Additionally, it could be a good idea to store parts of your domain data in a relational database and other parts in a document database, depending on which one is a better fit for which part of the data. Of course, using multiple systems also means having to keep multiple systems running smoothly.</p>
 
@@ -303,7 +303,7 @@
 
 
 
-<a href="https://github.com/thehumanmicrophone/thehumanmicrophone.github.io"><i class="svg-icon github"></i></a>
+<a href="https://github.com/thehumanmicrophone/thehumanmicrophone.github.io-source"><i class="svg-icon github"></i></a>
 
 
 
@@ -317,6 +317,21 @@
     </div>
 
 		
+	<!-- Google Analytics -->
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-130247825-1', 'auto');
+		ga('send', 'pageview', {
+		  'page': '/2018/09/08/SQL-NoSQL-NewSQL/',
+		  'title': 'SQL, NoSQL and NewSQL'
+		});
+	</script>
+	<!-- End Google Analytics -->
+
 
 		
 		<script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script>
