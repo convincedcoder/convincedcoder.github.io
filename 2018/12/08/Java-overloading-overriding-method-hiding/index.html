@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Java overloading, overriding and method hiding – The Human Microphone – Software development blog with a focus on Java and Javascript</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="This is a post about the way Java determines the exact method to call for a method invocation, which can sometimes seem confusing at first.
+
+" />
+    <meta property="og:description" content="This is a post about the way Java determines the exact method to call for a method invocation, which can sometimes seem confusing at first.
+
+" />
+    
+    <meta name="author" content="The Human Microphone" />
+
+    
+    <meta property="og:title" content="Java overloading, overriding and method hiding" />
+    <meta property="twitter:title" content="Java overloading, overriding and method hiding" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="The Human Microphone - Software development blog with a focus on Java and Javascript" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+	<!-- using Ryan Fait's sticky footer to stick the footer at the bottom of the page or content, whichever is lower -->
+	
+	<div class="sticky-footer-wrapper">
+		<div class="wrapper-masthead">
+		  <div class="container">
+			<header class="masthead clearfix">
+			  <a href="/" class="site-avatar"><img src="/images/microphone.png" /></a>
+
+			  <div class="site-info">
+				<h1 class="site-name"><a href="/">The Human Microphone</a></h1>
+				<p class="site-description">Software development blog with a focus on Java and Javascript</p>
+			  </div>
+
+			  <nav>
+				<a href="/">Blog</a>
+				<a href="/about">About</a>
+			  </nav>
+			</header>
+		  </div>
+		</div>
+
+		<div id="main" role="main" class="container">
+		  <article class="post">
+    <h1>Java overloading, overriding and method hiding</h1>
+    
+    <div class="date">
+        2018-12-08
+    </div>
+
+    <div class=post-tags>
+               
+                 
+            <a href="/tag/java" class="tag">java</a>
+        
+    </div>
+
+    <div class="entry">
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#overloading">Overloading</a></li>
+<li class="toc-entry toc-h2"><a href="#overriding">Overriding</a></li>
+<li class="toc-entry toc-h2"><a href="#combining-overloading-and-overriding">Combining overloading and overriding</a></li>
+<li class="toc-entry toc-h2"><a href="#method-hiding">Method hiding</a></li>
+<li class="toc-entry toc-h2"><a href="#resources">Resources</a></li>
+</ul><p>This is a post about the way Java determines the exact method to call for a method invocation, which can sometimes seem confusing at first.</p>
+
+<h2 id="overloading">
+<a id="overloading" class="anchor" href="#overloading" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overloading</h2>
+
+<p>Method overloading means that a class has several methods with the same name but different number or types of parameters and that Java chooses which one to call based on the arguments you pass.</p>
+
+<p>As a simple example, consider the following class. It has two methods with the same name but different parameter types.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">OverloadingTest</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testMethod</span><span class="o">(</span><span class="n">Object</span> <span class="n">object</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"object"</span><span class="o">);</span>
+    <span class="o">}</span>
+    
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testMethod</span><span class="o">(</span><span class="n">String</span> <span class="n">string</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"string"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Now, let’s write some code to get a feel for how overloading works.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">OverloadingTest</span> <span class="n">test</span> <span class="o">=</span> <span class="k">new</span> <span class="n">OverloadingTest</span><span class="o">();</span>
+<span class="n">Object</span> <span class="n">testObject</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Object</span><span class="o">();</span>
+<span class="n">String</span> <span class="n">testString</span> <span class="o">=</span> <span class="s">"testString"</span><span class="o">;</span>
+
+<span class="n">test</span><span class="o">.</span><span class="na">testMethod</span><span class="o">(</span><span class="n">testObject</span><span class="o">);</span> <span class="c1">// object</span>
+<span class="n">test</span><span class="o">.</span><span class="na">testMethod</span><span class="o">(</span><span class="n">testString</span><span class="o">);</span> <span class="c1">// string</span>
+</code></pre></div></div>
+
+<p>So far, things are pretty straightforward. But wat if we get a little bit more creative?</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Object</span> <span class="n">testStringAsObject</span> <span class="o">=</span> <span class="n">testString</span><span class="o">;</span>
+</code></pre></div></div>
+
+<p>Here, we are taking a <code class="highlighter-rouge">String</code> but giving it a compile-time type of <code class="highlighter-rouge">Object</code>. What happens if we call our method on this?</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">test</span><span class="o">.</span><span class="na">testMethod</span><span class="o">(</span><span class="n">testStringAsObject</span><span class="o">);</span> <span class="c1">// object</span>
+</code></pre></div></div>
+
+<p>Although we know that <code class="highlighter-rouge">stringAsObject</code> is actually a <code class="highlighter-rouge">String</code>, we see that method overloading only looks at its compile-time type. This is generally true: Java’s method overloading determines the exact signature of the method to call at compile time, using compile-time type information.</p>
+
+<h2 id="overriding">
+<a id="overriding" class="anchor" href="#overriding" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overriding</h2>
+
+<p>Method overriding means that a subclass overrides an instance method of a direct or indirect superclass by providing its own implementation. The following code provides a simple example.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">OverridingTestSuper</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testMethod</span><span class="o">(</span><span class="n">Object</span> <span class="n">object</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"super"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">OverridingTestSub</span> <span class="kd">extends</span> <span class="n">OverridingTestSuper</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testMethod</span><span class="o">(</span><span class="n">Object</span> <span class="n">object</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"sub"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Note how we used the <code class="highlighter-rouge">@Override</code> annotation to make it clear that the method <code class="highlighter-rouge">testMethod</code> of <code class="highlighter-rouge">OverridingTestSub</code> overrides a supertype method. Java will actually check this and throw an error if you use this annotation on a method that does not really override a supertype method. This helps prevent method name typos and it makes sure you notice if the supertype method you are overriding is removed from the code at some point.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">OverridingTestSuper</span> <span class="n">testSuper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">OverridingTestSuper</span><span class="o">();</span>
+<span class="n">OverridingTestSub</span> <span class="n">testSub</span> <span class="o">=</span> <span class="k">new</span> <span class="n">OverridingTestSub</span><span class="o">();</span>
+<span class="n">Object</span> <span class="n">testObject</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Object</span><span class="o">();</span>
+
+<span class="n">testSuper</span><span class="o">.</span><span class="na">testMethod</span><span class="o">(</span><span class="n">testObject</span><span class="o">);</span> <span class="c1">// super</span>
+<span class="n">testSub</span><span class="o">.</span><span class="na">testMethod</span><span class="o">(</span><span class="n">testObject</span><span class="o">);</span> <span class="c1">// sub</span>
+</code></pre></div></div>
+
+<p>We clearly see that the actual implementation that is invoked depends on whether we invoke it on the supertype or the subtype.</p>
+
+<p>Now, what if we start playing around with compile-time types?</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">OverridingTestSuper</span> <span class="n">testSubAsSuper</span> <span class="o">=</span> <span class="n">testSub</span><span class="o">;</span>
+</code></pre></div></div>
+
+<p>Here, we are taking a <code class="highlighter-rouge">OverridingTestSub</code> but giving it a compile-time type of <code class="highlighter-rouge">OverridingTestSuper</code>. What happens if we call its <code class="highlighter-rouge">testMethod</code> method?</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testSubAsSuper</span><span class="o">.</span><span class="na">testMethod</span><span class="o">(</span><span class="n">testObject</span><span class="o">);</span> <span class="c1">// sub</span>
+</code></pre></div></div>
+
+<p>As you can see, which implementation is invoked depends on the actual runtime type of the object.</p>
+
+<h2 id="combining-overloading-and-overriding">
+<a id="combining-overloading-and-overriding" class="anchor" href="#combining-overloading-and-overriding" aria-hidden="true"><span class="octicon octicon-link"></span></a>Combining overloading and overriding</h2>
+
+<p>Quick recap of how Java determines which implementation to call for an instance method:</p>
+<ul>
+  <li>The exact <em>signature</em> of the method to be invoked is determined at <em>compile time</em> based on the number and compile-time types of arguments.</li>
+  <li>For instance methods, the exact <em>implementation</em> of the method to be invoked is determined at <em>runtime</em> based on the actual runtime type of the object and the structure of the inheritance hierarchy.</li>
+</ul>
+
+<p>Now, let’s combine the two of them in a more complex example.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">CombinedTestSuper</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testMethod</span><span class="o">(</span><span class="n">Object</span> <span class="n">object</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"super object"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">CombinedTestSub</span> <span class="kd">extends</span> <span class="n">CombinedTestSuper</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testMethod</span><span class="o">(</span><span class="n">Object</span> <span class="n">object</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"sub object"</span><span class="o">);</span>
+    <span class="o">}</span>
+    
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testMethod</span><span class="o">(</span><span class="n">String</span> <span class="n">string</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"sub string"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">CombinedTestSuper</span> <span class="n">testSuper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CombinedTestSuper</span><span class="o">();</span>
+<span class="n">CombinedTestSub</span> <span class="n">testSub</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CombinedTestSub</span><span class="o">();</span>
+<span class="n">CombinedTestSuper</span> <span class="n">testSubAsSuper</span> <span class="o">=</span> <span class="n">testSub</span><span class="o">;</span>
+
+<span class="n">String</span> <span class="n">testString</span> <span class="o">=</span> <span class="s">"testString"</span><span class="o">;</span>
+<span class="n">Object</span> <span class="n">testStringAsObject</span> <span class="o">=</span> <span class="n">testString</span><span class="o">;</span>
+</code></pre></div></div>
+
+<p>So, what will happen if we pass <code class="highlighter-rouge">testString</code> and <code class="highlighter-rouge">testStringAsObject</code> as parameters to <code class="highlighter-rouge">testMethod</code> on <code class="highlighter-rouge">testSuper</code>, <code class="highlighter-rouge">testSub</code> and <code class="highlighter-rouge">testSubAsSuper</code>?</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testSuper</span><span class="o">.</span><span class="na">testMethod</span><span class="o">(</span><span class="n">testString</span><span class="o">);</span> <span class="c1">// super object</span>
+<span class="n">testSuper</span><span class="o">.</span><span class="na">testMethod</span><span class="o">(</span><span class="n">testStringAsObject</span><span class="o">);</span> <span class="c1">// super object</span>
+
+<span class="n">testSub</span><span class="o">.</span><span class="na">testMethod</span><span class="o">(</span><span class="n">testString</span><span class="o">);</span> <span class="c1">// sub string</span>
+<span class="n">testSub</span><span class="o">.</span><span class="na">testMethod</span><span class="o">(</span><span class="n">testStringAsObject</span><span class="o">);</span> <span class="c1">// sub object</span>
+
+<span class="n">testSubAsSuper</span><span class="o">.</span><span class="na">testMethod</span><span class="o">(</span><span class="n">testString</span><span class="o">);</span> <span class="c1">// sub object</span>
+<span class="n">testSubAsSuper</span><span class="o">.</span><span class="na">testMethod</span><span class="o">(</span><span class="n">testStringAsObject</span><span class="o">);</span> <span class="c1">// sub object</span>
+</code></pre></div></div>
+
+<p>The results of the calls on <code class="highlighter-rouge">testSuper</code> should not be surprising: it has only one method. The results for <code class="highlighter-rouge">testSub</code> show method overloading at work: even though we are actually passing the same object instance twice, its compile-time type determines the actual signature of the method that is called.</p>
+
+<p>The method calls on <code class="highlighter-rouge">testSubAsSuper</code> are a bit more interesting. We see that, because <code class="highlighter-rouge">testSubAsSuper</code> is actually a <code class="highlighter-rouge">CombinedTestSub</code> instance, the method implementations that are invoked are the ones in <code class="highlighter-rouge">CombinedTestSub</code>. However, even though that class uses method overloading to change its behavior based on the compile-time type passed to <code class="highlighter-rouge">testMethod</code>, we see that the same implementation is called twice. How is this possible?</p>
+
+<p>Remember that <code class="highlighter-rouge">testSubAsSuper</code> has a compile-time type of <code class="highlighter-rouge">CombinedTestSuper</code>. If we call its <code class="highlighter-rouge">testMethod</code> method on <code class="highlighter-rouge">testString</code> (with compile-time type <code class="highlighter-rouge">String</code>), the Java compiler uses these compile-time types to determine the exact signature of the method to invoke. Because <code class="highlighter-rouge">CombinedTestSuper</code> only has a definition of <code class="highlighter-rouge">testMethod</code> with a parameter of type <code class="highlighter-rouge">Object</code>, the compiler determines that the signature of the method to invoke is <code class="highlighter-rouge">testMethod(Object)</code>.</p>
+
+<p>At runtime, the actual implementation to use is determined based on the runtime type of <code class="highlighter-rouge">testSubAsSuper</code>, which is <code class="highlighter-rouge">CombinedTestSub</code>. However, Java only considers implementations which match the signature determined at compile time. Because that signature is <code class="highlighter-rouge">testMethod(Object)</code>, Java executes the <code class="highlighter-rouge">testMethod(Object)</code> implementation on <code class="highlighter-rouge">CombinedTestSub</code>, even though it also has a <code class="highlighter-rouge">testMethod(String)</code>.</p>
+
+<h2 id="method-hiding">
+<a id="method-hiding" class="anchor" href="#method-hiding" aria-hidden="true"><span class="octicon octicon-link"></span></a>Method hiding</h2>
+
+<p>The parts above focused on instance methods. What about static methods?</p>
+
+<p>Static methods use the same concept of method overloading to determine the exact signature of the method to call based on the compile-time types of the passed arguments.</p>
+
+<p>Now, what happens if a subclass and superclass both implement a static method with the same signature?</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">CombinedTestSuper</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">testStaticMethod</span><span class="o">(</span><span class="n">Object</span> <span class="n">object</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"super"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">CombinedTestSub</span> <span class="kd">extends</span> <span class="n">CombinedTestSuper</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">testStaticMethod</span><span class="o">(</span><span class="n">Object</span> <span class="n">object</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"sub"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>If we call the static method directly on the class, we invoke the implementation of that particular class.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Object</span> <span class="n">testObject</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Object</span><span class="o">();</span>
+		
+<span class="n">StaticSuper</span><span class="o">.</span><span class="na">testStaticMethod</span><span class="o">(</span><span class="n">testObject</span><span class="o">);</span> <span class="c1">// super</span>
+<span class="n">StaticSub</span><span class="o">.</span><span class="na">testStaticMethod</span><span class="o">(</span><span class="n">testObject</span><span class="o">);</span> <span class="c1">// sub</span>
+</code></pre></div></div>
+
+<p>What if we try the same with instances of the classes?</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">StaticSuper</span> <span class="n">staticSuper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StaticSuper</span><span class="o">();</span>
+<span class="n">StaticSub</span> <span class="n">staticSub</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StaticSub</span><span class="o">();</span>
+<span class="n">StaticSuper</span> <span class="n">staticSubAsSuper</span> <span class="o">=</span> <span class="n">staticSub</span><span class="o">;</span>
+
+<span class="n">staticSuper</span><span class="o">.</span><span class="na">testStaticMethod</span><span class="o">(</span><span class="n">testObject</span><span class="o">);</span> <span class="c1">// super</span>
+<span class="n">staticSub</span><span class="o">.</span><span class="na">testStaticMethod</span><span class="o">(</span><span class="n">testObject</span><span class="o">);</span>	<span class="c1">// sub</span>
+<span class="n">staticSubAsSuper</span><span class="o">.</span><span class="na">testStaticMethod</span><span class="o">(</span><span class="n">testObject</span><span class="o">);</span>	<span class="c1">// super</span>
+</code></pre></div></div>
+
+<p>If the method we were calling was an instance method, we would have seen method overriding at work and the result of the last call would have been <code class="highlighter-rouge">"sub"</code> instead of <code class="highlighter-rouge">"super"</code>. However, because the method is static, the actual implementation that is called depends on the compile-time type of the object.</p>
+
+<p>All in all, that behavior can be pretty confusing. This is why Java actually warns you when calling static methods on class instances, telling you that you should rather call static methods directly on the class.</p>
+
+<h2 id="resources">
+<a id="resources" class="anchor" href="#resources" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resources</h2>
+
+<ul>
+  <li><a href="https://docs.oracle.com/javase/specs/jls/se10/html/jls-8.html#jls-8.4.9">Overloading in the Java Language Specification</a></li>
+  <li><a href="https://crunchify.com/java-method-hiding-and-overriding-override-static-method-in-java/9">Java Method Hiding and Overriding</a></li>
+</ul>
+
+    </div>
+
+    
+</article>
+
+		</div>
+		
+		<div class="sticky-footer-push"></div>
+	</div>
+
+    <div class="wrapper-footer sticky-footer-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/thehumanmicrophone/thehumanmicrophone.github.io-source"><i class="svg-icon github"></i></a>
+
+
+
+
+<a href="https://www.twitter.com/thehumanmicrop1"><i class="svg-icon twitter"></i></a>
+
+
+
+        </footer>
+      </div>
+    </div>
+
+		
+	<!-- Google Analytics -->
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-130247825-1', 'auto');
+		ga('send', 'pageview', {
+		  'page': '/2018/12/08/Java-overloading-overriding-method-hiding/',
+		  'title': 'Java overloading, overriding and method hiding'
+		});
+	</script>
+	<!-- End Google Analytics -->
+
+
+		
+		<script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script>
+<script>addBackToTop({
+  diameter: 50,
+  backgroundColor: '#2f2f2f',
+  textColor: '#fff'
+})</script> 
+  </body>
+</html>
