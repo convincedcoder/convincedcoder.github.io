@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Basic Java exception handling – The Human Microphone – Software development blog with a focus on Java and Javascript</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="Almost every program will need some kind of error handling for when things go wrong, either because of incorrect code or because of things that the code has no control over (e.g., network errors). This post explains the tools Java provides you for handling errors.
+
+" />
+    <meta property="og:description" content="Almost every program will need some kind of error handling for when things go wrong, either because of incorrect code or because of things that the code has no control over (e.g., network errors). This post explains the tools Java provides you for handling errors.
+
+" />
+    
+    <meta name="author" content="The Human Microphone" />
+
+    
+    <meta property="og:title" content="Basic Java exception handling" />
+    <meta property="twitter:title" content="Basic Java exception handling" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="The Human Microphone - Software development blog with a focus on Java and Javascript" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+	<!-- using Ryan Fait's sticky footer to stick the footer at the bottom of the page or content, whichever is lower -->
+	
+	<div class="sticky-footer-wrapper">
+		<div class="wrapper-masthead">
+		  <div class="container">
+			<header class="masthead clearfix">
+			  <a href="/" class="site-avatar"><img src="/images/microphone.png" /></a>
+
+			  <div class="site-info">
+				<h1 class="site-name"><a href="/">The Human Microphone</a></h1>
+				<p class="site-description">Software development blog with a focus on Java and Javascript</p>
+			  </div>
+
+			  <nav>
+				<a href="/">Blog</a>
+				<a href="/about">About</a>
+			  </nav>
+			</header>
+		  </div>
+		</div>
+
+		<div id="main" role="main" class="container">
+		  <article class="post">
+    <h1>Basic Java exception handling</h1>
+    
+    <div class="date">
+        2018-12-15
+    </div>
+
+    <div class=post-tags>
+               
+                 
+            <a href="/tag/java" class="tag">java</a>
+        
+    </div>
+
+    <div class="entry">
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#errors-and-exceptions">Errors and exceptions</a></li>
+<li class="toc-entry toc-h2"><a href="#throwing-and-the-throws-declaration">Throwing and the throws declaration</a></li>
+<li class="toc-entry toc-h2"><a href="#catching-exceptions">Catching exceptions</a></li>
+<li class="toc-entry toc-h2"><a href="#cleaning-up-using-try-with-resources">Cleaning up using try-with-resources</a></li>
+<li class="toc-entry toc-h2"><a href="#cleaning-up-using-finally">Cleaning up using finally</a></li>
+<li class="toc-entry toc-h2"><a href="#rethrowing-and-chaining">Rethrowing and chaining</a></li>
+<li class="toc-entry toc-h2"><a href="#turning-checked-exceptions-into-unchecked-exceptions">Turning checked exceptions into unchecked exceptions</a></li>
+<li class="toc-entry toc-h2"><a href="#resources">Resources</a></li>
+</ul><p>Almost every program will need some kind of error handling for when things go wrong, either because of incorrect code or because of things that the code has no control over (e.g., network errors). This post explains the tools Java provides you for handling errors.</p>
+
+<h2 id="errors-and-exceptions">
+<a id="errors-and-exceptions" class="anchor" href="#errors-and-exceptions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Errors and exceptions</h2>
+
+<p>When a method encounters a situation that prevents it from doing what it should do, it needs some way to make the caller of the method aware of this. One way of doing this is to return an error code if something went wrong. If the caller gets back an error code, it can then respond accordingly, possibly propagating the error to its own caller with an error code. A big drawback of this is that the caller must remember to check for error codes and then do something with them.</p>
+
+<p>As an alternative to this, Java and a lot of other modern languages support the concept of <em>exception handling</em>. Here, a method can throw an exception indicating that something is wrong. These exceptions automatically bubble up the call chain until they are handled (or, if they are not handled, they end up terminating the current thread). Typically, they include a stack trace, indicating where the exception occurred in the code and what the call chain looked like at the time.</p>
+
+<p>In Java, there are several kinds of exceptions. The following image describes what the general hierarchy of exception classes in Java looks like.</p>
+
+<p><img src="/images%5C2018-12-15-Java-exception-handling%5Cexception-hierarchy.png" alt="Exception hierarchy"></p>
+
+<p>All exceptions are direct or indirect subclasses of the <code class="highlighter-rouge">Throwable</code> class. Subclasses of <code class="highlighter-rouge">Error</code> are exceptions defined by the Java language that are thrown when something really bad happens that the code can normally not recover from by itself. An example of this is <code class="highlighter-rouge">OutOfMemoryError</code>, which occurs when Java is unable to allocate space to an object because there is no more memory available and garbage collection does not help. If you run into that one, the best you can generally do is exit the program.</p>
+
+<p>These <code class="highlighter-rouge">Error</code> exceptions are all unchecked. This means that the Java compiler does not check how we deal with these exceptions. This is different for checked exceptions: if your code can possibly throw a checked exception, the Java compiler requires you to either catch the exception or use a <code class="highlighter-rouge">throws</code> declaration to indicate that your code can throw the exception.</p>
+
+<p>User-defined exceptions are all subclasses of the <code class="highlighter-rouge">Exception</code> class. Exception classes that directly derive from <code class="highlighter-rouge">Exception</code> are checked exceptions. Exception classes that derive from <code class="highlighter-rouge">RuntimeException</code> are unchecked exceptions. The name <code class="highlighter-rouge">RuntimeException</code> could be a bit confusing, as all exceptions occur at runtime. The idea is that, unlike checked exceptions, the way you handle unchecked exceptions is not checked at <em>compile</em> time (hence the “runtime”).</p>
+
+<h2 id="throwing-and-the-throws-declaration">
+<a id="throwing-and-the-throws-declaration" class="anchor" href="#throwing-and-the-throws-declaration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Throwing and the <code class="highlighter-rouge">throws</code> declaration</h2>
+
+<p>Throwing an exception is as easy as obtaining an instance of the exception and throwing it. An example is the following code.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">isNumberBetween</span><span class="o">(</span>
+    <span class="kt">int</span> <span class="n">number</span><span class="o">,</span> <span class="kt">int</span> <span class="n">lower</span><span class="o">,</span> <span class="kt">int</span> <span class="n">upper</span>
+<span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">lower</span> <span class="o">&gt;</span> <span class="n">upper</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span>
+            <span class="s">"Lower bound cannot be higher than upper bound"</span><span class="o">);</span>
+    <span class="o">}</span>
+    
+    <span class="c1">// ...</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>In this case, we were throwing an <code class="highlighter-rouge">IllegalArgumentException</code>, which is unchecked. This means we do not need to declare (using a <code class="highlighter-rouge">throws</code> declaration) that the method can throw an exception of that type, although we can choose to declare it explicitly. The above code is an example of using unchecked exceptions to indicate programming errors: it never makes sense for the caller of this method to specify a lower bound that is higher than the upper bound.</p>
+
+<p>If the code in a method can throw a checked exception, your code will not compile until you declare it. One example of a checked exception is <code class="highlighter-rouge">IOException</code>, which you will encounter a lot when working with files.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// error: Unhandled exception type IOException</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">write</span><span class="o">(</span><span class="n">String</span> <span class="n">text</span><span class="o">,</span> <span class="n">String</span> <span class="n">filePath</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// potentially throws IOException</span>
+    <span class="n">Files</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">Paths</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">filePath</span><span class="o">),</span> <span class="n">text</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>We can fix the compiler error by either catching the IOException or declaring it using a <code class="highlighter-rouge">throws</code> clause.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">write</span><span class="o">(</span><span class="n">String</span> <span class="n">text</span><span class="o">,</span> <span class="n">String</span> <span class="n">filePath</span><span class="o">)</span>
+        <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+    <span class="n">Files</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">Paths</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">filePath</span><span class="o">),</span> <span class="n">text</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>This is a way for the compiler to remind us that there is a possibility for failures and that we will have to deal with those failures at some point in the code.</p>
+
+<p>If you override a method, you cannot throw more checked exceptions than the original <code class="highlighter-rouge">throws</code> clause specifies. Otherwise, you would break the contract of the method. This also means that, if a method does not have a <code class="highlighter-rouge">throws</code> clause, any method overriding it cannot throw any checked exceptions. Note that you can perfectly override a method declaring checked exceptions with a method not throwing any exceptions at all.</p>
+
+<p>In general, it is always allowed to include checked exceptions in your <code class="highlighter-rouge">throws</code> clause that you don’t actually use. This may be useful in a superclass that needs to allow subclasses to throw these checked exceptions.</p>
+
+<h2 id="catching-exceptions">
+<a id="catching-exceptions" class="anchor" href="#catching-exceptions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Catching exceptions</h2>
+
+<p>In order to handle an exception, you first need to catch it. Catching an exception allows your code to detect when the exception occurs and prevents the exception from bubbling up further through the call chain (although you can still trigger this yourself, see later).</p>
+
+<p>Catching an exception happens in a <code class="highlighter-rouge">try-catch</code> block. In its simplest form, it looks like this:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span> <span class="o">{</span>
+    <span class="c1">// code potentially throwing exception</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">TheExceptionClass</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// code handling the exception</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>You can also have multiple catch statements, catching exceptions of different exception classes. They are evaluated top to bottom, so put more specific exception classes first.
+It is also possible to have a handler that can handle several exception classes.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span> <span class="o">{</span>
+    <span class="c1">// code potentially throwing exception</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">ExceptionClass1</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// code handling the exception</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">ExceptionClass2</span> <span class="o">|</span> <span class="n">ExceptionClass3</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// code handling the exception</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="cleaning-up-using-try-with-resources">
+<a id="cleaning-up-using-try-with-resources" class="anchor" href="#cleaning-up-using-try-with-resources" aria-hidden="true"><span class="octicon octicon-link"></span></a>Cleaning up using try-with-resources</h2>
+
+<p>One challenge regarding exception handling is the cleanup of resources. For example, if you have opened a file and an exception occurs while doing something with it, you should make sure that the file is still being closed at some point.</p>
+
+<p>In Java, one way to solve this is called a <em>try-with-resources</em> statement. In this form of <code class="highlighter-rouge">try</code> statement, you can specify resources that should be closed automatically. The fact that a resource can be closed automatically is indicated by the fact that it implements the <code class="highlighter-rouge">AutoCloseable</code> interface. As an example, look at the following code.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">write</span><span class="o">(</span><span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">lines</span><span class="o">)</span>
+        <span class="kd">throws</span> <span class="n">FileNotFoundException</span> <span class="o">{</span>
+    <span class="k">try</span><span class="o">(</span><span class="n">PrintWriter</span> <span class="n">out</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PrintWriter</span><span class="o">(</span><span class="s">"output.txt"</span><span class="o">))</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="nl">line:</span> <span class="n">lines</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">possiblyGenerateException</span><span class="o">(</span><span class="n">line</span><span class="o">);</span>
+            <span class="n">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">line</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>When the code exits the try block, either because we finished processing the lines or an exception was thrown inside, the <code class="highlighter-rouge">PrintWriter</code> will be closed automatically. It is also possible to provide multiple resources to a try-with-resources statement. In that case, the order in which they are closed is the reverse of the order in which they were provided.</p>
+
+<p>A try-with-resources statement can also have catch clauses catching any exceptions occurring in the statement.</p>
+
+<p>It is possible that closing an <code class="highlighter-rouge">AutoCloseable</code> throws an exception itself. If that happens after normal execution of the <code class="highlighter-rouge">try</code> block, that exception is passed to the caller. However, if an exception happens inside the <code class="highlighter-rouge">try</code> block, that exception will be passed to the caller and any exceptions generated by subsequently closing the resources will be attached as <em>suppressed exceptions</em> on that exception. When catching the exception that happened in the <code class="highlighter-rouge">try</code> block (the <em>primary exception</em>), you can access those suppressed exceptions by invoking the <code class="highlighter-rouge">getSuppressed()</code> method on the caught exception.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ThrowsOnClose</span> <span class="kd">implements</span> <span class="n">AutoCloseable</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">close</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="s">"Closing"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span> <span class="o">(</span><span class="n">ThrowsOnClose</span> <span class="n">throwsOnClose</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ThrowsOnClose</span><span class="o">())</span> <span class="o">{</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="s">"Inside try"</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span> <span class="c1">// Inside try</span>
+
+    <span class="k">for</span> <span class="o">(</span><span class="n">Throwable</span> <span class="nl">suppressed:</span> <span class="n">e</span><span class="o">.</span><span class="na">getSuppressed</span><span class="o">())</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">suppressed</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span> <span class="c1">// Closing</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="cleaning-up-using-finally">
+<a id="cleaning-up-using-finally" class="anchor" href="#cleaning-up-using-finally" aria-hidden="true"><span class="octicon octicon-link"></span></a>Cleaning up using <code class="highlighter-rouge">finally</code>
+</h2>
+
+<p>An alternative to the try-with-resources statement is the <code class="highlighter-rouge">finally</code> clause. This is especially useful if you need to clean up something that is not an <code class="highlighter-rouge">AutoCloseable</code>. After the <code class="highlighter-rouge">try</code> block and potential <code class="highlighter-rouge">catch</code> blocks, you add a <code class="highlighter-rouge">finally block</code> which will run after the rest of the try-catch statement has finished.</p>
+
+<p>You should avoid throwing exceptions in the <code class="highlighter-rouge">finally</code> block. If the code in the <code class="highlighter-rouge">try</code> block throws an exception and then the <code class="highlighter-rouge">finally</code> block throws an exception, the caller of the method will only see the exception from the <code class="highlighter-rouge">finally</code> block. The suppression mechanism we saw above only works with try-with-resources statements. For example, a caller of the method below will only see the <code class="highlighter-rouge">IllegalStateException</code>:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>            
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="rethrowing-and-chaining">
+<a id="rethrowing-and-chaining" class="anchor" href="#rethrowing-and-chaining" aria-hidden="true"><span class="octicon octicon-link"></span></a>Rethrowing and chaining</h2>
+
+<p>It is possible that your code wants to do something with an exception (for example, log it) but still wants the exception to bubble up further through the call chain. In this case, you can simple catch the exception, do what you want to do with it, and then just throw the exception object that you caught.</p>
+
+<p>It is also possible catch a certain exception and throw a new exception instead. In this case, the original exception is typically included as the cause for the new exception. This is called the <em>chaining</em> of exceptions. As an example, the following code catches a <code class="highlighter-rouge">SQLException</code> but returns it to the caller as the cause for a custom exception which makes more sense to the caller.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span> <span class="o">{</span>
+    <span class="c1">// set foreign key to parent in database</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">SQLException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>            
+    <span class="k">throw</span> <span class="k">new</span> <span class="nf">ParentNotFoundException</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>When the caller catches the <code class="highlighter-rouge">ParentNotFoundException</code>, it can find the original exception using the <code class="highlighter-rouge">getCause()</code> method.</p>
+
+<p>In this case, <code class="highlighter-rouge">ParentNotFoundException</code> has a constructor which allows passing the cause (this is considered good practice). If an exception class does not allow that, the cause for the exception can be set through the <code class="highlighter-rouge">initCause()</code> method.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span> <span class="o">{</span>
+    <span class="c1">// set foreign key to parent in database</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">SQLException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>  
+    <span class="n">Throwable</span> <span class="n">wrapped</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ParentNotFoundException</span><span class="o">();</span>
+    <span class="n">wrapped</span><span class="o">.</span><span class="na">initCause</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span>     
+    <span class="k">throw</span> <span class="n">wrapped</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="turning-checked-exceptions-into-unchecked-exceptions">
+<a id="turning-checked-exceptions-into-unchecked-exceptions" class="anchor" href="#turning-checked-exceptions-into-unchecked-exceptions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Turning checked exceptions into unchecked exceptions</h2>
+
+<p>In some cases, you may find yourself getting a checked exception which you want to pass up the method chain as an unchecked exception (for example because you are overriding a method without a <code class="highlighter-rouge">throws</code> declaration allowing the checked exception).</p>
+
+<p>One way of doing is the chaining of exceptions, which we saw above. It is perfectly possible to catch a checked exception, set that exception as the cause for a new unchecked exception and then throw the unchecked exception to the caller. In the above examples, <code class="highlighter-rouge">ParentNotFoundException</code> could have been an unchecked exception. This is the recommended way of turning checked exceptions into unchecked exceptions.</p>
+
+<p>There also exist sneaky approaches that trick the Java compiler into ignoring checked exceptions. An example is the following implementation which I took from <em>Core Java SE 9 for the Impatient</em> (see resources below).</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Exceptions</span> <span class="o">{</span>
+    <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">"unchecked"</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">T</span> <span class="kd">extends</span> <span class="n">Throwable</span><span class="o">&gt;</span> 
+            <span class="kt">void</span> <span class="nf">throwAs</span><span class="o">(</span><span class="n">Throwable</span> <span class="n">e</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">T</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="o">(</span><span class="n">T</span><span class="o">)</span> <span class="n">e</span><span class="o">;</span> <span class="c1">// erased to (Throwable) e</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">V</span> <span class="nf">doWork</span><span class="o">(</span><span class="n">Callable</span><span class="o">&lt;</span><span class="n">V</span><span class="o">&gt;</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="na">call</span><span class="o">();</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">Exceptions</span><span class="o">.&lt;</span><span class="n">RuntimeException</span><span class="o">&gt;</span><span class="n">throwAs</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Now, any checked exceptions thrown inside the <code class="highlighter-rouge">doWork</code> method are ignored by the compiler.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c1">// error: unhandled FileNotFoundException</span>
+    <span class="k">new</span> <span class="nf">PrintWriter</span><span class="o">(</span><span class="s">"output.txt"</span><span class="o">);</span> 
+
+    <span class="c1">// ok</span>
+    <span class="n">Exceptions</span><span class="o">.</span><span class="na">doWork</span><span class="o">(()</span> <span class="o">-&gt;</span> 
+            <span class="k">new</span> <span class="nf">PrintWriter</span><span class="o">(</span><span class="s">"output.txt"</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Although this is a pretty cool trick, it is not generally applicable in practice. Not only would it be confusing to catch an <code class="highlighter-rouge">IOException</code> from a method that doesn’t declare it, but the compiler does not even allow you to do it.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">invokeTest</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">test</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// error: unreachable catch block</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>        
+    <span class="n">Exceptions</span><span class="o">.</span><span class="na">doWork</span><span class="o">(()</span> <span class="o">-&gt;</span> 
+            <span class="k">new</span> <span class="nf">PrintWriter</span><span class="o">(</span><span class="s">"output.txt"</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>There are some limited use cases where it could make sense to use this trick (although they are not necessarily considered good practice). The first one is if you are creating a <code class="highlighter-rouge">Runnable</code> that can throw a checked exception in its <code class="highlighter-rouge">run()</code> method (which does not declare any checked exceptions). You can define custom error handling behavior for the thread (for both checked and unchecked exceptions) in the thread’s uncaught exception handler.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestRunnable</span> <span class="kd">implements</span> <span class="n">Runnable</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">Exceptions</span><span class="o">.</span><span class="na">doWork</span><span class="o">(()</span>
+                <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">PrintWriter</span><span class="o">(</span><span class="s">"unwritableFile"</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Thread</span> <span class="n">thread</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="k">new</span> <span class="n">TestRunnable</span><span class="o">());</span>
+        
+<span class="n">thread</span><span class="o">.</span><span class="na">setUncaughtExceptionHandler</span><span class="o">(</span><span class="k">new</span> <span class="n">UncaughtExceptionHandler</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">uncaughtException</span><span class="o">(</span><span class="n">Thread</span> <span class="n">t</span><span class="o">,</span> <span class="n">Throwable</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">e</span> <span class="k">instanceof</span> <span class="n">IOException</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Caught IOException"</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">});</span>
+
+<span class="n">thread</span><span class="o">.</span><span class="na">start</span><span class="o">();</span> <span class="c1">// Caught IOException</span>
+</code></pre></div></div>
+
+<p>Another case where it could make sense to use this method is when dealing with “impossible” exceptions. There are some methods in the standard library with a <code class="highlighter-rouge">throws</code> clause declaring checked exceptions, although there are some sets of arguments which are <em>guaranteed</em> to <em>never</em> throw an exception. If you know that you are passing such a set of arguments, you could use this trick to stop the compiler from bothering you about this impossible exception.</p>
+
+<h2 id="resources">
+<a id="resources" class="anchor" href="#resources" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resources</h2>
+
+<ul>
+  <li>Core Java SE 9 for the Impatient (book by Cay S. Horstmann)</li>
+  <li><a href="https://projectlombok.org/features/SneakyThrows">Project Lombok @SneakyThrows (throwing checked exceptions as unchecked)</a></li>
+</ul>
+
+    </div>
+
+    
+</article>
+
+		</div>
+		
+		<div class="sticky-footer-push"></div>
+	</div>
+
+    <div class="wrapper-footer sticky-footer-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/thehumanmicrophone/thehumanmicrophone.github.io-source"><i class="svg-icon github"></i></a>
+
+
+
+
+<a href="https://www.twitter.com/thehumanmicrop1"><i class="svg-icon twitter"></i></a>
+
+
+
+        </footer>
+      </div>
+    </div>
+
+		
+	<!-- Google Analytics -->
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-130247825-1', 'auto');
+		ga('send', 'pageview', {
+		  'page': '/2018/12/15/Basic-Java-exception-handling/',
+		  'title': 'Basic Java exception handling'
+		});
+	</script>
+	<!-- End Google Analytics -->
+
+
+		
+		<script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script>
+<script>addBackToTop({
+  diameter: 50,
+  backgroundColor: '#2f2f2f',
+  textColor: '#fff'
+})</script> 
+  </body>
+</html>
