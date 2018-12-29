@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Modern Java interfaces – The Human Microphone – Software development blog with a focus on Java and JavaScript</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="This post is a review of interfaces in Java, including modern interfaces in Java 8 and later.
+
+" />
+    <meta property="og:description" content="This post is a review of interfaces in Java, including modern interfaces in Java 8 and later.
+
+" />
+    
+    <meta name="author" content="The Human Microphone" />
+
+    
+    <meta property="og:title" content="Modern Java interfaces" />
+    <meta property="twitter:title" content="Modern Java interfaces" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="The Human Microphone - Software development blog with a focus on Java and JavaScript" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+	<!-- using Ryan Fait's sticky footer to stick the footer at the bottom of the page or content, whichever is lower -->
+	
+	<div class="sticky-footer-wrapper">
+		<div class="wrapper-masthead">
+		  <div class="container">
+			<header class="masthead clearfix">
+			  <a href="/" class="site-avatar"><img src="/images/microphone.png" /></a>
+
+			  <div class="site-info">
+				<h1 class="site-name"><a href="/">The Human Microphone</a></h1>
+				<p class="site-description">Software development blog with a focus on Java and JavaScript</p>
+			  </div>
+
+			  <nav>
+				<a href="/">Blog</a>
+				<a href="/about">About</a>
+			  </nav>
+			</header>
+		  </div>
+		</div>
+
+		<div id="main" role="main" class="container">
+		  <article class="post">
+    <h1>Modern Java interfaces</h1>
+    
+    <div class="date">
+        2018-12-29
+    </div>
+
+    <div class=post-tags>
+               
+                 
+            <a href="/tag/java" class="tag">java</a>
+        
+    </div>
+
+    <div class="entry">
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#the-idea-behind-interfaces">The idea behind interfaces</a></li>
+<li class="toc-entry toc-h2"><a href="#interfaces-in-modern-java">Interfaces in modern Java</a></li>
+<li class="toc-entry toc-h2"><a href="#abstract-classes-vs-interfaces">Abstract classes vs. interfaces</a></li>
+<li class="toc-entry toc-h2"><a href="#default-methods-and-inheritance">Default methods and inheritance</a></li>
+<li class="toc-entry toc-h2"><a href="#resources">Resources</a></li>
+</ul><p>This post is a review of interfaces in Java, including modern interfaces in Java 8 and later.</p>
+
+<h2 id="the-idea-behind-interfaces">
+<a id="the-idea-behind-interfaces" class="anchor" href="#the-idea-behind-interfaces" aria-hidden="true"><span class="octicon octicon-link"></span></a>The idea behind interfaces</h2>
+
+<p>Interfaces have been around since the first version of Java. The main idea behind interfaces is that they are a way to specify the contract between supplier(s) of certain functionality and client code which uses that functionality.</p>
+
+<p>The most common use case for interfaces is to define an interface declaring one or more abstract methods (without implementation). There may be several classes actually implementing the interface (and specifying concrete implementations for the methods). Client code can then require an object that conforms to a certain interface, without having to care about which implementing class the object is an instance of.</p>
+
+<p>Initially, Java interfaces could only contain two kinds of members: public static constants and public abstract methods.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Interface</span> <span class="o">{</span>    
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">CONSTANT</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>    
+    <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">void</span> <span class="nf">doSomething</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>In version 2, it became possible to include nested classes and interfaces as well (although this is often not considered good practice). Java 5 introduced generics and the new enum an annotation types. This meant that interfaces could then also be parameterized with type parameters and that they could contain nested enums and annotations.</p>
+
+<p>If we forget about nested classes, interfaces, enums and annotations for a moment (they are not used very often anyway), not much had changed since the first version. Interfaces were still all about declaring public static constants and public abstract methods. This all changed in Java 8 and later versions.</p>
+
+<h2 id="interfaces-in-modern-java">
+<a id="interfaces-in-modern-java" class="anchor" href="#interfaces-in-modern-java" aria-hidden="true"><span class="octicon octicon-link"></span></a>Interfaces in modern Java</h2>
+
+<p>Java 8 introduced streams. This means that, starting from Java 8, every class implementing the <code class="highlighter-rouge">Collection</code> interface now has a <code class="highlighter-rouge">.stream()</code> method that provides powerful tools for processing and transforming the collection and its contents. Now, if that method would have been added to the <code class="highlighter-rouge">Collection</code> interface as an abstract method, this would have meant that all of the custom <code class="highlighter-rouge">Collection</code> classes that people had implemented would fail to compile until their authors added that <code class="highlighter-rouge">.stream()</code> method. Additionally, if such a class was supplied in a JAR file (for example, a  reusable library) that was compiled with an earlier version of Java, the class would still load successfully but users would suddenly get runtime errors on calling the <code class="highlighter-rouge">.stream()</code> method.</p>
+
+<p>This was one of the reasons for the introduction of <em>default methods</em> in Java 8 interfaces. A default method is a method defined in an interface that specifies an actual implementation. A class implementing the interface can choose to either use that implementation (this is the case by default) or override it with custom code.</p>
+
+<p>In Java 8, the <code class="highlighter-rouge">.stream()</code> method was added to the  <code class="highlighter-rouge">Collection</code> interface as a default method. This means that classes that don’t specify anything regarding the <code class="highlighter-rouge">.stream()</code> method will still continue to work without any changes. They will just use the default implementation of <code class="highlighter-rouge">.stream()</code> that is specified in the interface.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Collection</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="kd">extends</span> <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="c1">// ...    </span>
+    
+    <span class="k">default</span> <span class="n">Stream</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="nf">stream</span><span class="o">()</span> <span class="o">{</span> 
+        <span class="c1">// default implementation</span>
+    <span class="o">}</span>
+
+    <span class="c1">//...</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Default methods are also a clean alternative to the widespread pattern of declaring an interface (with only abstract methods) and then offering an abstract companion class providing default implementations for most of the methods. An example of that pattern is the <code class="highlighter-rouge">Collection</code> interface, for which there is an <code class="highlighter-rouge">AbstractCollection</code> class providing default implementations.</p>
+
+<p>In addition to default methods, modern Java now also allows interfaces to specify static methods and private methods (introduced in Java 9). Static methods in interfaces can be useful as factory methods. We will see examples of this in an upcoming article on lambda expressions. Private methods are useful as helper methods for the default methods specified in the interface.</p>
+
+<h2 id="abstract-classes-vs-interfaces">
+<a id="abstract-classes-vs-interfaces" class="anchor" href="#abstract-classes-vs-interfaces" aria-hidden="true"><span class="octicon octicon-link"></span></a>Abstract classes vs. interfaces</h2>
+
+<p>As interfaces have become more powerful, they have become more similar to abstract classes. Therefore, it can be interesting to have a look at the remaining differences between the two in order to get a feel for when to use which.</p>
+
+<p>One big limitation (by design) of interfaces is that they cannot be instantiated. Every object, although it could conform to one or more interfaces and could even be casted to the type of those interfaces, has to be an instance of an actual class. This also means that, unlike abstract classes, interfaces cannot have any instance variables or constructors. Interfaces are made for specifying behavior, not for encapsulating state.</p>
+
+<p>Another limitation of interfaces is that the static variables they can declare will always be <code class="highlighter-rouge">final</code> (constant). This means that nothing, including the interface’s own static methods, can modify them.</p>
+
+<p>An important feature of interfaces is that, while a class can only extend at most one class, a class can implement any number of interfaces. This makes sense, as an interface is intended to specify a contract and a class could potentially conform to multiple contracts.</p>
+
+<h2 id="default-methods-and-inheritance">
+<a id="default-methods-and-inheritance" class="anchor" href="#default-methods-and-inheritance" aria-hidden="true"><span class="octicon octicon-link"></span></a>Default methods and inheritance</h2>
+
+<p>As we saw above, a class can implement multiple interfaces. Before version 8 of Java, this was straightforward: as interfaces could not contain any kind of implementation code, it was impossible for implementation code from different interfaces to conflict.</p>
+
+<p>Since default methods were introduced, this is no longer the case. Now, let’s say that we have class that implements two interfaces, both of which contain a default method <code class="highlighter-rouge">doSomething()</code>. At that point, it becomes unclear which implementation should be used if the class does not specify its own implementation. This is known as the <a href="https://en.wikipedia.org/wiki/Multiple_inheritance#The_diamond_problem">diamond problem</a>.</p>
+
+<p>The Java team has chosen to play it safe: if two interfaces that a class implements specify a method with the same signature and at least one of them specifies a default implementation for that method, the class must specify its own implementation. Even if only one of the interfaces provides a default implementation, the compiler forces you to be explicit about the specific implementation to be used. If one of the default methods already specifies the behavior you want, your implementation can simply delegate to it.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">InterfaceA</span> <span class="o">{</span>    
+    <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">void</span> <span class="nf">doSomething</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">InterfaceB</span> <span class="o">{</span>    
+    <span class="kd">public</span> <span class="k">default</span> <span class="kt">void</span> <span class="nf">doSomething</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"test"</span><span class="o">);</span>
+    <span class="o">};</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Class</span> <span class="kd">implements</span> <span class="n">InterfaceA</span><span class="o">,</span> <span class="n">InterfaceB</span> <span class="o">{</span>
+    <span class="c1">// compiler forces us to provide an implementation</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">doSomething</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">// delegate to behavior specified in InterfaceB</span>
+        <span class="n">InterfaceB</span><span class="o">.</span><span class="na">super</span><span class="o">.</span><span class="na">doSomething</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Now, what if a class inherits from a superclass specifying a method <code class="highlighter-rouge">doSomething()</code> but also implements an interface that specifies a default <code class="highlighter-rouge">doSomething()</code> method? Here, the answer is simple: classes always win. In this case, Java will use the implementation defined in the superclass and simply ignore the default method implementation. This rule makes sure that default methods don’t suddenly change the behavior of code that was written before Java 8.</p>
+
+<p>Also, remember that there cannot possibly be a conflict between method implementations from two superclasses, because a class can still only inherit from at most one superclass.</p>
+
+<h2 id="resources">
+<a id="resources" class="anchor" href="#resources" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resources</h2>
+
+<ul>
+  <li>Core Java SE 9 for the Impatient (book by Cay S. Horstmann)</li>
+  <li><a href="https://dzone.com/articles/evolution-of-interface-in-history-of-java">Evolution of Interfaces in History of Java</a></li>
+  <li><a href="https://www.geeksforgeeks.org/difference-between-abstract-class-and-interface-in-java/">Difference between Abstract Class and Interface in Java</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Multiple_inheritance#The_diamond_problem">The diamond problem</a></li>
+</ul>
+
+    </div>
+
+    
+</article>
+
+		</div>
+		
+		<div class="sticky-footer-push"></div>
+	</div>
+
+    <div class="wrapper-footer sticky-footer-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/thehumanmicrophone/thehumanmicrophone.github.io-source"><i class="svg-icon github"></i></a>
+
+
+
+
+<a href="https://www.twitter.com/thehumanmicrop1"><i class="svg-icon twitter"></i></a>
+
+
+
+        </footer>
+      </div>
+    </div>
+
+		
+	<!-- Google Analytics -->
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-130247825-1', 'auto');
+		ga('send', 'pageview', {
+		  'page': '/2018/12/29/Modern-Java-interfaces/',
+		  'title': 'Modern Java interfaces'
+		});
+	</script>
+	<!-- End Google Analytics -->
+
+
+		
+		<script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script>
+<script>addBackToTop({
+  diameter: 50,
+  backgroundColor: '#2f2f2f',
+  textColor: '#fff'
+})</script> 
+  </body>
+</html>

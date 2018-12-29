@@ -1,4 +1,96 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2018-12-22T15:19:30+01:00</updated><id>http://0.0.0.0:4000/</id><title type="html">thehumanmicrophone.github.io-source.git</title><subtitle>Software development blog with a focus on Java and JavaScript</subtitle><entry><title type="html">Exception handling best practices in Java</title><link href="http://0.0.0.0:4000/2018/12/22/Exception-handling-best-practices-Java/" rel="alternate" type="text/html" title="Exception handling best practices in Java" /><published>2018-12-22T00:00:00+01:00</published><updated>2018-12-22T00:00:00+01:00</updated><id>http://0.0.0.0:4000/2018/12/22/Exception-handling-best-practices-Java</id><content type="html" xml:base="http://0.0.0.0:4000/2018/12/22/Exception-handling-best-practices-Java/">&lt;p&gt;This post explains some best practices for exception handling in Java. Although the post focuses on Java, some general ideas can be applied to other languages as well.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2018-12-29T22:29:32+01:00</updated><id>http://0.0.0.0:4000/</id><title type="html">thehumanmicrophone.github.io-source.git</title><subtitle>Software development blog with a focus on Java and JavaScript</subtitle><entry><title type="html">Modern Java interfaces</title><link href="http://0.0.0.0:4000/2018/12/29/Modern-Java-interfaces/" rel="alternate" type="text/html" title="Modern Java interfaces" /><published>2018-12-29T00:00:00+01:00</published><updated>2018-12-29T00:00:00+01:00</updated><id>http://0.0.0.0:4000/2018/12/29/Modern-Java-interfaces</id><content type="html" xml:base="http://0.0.0.0:4000/2018/12/29/Modern-Java-interfaces/">&lt;p&gt;This post is a review of interfaces in Java, including modern interfaces in Java 8 and later.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-idea-behind-interfaces&quot;&gt;The idea behind interfaces&lt;/h2&gt;
+
+&lt;p&gt;Interfaces have been around since the first version of Java. The main idea behind interfaces is that they are a way to specify the contract between supplier(s) of certain functionality and client code which uses that functionality.&lt;/p&gt;
+
+&lt;p&gt;The most common use case for interfaces is to define an interface declaring one or more abstract methods (without implementation). There may be several classes actually implementing the interface (and specifying concrete implementations for the methods). Client code can then require an object that conforms to a certain interface, without having to care about which implementing class the object is an instance of.&lt;/p&gt;
+
+&lt;p&gt;Initially, Java interfaces could only contain two kinds of members: public static constants and public abstract methods.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Interface&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;CONSTANT&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;    
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;abstract&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;In version 2, it became possible to include nested classes and interfaces as well (although this is often not considered good practice). Java 5 introduced generics and the new enum an annotation types. This meant that interfaces could then also be parameterized with type parameters and that they could contain nested enums and annotations.&lt;/p&gt;
+
+&lt;p&gt;If we forget about nested classes, interfaces, enums and annotations for a moment (they are not used very often anyway), not much had changed since the first version. Interfaces were still all about declaring public static constants and public abstract methods. This all changed in Java 8 and later versions.&lt;/p&gt;
+
+&lt;h2 id=&quot;interfaces-in-modern-java&quot;&gt;Interfaces in modern Java&lt;/h2&gt;
+
+&lt;p&gt;Java 8 introduced streams. This means that, starting from Java 8, every class implementing the &lt;code class=&quot;highlighter-rouge&quot;&gt;Collection&lt;/code&gt; interface now has a &lt;code class=&quot;highlighter-rouge&quot;&gt;.stream()&lt;/code&gt; method that provides powerful tools for processing and transforming the collection and its contents. Now, if that method would have been added to the &lt;code class=&quot;highlighter-rouge&quot;&gt;Collection&lt;/code&gt; interface as an abstract method, this would have meant that all of the custom &lt;code class=&quot;highlighter-rouge&quot;&gt;Collection&lt;/code&gt; classes that people had implemented would fail to compile until their authors added that &lt;code class=&quot;highlighter-rouge&quot;&gt;.stream()&lt;/code&gt; method. Additionally, if such a class was supplied in a JAR file (for example, a  reusable library) that was compiled with an earlier version of Java, the class would still load successfully but users would suddenly get runtime errors on calling the &lt;code class=&quot;highlighter-rouge&quot;&gt;.stream()&lt;/code&gt; method.&lt;/p&gt;
+
+&lt;p&gt;This was one of the reasons for the introduction of &lt;em&gt;default methods&lt;/em&gt; in Java 8 interfaces. A default method is a method defined in an interface that specifies an actual implementation. A class implementing the interface can choose to either use that implementation (this is the case by default) or override it with custom code.&lt;/p&gt;
+
+&lt;p&gt;In Java 8, the &lt;code class=&quot;highlighter-rouge&quot;&gt;.stream()&lt;/code&gt; method was added to the  &lt;code class=&quot;highlighter-rouge&quot;&gt;Collection&lt;/code&gt; interface as a default method. This means that classes that don’t specify anything regarding the &lt;code class=&quot;highlighter-rouge&quot;&gt;.stream()&lt;/code&gt; method will still continue to work without any changes. They will just use the default implementation of &lt;code class=&quot;highlighter-rouge&quot;&gt;.stream()&lt;/code&gt; that is specified in the interface.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Collection&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;E&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Iterable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;E&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// ...    &lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Stream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;E&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;stream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; 
+        &lt;span class=&quot;c1&quot;&gt;// default implementation&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;//...&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Default methods are also a clean alternative to the widespread pattern of declaring an interface (with only abstract methods) and then offering an abstract companion class providing default implementations for most of the methods. An example of that pattern is the &lt;code class=&quot;highlighter-rouge&quot;&gt;Collection&lt;/code&gt; interface, for which there is an &lt;code class=&quot;highlighter-rouge&quot;&gt;AbstractCollection&lt;/code&gt; class providing default implementations.&lt;/p&gt;
+
+&lt;p&gt;In addition to default methods, modern Java now also allows interfaces to specify static methods and private methods (introduced in Java 9). Static methods in interfaces can be useful as factory methods. We will see examples of this in an upcoming article on lambda expressions. Private methods are useful as helper methods for the default methods specified in the interface.&lt;/p&gt;
+
+&lt;h2 id=&quot;abstract-classes-vs-interfaces&quot;&gt;Abstract classes vs. interfaces&lt;/h2&gt;
+
+&lt;p&gt;As interfaces have become more powerful, they have become more similar to abstract classes. Therefore, it can be interesting to have a look at the remaining differences between the two in order to get a feel for when to use which.&lt;/p&gt;
+
+&lt;p&gt;One big limitation (by design) of interfaces is that they cannot be instantiated. Every object, although it could conform to one or more interfaces and could even be casted to the type of those interfaces, has to be an instance of an actual class. This also means that, unlike abstract classes, interfaces cannot have any instance variables or constructors. Interfaces are made for specifying behavior, not for encapsulating state.&lt;/p&gt;
+
+&lt;p&gt;Another limitation of interfaces is that the static variables they can declare will always be &lt;code class=&quot;highlighter-rouge&quot;&gt;final&lt;/code&gt; (constant). This means that nothing, including the interface’s own static methods, can modify them.&lt;/p&gt;
+
+&lt;p&gt;An important feature of interfaces is that, while a class can only extend at most one class, a class can implement any number of interfaces. This makes sense, as an interface is intended to specify a contract and a class could potentially conform to multiple contracts.&lt;/p&gt;
+
+&lt;h2 id=&quot;default-methods-and-inheritance&quot;&gt;Default methods and inheritance&lt;/h2&gt;
+
+&lt;p&gt;As we saw above, a class can implement multiple interfaces. Before version 8 of Java, this was straightforward: as interfaces could not contain any kind of implementation code, it was impossible for implementation code from different interfaces to conflict.&lt;/p&gt;
+
+&lt;p&gt;Since default methods were introduced, this is no longer the case. Now, let’s say that we have class that implements two interfaces, both of which contain a default method &lt;code class=&quot;highlighter-rouge&quot;&gt;doSomething()&lt;/code&gt;. At that point, it becomes unclear which implementation should be used if the class does not specify its own implementation. This is known as the &lt;a href=&quot;https://en.wikipedia.org/wiki/Multiple_inheritance#The_diamond_problem&quot;&gt;diamond problem&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The Java team has chosen to play it safe: if two interfaces that a class implements specify a method with the same signature and at least one of them specifies a default implementation for that method, the class must specify its own implementation. Even if only one of the interfaces provides a default implementation, the compiler forces you to be explicit about the specific implementation to be used. If one of the default methods already specifies the behavior you want, your implementation can simply delegate to it.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;InterfaceA&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;abstract&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;InterfaceB&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;test&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Class&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;InterfaceA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;InterfaceB&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// compiler forces us to provide an implementation&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// delegate to behavior specified in InterfaceB&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;InterfaceB&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Now, what if a class inherits from a superclass specifying a method &lt;code class=&quot;highlighter-rouge&quot;&gt;doSomething()&lt;/code&gt; but also implements an interface that specifies a default &lt;code class=&quot;highlighter-rouge&quot;&gt;doSomething()&lt;/code&gt; method? Here, the answer is simple: classes always win. In this case, Java will use the implementation defined in the superclass and simply ignore the default method implementation. This rule makes sure that default methods don’t suddenly change the behavior of code that was written before Java 8.&lt;/p&gt;
+
+&lt;p&gt;Also, remember that there cannot possibly be a conflict between method implementations from two superclasses, because a class can still only inherit from at most one superclass.&lt;/p&gt;
+
+&lt;h2 id=&quot;resources&quot;&gt;Resources&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Core Java SE 9 for the Impatient (book by Cay S. Horstmann)&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://dzone.com/articles/evolution-of-interface-in-history-of-java&quot;&gt;Evolution of Interfaces in History of Java&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.geeksforgeeks.org/difference-between-abstract-class-and-interface-in-java/&quot;&gt;Difference between Abstract Class and Interface in Java&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Multiple_inheritance#The_diamond_problem&quot;&gt;The diamond problem&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><category term="java" /><summary type="html">This post is a review of interfaces in Java, including modern interfaces in Java 8 and later.</summary></entry><entry><title type="html">Exception handling best practices in Java</title><link href="http://0.0.0.0:4000/2018/12/22/Exception-handling-best-practices-Java/" rel="alternate" type="text/html" title="Exception handling best practices in Java" /><published>2018-12-22T00:00:00+01:00</published><updated>2018-12-22T00:00:00+01:00</updated><id>http://0.0.0.0:4000/2018/12/22/Exception-handling-best-practices-Java</id><content type="html" xml:base="http://0.0.0.0:4000/2018/12/22/Exception-handling-best-practices-Java/">&lt;p&gt;This post explains some best practices for exception handling in Java. Although the post focuses on Java, some general ideas can be applied to other languages as well.&lt;/p&gt;
 
 &lt;h2 id=&quot;checked-versus-unchecked-exceptions&quot;&gt;Checked versus unchecked exceptions&lt;/h2&gt;
 
@@ -1806,97 +1898,4 @@ It is also possible to have a handler that can handle several exception classes.
   &lt;li&gt;&lt;a href=&quot;http://www.artima.com/lejava/articles/equality.html&quot;&gt;How to Write an Equality Method in Java&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;Core Java SE 9 for the Impatient (book by Cay S. Horstmann)&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;https://docs.oracle.com/javase/specs/jls/se10/html/jls-8.html#jls-8.4.9&quot;&gt;Overloading in the Java Language Specification&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><author><name></name></author><category term="java" /><summary type="html">If you’ve ever had to write or test an equals method, you may have gotten a feel for how complex this can get. This post will explain a number of things that can go wrong, offer solutions, and explain how a library called EqualsVerifier can help you prevent unexpected behavior regarding object equality testing.</summary></entry><entry><title type="html">How I created this blog</title><link href="http://0.0.0.0:4000/2018/01/20/How-I-created-this-blog/" rel="alternate" type="text/html" title="How I created this blog" /><published>2018-01-20T00:00:00+01:00</published><updated>2018-01-20T00:00:00+01:00</updated><id>http://0.0.0.0:4000/2018/01/20/How-I-created-this-blog</id><content type="html" xml:base="http://0.0.0.0:4000/2018/01/20/How-I-created-this-blog/">&lt;p&gt;This post explains why I decided to use Jekyll for my blog and how you could set up your own blog using Jekyll and GitHub Pages.&lt;/p&gt;
-
-&lt;h2 id=&quot;what-i-was-looking-for&quot;&gt;What I was looking for&lt;/h2&gt;
-
-&lt;p&gt;When deciding on which platform to use for my software development blog, I first looked at a number of popular services like Wordpress and Medium. However, none of them was able to satisfy my main requirements:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Make it straightforward to include source code directly in a post and get proper syntax highlighting (without having to use GitHub Gist or something similar)&lt;/li&gt;
-  &lt;li&gt;Give me full control over the look and feel of my blog&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;jekyll-and-github-pages&quot;&gt;Jekyll and GitHub Pages&lt;/h2&gt;
-
-&lt;p&gt;If you’re a software developer looking to start a blog, &lt;a href=&quot;https://jekyllrb.com/&quot;&gt;Jekyll&lt;/a&gt; is a great option. As the Jekyll documentation says:&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Jekyll is a simple, blog-aware, static site generator. It takes a template directory containing raw text files in various formats, runs it through a converter (like Markdown) and our Liquid renderer, and spits out a complete, ready-to-publish static website suitable for serving with your favorite web server.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Using Jekyll, you can simply write your blog posts as &lt;a href=&quot;https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet&quot;&gt;Markdown&lt;/a&gt; files. Based on the layouts you define using HTML, (S)CSS and the Liquid template language, Jekyll then generates your blog as a static website. This means that basically any web server will be able to serve your blog. There’s no need for PHP, a database or a separate backend server.&lt;/p&gt;
-
-&lt;p&gt;You can use any text editor to write your blog posts, although I would recommend an editor with Markdown support (like Visual Studio Code) that allows you to preview your posts as you write them.&lt;/p&gt;
-
-&lt;p&gt;Including source code is easy. You just write blocks of code fenced by lines with three back-ticks. If you specify a language, you get syntax highlighting as well.&lt;/p&gt;
-
-&lt;p&gt;Source:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;```javascript
-function () {
-    alert('Hello world!');
-}
-```
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;Result:&lt;/p&gt;
-
-&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'Hello world!'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;The fact that Jekyll generates your blog as a static website means that you can effortlessly host the generated files on a service like &lt;a href=&quot;https://pages.github.com/&quot;&gt;GitHub Pages&lt;/a&gt;. However, GitHub Pages has another interesting feature: it has built-in Jekyll support. This means that you can put the source files for your Jekyll site inside your GitHub Pages repository and GitHub Pages will automatically generate your site for you and serve the generated pages.&lt;/p&gt;
-
-&lt;h2 id=&quot;jekyll-now&quot;&gt;Jekyll Now&lt;/h2&gt;
-
-&lt;p&gt;&lt;img src=&quot;/images/2018-01-20-How-I-created-this-blog/jekyll-now-theme-screenshot.jpg&quot; alt=&quot;Jekyll Now screenshot&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;If you are looking for a quick way to set up a Jekyll blog on GitHub Pages, &lt;a href=&quot;https://github.com/barryclark/jekyll-now&quot;&gt;Jekyll Now&lt;/a&gt; is an excellent option. It contains all the necessary files to set up a basic Jekyll blog. Just fork the repository according to the instructions and you can immediately start putting your blog posts in the &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory. You don’t even have to install anything on your own machine if you don’t want to, as GitHub’s online editor has built-in Markdown support.&lt;/p&gt;
-
-&lt;p&gt;If you want to modify the look and feel of your blog, you can start modifying &lt;code class=&quot;highlighter-rouge&quot;&gt;index.html&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;style.scss&lt;/code&gt;, the layouts in the &lt;code class=&quot;highlighter-rouge&quot;&gt;_layouts&lt;/code&gt; folder and the additional styles in the &lt;code class=&quot;highlighter-rouge&quot;&gt;_sass&lt;/code&gt; folder.&lt;/p&gt;
-
-&lt;p&gt;The look of any highlighted code on your blog is defined in the &lt;code class=&quot;highlighter-rouge&quot;&gt;_sass/_variables.scss&lt;/code&gt; file. Jekyll uses &lt;a href=&quot;http://rouge.jneen.net/&quot;&gt;Rouge&lt;/a&gt; for syntax highlighting. Rouge transforms source code into HTML where the code is divided into &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;span&amp;gt;&lt;/code&gt; elements with a class that indicates what they represent (keyword, string literal, …). The &lt;code class=&quot;highlighter-rouge&quot;&gt;_sass/_variables.scss&lt;/code&gt; file then defines what color to use for each of those classes. I based my version of this file on &lt;a href=&quot;https://github.com/pages-themes/modernist/blob/master/_sass/rouge-base16-dark.scss&quot;&gt;the highlighting style used by the GitHub Pages Modernist theme&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h2 id=&quot;structure-of-a-post&quot;&gt;Structure of a post&lt;/h2&gt;
-
-&lt;p&gt;Every blog post is a file that starts with &lt;a href=&quot;https://jekyllrb.com/docs/frontmatter/&quot;&gt;YAML front matter&lt;/a&gt;. This is what the front matter for this post looks like:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;---
-layout: post
-title: How I created this blog
-tags: jekyll github-pages
----
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;The title and tags should be self-explanatory. The layout variable refers to an HTML file (also including some Liquid code) that defines what a post looks like.&lt;/p&gt;
-
-&lt;p&gt;After the YAML front matter, you can use a number of different formats. Markdown is supported out of the box and fits my use case very well, so that is what I decided to use.&lt;/p&gt;
-
-&lt;p&gt;If you want to have a look at what the Markdown file for this post looks like, you can find it &lt;a href=&quot;https://github.com/thehumanmicrophone/thehumanmicrophone.github.io-source/blob/master/_posts/2018-01-20-How-I-created-this-blog.md&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h2 id=&quot;running-jekyll-locally&quot;&gt;Running Jekyll locally&lt;/h2&gt;
-
-&lt;p&gt;If you’re using Jekyll Now with GitHub Pages, you can in principle create a blog without having to install Jekyll (and Ruby, which is what Jekyll runs on) on your local machine. A big drawback of this approach is that, in order to see the result of any changes you make, you need to commit them to your GitHub Pages repository and wait for your site to be generated again. If you want to make some significant changes to the look and feel of your site, I would recommend to install Jekyll locally. This way, you can generate your site locally during development and only push to GitHub when you are satisfied with the result. See &lt;a href=&quot;https://help.github.com/articles/setting-up-your-github-pages-site-locally-with-jekyll/&quot;&gt;this guide&lt;/a&gt; for more information on how to do that. An important part of this setup is the &lt;code class=&quot;highlighter-rouge&quot;&gt;github-pages&lt;/code&gt; gem, which contains Jekyll and the Jekyll Plugins supported by GitHub Pages. If you let GitHub Pages generate your site for you, it is important to keep you local version of the &lt;code class=&quot;highlighter-rouge&quot;&gt;github-pages&lt;/code&gt; gem up to date so the way your site is generated locally is consistent with the way it will be generated by GitHub Pages.&lt;/p&gt;
-
-&lt;p&gt;Another possible approach is to generate your site locally and only push the generated site (instead of the Jekyll source files) to your GitHub Pages repository. This way, you’re not actually using GitHub Pages’ Jekyll capabilities anymore (although you can still use the &lt;code class=&quot;highlighter-rouge&quot;&gt;github-pages&lt;/code&gt; gem to get you started with Jekyll and a set of well-supported Jekyll Plugins). This approach has a number of advantages:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;GitHub Pages runs Jekyll with the &lt;code class=&quot;highlighter-rouge&quot;&gt;--safe&lt;/code&gt; flag, which means that only Jekyll Plugins that are part of the official repository get executed. If you generate your site locally, you can use any plugin you want (like, for example, the &lt;a href=&quot;https://github.com/pattex/jekyll-tagging&quot;&gt;tagging plugin&lt;/a&gt; that I am using on this blog).&lt;/li&gt;
-  &lt;li&gt;If GitHub Pages makes any changes to the way their built-in Jekyll behaves, you can decide if and when you are going to adjust your site and local setup.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;These advantages are the reason why I chose to generate my site locally and only upload the generated site to GitHub Pages. Of course, this approach has the disadvantage that it is now my own responsibility to make sure that my generated site is consistent with the source files. However, as I am the only person maintaining this blog, that shouldn’t be a problem.&lt;/p&gt;
-
-&lt;p&gt;If you want to follow this approach, I recommend adding a &lt;code class=&quot;highlighter-rouge&quot;&gt;.nojekyll&lt;/code&gt; file to the generated site before pushing it to GitHub. This makes sure that GitHub doesn’t attempt to run Jekyll on your already-generated site. I had to do this in order to fix an issue where GitHub was unable to process changes I made to my blog.&lt;/p&gt;
-
-&lt;h2 id=&quot;resources&quot;&gt;Resources&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://jekyllrb.com/&quot;&gt;Jekyll&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet&quot;&gt;Markdown Cheatsheet&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://pages.github.com/&quot;&gt;GitHub Pages&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;http://rouge.jneen.net/&quot;&gt;Rouge&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://help.github.com/articles/setting-up-your-github-pages-site-locally-with-jekyll/&quot;&gt;Setting up your GitHub Pages site locally with Jekyll&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><author><name></name></author><category term="jekyll" /><category term="github-pages" /><summary type="html">This post explains why I decided to use Jekyll for my blog and how you could set up your own blog using Jekyll and GitHub Pages.</summary></entry></feed>
+&lt;/ul&gt;</content><author><name></name></author><category term="java" /><summary type="html">If you’ve ever had to write or test an equals method, you may have gotten a feel for how complex this can get. This post will explain a number of things that can go wrong, offer solutions, and explain how a library called EqualsVerifier can help you prevent unexpected behavior regarding object equality testing.</summary></entry></feed>
