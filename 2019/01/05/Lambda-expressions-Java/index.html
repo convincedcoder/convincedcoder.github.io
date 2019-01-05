@@ -264,7 +264,7 @@ function taking a <code class="highlighter-rouge">Comparator&lt;String&gt;</code
 <span class="n">list</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">::</span><span class="n">println</span><span class="o">);</span>
 </code></pre></div></div>
 
-<p>As another practical example, consider the <code class="highlighter-rouge">Comparator.comparing</code> method. This method takes a method reference that extract the value to compare. This allows for easy construction of custom <code class="highlighter-rouge">Comparator</code> instances.</p>
+<p>As another practical example, consider the <code class="highlighter-rouge">Comparator.comparing</code> method. This method takes a method reference that extracts the values to compare. This allows for easy construction of custom <code class="highlighter-rouge">Comparator</code> instances.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">personList</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">Comparator</span>
     <span class="o">.</span><span class="na">comparing</span><span class="o">(</span><span class="nl">Person:</span><span class="o">:</span><span class="n">getLastName</span><span class="o">)</span>
@@ -426,7 +426,7 @@ function taking a <code class="highlighter-rouge">Comparator&lt;String&gt;</code
 
 <p>Well, not quite. When you write a lambda expression, Java uses that to create an instance of some class that implements the relevant functional interface. This is similar to what happens when using an anonymous class. The way these objects and classes are managed depends on the specific Java implementation and can be highly optimized.</p>
 
-<p>In order to see this in action, let’s use a lambda expression and an anonymous function to fill a variable that has a functional interface as its type.</p>
+<p>In order to see this in action, let’s use a lambda expression and an anonymous class to fill a variable that has a functional interface as its type.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">pred1</span> <span class="o">=</span> <span class="o">(</span><span class="n">string</span> <span class="o">-&gt;</span> <span class="n">string</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="o">);</span>
 
