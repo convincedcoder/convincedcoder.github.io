@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lambda expressions in Java – The Human Microphone – Software development blog with a focus on Java and JavaScript</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@thehumanmicrop1" />
+    <meta name="twitter:creator" content="@thehumanmicrop1" />
+    
+    <meta property="og:url" content="https://thehumanmicrophone.github.io/2019/01/05/Lambda-expressions-Java/" />
+
+    
+    <meta name="description" content="In this post, we cover the lambda expressions which were added to the Java language in version 8." />
+    <meta property="og:description" content="In this post, we cover the lambda expressions which were added to the Java language in version 8." />
+    
+    <meta name="author" content="The Human Microphone" />
+
+    
+    <meta property="og:title" content="Lambda expressions in Java" />
+    <meta property="twitter:title" content="Lambda expressions in Java" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="The Human Microphone - Software development blog with a focus on Java and JavaScript" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+	<!-- using Ryan Fait's sticky footer to stick the footer at the bottom of the page or content, whichever is lower -->
+	
+	<div class="sticky-footer-wrapper">
+		<div class="wrapper-masthead">
+		  <div class="container">
+			<header class="masthead clearfix">
+			  <a href="/" class="site-avatar"><img src="/images/microphone.png" /></a>
+
+			  <div class="site-info">
+				<h1 class="site-name"><a href="/">The Human Microphone</a></h1>
+				<p class="site-description">Software development blog with a focus on Java and JavaScript</p>
+			  </div>
+
+			  <nav>
+				<a href="/">Blog</a>
+				<a href="/about">About</a>
+			  </nav>
+			</header>
+		  </div>
+		</div>
+
+		<div id="main" role="main" class="container">
+		  <article class="post">
+    <h1>Lambda expressions in Java</h1>
+    
+    <div class="date">
+        2019-01-05
+    </div>
+
+    <div class=post-tags>
+               
+                 
+            <a href="/tag/java" class="tag">java</a>
+        
+    </div>
+
+    <div class="entry">
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#lambda-expressions">Lambda expressions?</a></li>
+<li class="toc-entry toc-h2"><a href="#how-java-supports-lambda-expressions">How Java supports lambda expressions</a></li>
+<li class="toc-entry toc-h2"><a href="#functional-interfaces">Functional interfaces</a></li>
+<li class="toc-entry toc-h2"><a href="#lambda-expression-scope">Lambda expression scope</a></li>
+<li class="toc-entry toc-h2"><a href="#java-as-a-somewhat-functional-language">Java as a (somewhat) functional language</a></li>
+<li class="toc-entry toc-h2"><a href="#alternatives-to-lambda-expressions">Alternatives to lambda expressions</a></li>
+<li class="toc-entry toc-h2"><a href="#functional-interfaces-and-instantiation">Functional interfaces and instantiation</a></li>
+<li class="toc-entry toc-h2"><a href="#resources">Resources</a></li>
+</ul><p>In this post, we cover the lambda expressions which were added to the Java language in version 8.</p>
+
+<h2 id="lambda-expressions">
+<a id="lambda-expressions" class="anchor" href="#lambda-expressions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Lambda expressions?</h2>
+
+<p>Before diving into the specifics of lambda expressions in Java, it’s probably not a bad idea to have a look at lambda expressions. What exactly is such a lambda expression?</p>
+
+<p>A <em>lambda expression</em> is a general concept in programming that is a synonym for <em>anonymous function</em>. This indicates a function (a piece of code that accepts input, does something with it and potentially returns a result) that is not explicitly named. These anonymous functions are very useful for passing them around to be used as input for other functions that operate on functions. For example, let’s say we have an anonymous function comparing two strings and returning a number indicating their relative order. You could then pass that as input to another function that sorts a list of strings according the order specified by the anonymous function.</p>
+
+<p>Anonymous functions were first described in a paper by Alonzo Church, written in 1936, before electronic computers even existed. In that paper, the parameters for the anonymous systems were marked using the letter λ (lambda). He picked this letter because the classic work <em>Principia Mathematica</em>, a very important work in the field of mathematics released about 20 years earlier, used the ^ accent to mark function parameters, which kind of looked like an uppercase lambda (Λ).</p>
+
+<h2 id="how-java-supports-lambda-expressions">
+<a id="how-java-supports-lambda-expressions" class="anchor" href="#how-java-supports-lambda-expressions" aria-hidden="true"><span class="octicon octicon-link"></span></a>How Java supports lambda expressions</h2>
+
+<p>Instead of diving deeper into the history of computer programming, let’s fast-forward to modern Java and the way it supports the use of lambda expressions since version 8.</p>
+
+<p>Let’s have a first look at lambda expressions with a simple example.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">(</span><span class="n">String</span> <span class="n">first</span><span class="o">,</span> <span class="n">String</span> <span class="n">second</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">first</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">-</span> <span class="n">second</span><span class="o">.</span><span class="na">length</span><span class="o">()</span>
+</code></pre></div></div>
+
+<p>As you can see, it simply consist of some code to execute (the body of the expression), together with the input parameters. You don’t need to specify the return type of the body: Java automatically infers it. If the body doesn’t fit on one line, simply create a block for it.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">(</span><span class="n">String</span> <span class="n">first</span><span class="o">,</span> <span class="n">String</span> <span class="n">second</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">first</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">&lt;</span> <span class="n">second</span><span class="o">.</span><span class="na">length</span><span class="o">())</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">first</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">&gt;</span> <span class="n">second</span><span class="o">.</span><span class="na">length</span><span class="o">())</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>The lambda expression we just described take two Strings as parameters and return an integer. This means that they conform to the <code class="highlighter-rouge">Comparator&lt;String&gt;</code> interface. By specifying this, Java can infer the types of the parameters and you don’t need to specify them explicitly anymore.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">compareStrings</span><span class="o">(</span><span class="n">Comparator</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">comp</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">comp</span><span class="o">.</span><span class="na">compare</span><span class="o">(</span><span class="s">"string1"</span><span class="o">,</span> <span class="s">"string2"</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nf">compareStrings</span><span class="o">((</span><span class="n">first</span><span class="o">,</span> <span class="n">second</span><span class="o">)</span> <span class="o">-&gt;</span>
+        <span class="n">first</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">-</span> <span class="n">second</span><span class="o">.</span><span class="na">length</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>If there is only a single argument with an inferred type, we can even omit the parentheses around that argument.</p>
+
+<h2 id="functional-interfaces">
+<a id="functional-interfaces" class="anchor" href="#functional-interfaces" aria-hidden="true"><span class="octicon octicon-link"></span></a>Functional interfaces</h2>
+
+<p>In the last example, we really saw lambda expressions in action: we have a <code class="highlighter-rouge">compareStrings</code>
+function taking a <code class="highlighter-rouge">Comparator&lt;String&gt;</code> and we invoke it by passing an anonymous function conforming to that interface. We cannot do this for just any interface. The special thing about the <code class="highlighter-rouge">Comparator&lt;String&gt;</code> interface is that it has a single abstract method (<code class="highlighter-rouge">compare</code> in this case). Such an interface is called a <em>functional interface</em>. Whenever a piece of code needs an object conforming to a functional interface, you can pass a lambda expression implementing the single abstract method of that interface.</p>
+
+<p>With the introduction of lambda expressions, Java also supplied a collection of new predefined functional interfaces in the <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html">java.util.function</a> package. These are some general interfaces specifically intended to describe common signatures for lambda expressions. The interfaces use the <code class="highlighter-rouge">@FunctionalInterface</code> annotation to indicate that they are indeed functional interfaces.</p>
+
+<p>An example of such an interface is the <code class="highlighter-rouge">Predicate&lt;T&gt;</code> interface, which takes an object of type <code class="highlighter-rouge">T</code> and returns a boolean value. Because it is a functional interface, it has a single abstract method. However, like several other functional interfaces, it has some (static or non-static) non-abstract methods intended for creating and combining functions. For example, if we have two <code class="highlighter-rouge">Predicate</code> instances <code class="highlighter-rouge">predicate1</code> and <code class="highlighter-rouge">predicate2</code>, we can combine them into a new <code class="highlighter-rouge">Predicate</code> as <code class="highlighter-rouge">predicate1.and(predicate2)</code>. The <code class="highlighter-rouge">Predicate</code> interface also offers a static factory method <code class="highlighter-rouge">isEqual(other)</code> which returning a <code class="highlighter-rouge">Predicate</code> that compares its parameter to the <code class="highlighter-rouge">other</code> object using its <code class="highlighter-rouge">equals</code> method (but doesn’t throw a <code class="highlighter-rouge">NullPointerException</code> if <code class="highlighter-rouge">other</code> is null).</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">testPred</span> <span class="o">=</span> <span class="n">Predicate</span><span class="o">.</span><span class="na">isEqual</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">testPred</span><span class="o">.</span><span class="na">test</span><span class="o">(</span><span class="s">"test"</span><span class="o">));</span> <span class="c1">// false</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">testPred</span><span class="o">.</span><span class="na">test</span><span class="o">(</span><span class="kc">null</span><span class="o">));</span> <span class="c1">// true</span>
+</code></pre></div></div>
+
+<p>There are also several other interfaces in the Java standard library which are functional interfaces. Examples are <code class="highlighter-rouge">java.util.Comparator</code>, which we saw above, and <code class="highlighter-rouge">java.lang.Runnable</code>. These specific ones are also marked with <code class="highlighter-rouge">@FunctionalInterface</code>, but note that that is not required to make an interface an actual interface. Any interface with a single abstract method is a functional interface. The only thing the <code class="highlighter-rouge">@FunctionalInterface</code> annotation does is that it makes this explicit (also in generated documentation) and causes the compiler to check if there is indeed only a single abstract method.</p>
+
+<p>Although it is considered good practice to use existing functional interfaces where possible, you can also define your own functional interfaces. This is mostly useful if you need to accept lambda expressions with some uncommon signature. An example of this is an expression taking two <code class="highlighter-rouge">int</code> values and returning an instance of a custom <code class="highlighter-rouge">Color</code> class. You could in principle use the <code class="highlighter-rouge">BiFunction&lt;Integer, Integer, Color&gt;</code> interface, but you can avoid automatic boxing ad unboxing between <code class="highlighter-rouge">int</code> and <code class="highlighter-rouge">Integer</code> by specifying your own function interface. Another use case could be an expression taking a String and potentially throwing a checked exception, which should then be declared on the abstract method of the functional interface. If you create a custom functional interface, don’t forget to mark it using the <code class="highlighter-rouge">@FunctionalInterface</code> annotation.</p>
+
+<h2 id="lambda-expression-scope">
+<a id="lambda-expression-scope" class="anchor" href="#lambda-expression-scope" aria-hidden="true"><span class="octicon octicon-link"></span></a>Lambda expression scope</h2>
+
+<p>As we already saw, lambda expressions take inputs in the form of parameters. However, a lambda expression’s parameters are not the only way to pass data to it.</p>
+
+<p>The body of a lambda expression has the same scope as a nested block (say, for example, the block of an if-statement). This means that, inside a lambda expression, you cannot declare a variable with the same name as a variable in the enclosing scope. It also means that, if you use the <code class="highlighter-rouge">this</code> keyword inside a lambda expression, it denotes the <code class="highlighter-rouge">this</code> reference of the method creating the lambda. One consequence is that lambda expressions cannot call default methods of the interface they implement.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Test</span> <span class="o">{</span>    
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">instanceVariable</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+    
+    <span class="kd">public</span> <span class="n">Predicate</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">getPredicate</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">localVariable</span> <span class="o">=</span> <span class="mi">10</span><span class="o">;</span>
+        
+        <span class="k">return</span> <span class="n">string</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="kt">int</span> <span class="n">localVariable</span> <span class="o">=</span> <span class="mi">5</span><span class="o">;</span> <span class="c1">// compiler error</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">localVariable</span><span class="o">);</span> <span class="c1">// 10</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">instanceVariable</span><span class="o">);</span> <span class="c1">// 1</span>
+            <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">&gt;</span> <span class="n">localVariable</span><span class="o">;</span>
+        <span class="o">};</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>As demonstrated in the above example, lambda expressions allow you to access variables from the enclosing scope (the method creating the lambda expression). This may seem obvious, but something special is going on there. Our lambda expression will be executed when the <code class="highlighter-rouge">getPredicate()</code> method creating it has already completed and the local variables inside that method are gone. How does this work?</p>
+
+<p>Well, we saw that a lambda expression consists of a block of code and parameters for that block of code. In addition to that, the lambda expression that is passed around also contains values for the <em>free variables</em> (variables that are not parameters and are not defined inside the lambda expression’s code). When storing a lambda expression in a variable, the object representing the lambda expression also includes the values of these free variables. Such a combination of a block of code together with the values of free variables is called a <em>closure</em>.</p>
+
+<p>In Java, the capturing of free variables has an important restriction: you can only capture variables that are <em>effectively final</em>. This means that the variables don’t change; either they are declared <code class="highlighter-rouge">final</code> or they could have been declared <code class="highlighter-rouge">final</code>. This also means that it is not possible to reassign captured variables from the lambda expression.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">localVariable</span> <span class="o">=</span> <span class="mi">10</span><span class="o">;</span>
+
+<span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+    <span class="n">predicates</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">string</span> <span class="o">-&gt;</span> <span class="o">{</span>
+        <span class="n">localVariable</span><span class="o">++;</span> <span class="c1">// compiler error</span>
+        <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">&gt;</span> <span class="n">i</span><span class="o">;</span> <span class="c1">// compiler error</span>
+        <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">&gt;</span> <span class="n">localVariable</span><span class="o">;</span> <span class="c1">// ok</span>
+    <span class="o">});</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>This restriction on captured variables is specific to Java. For example, closures in JavaScript do allow changing variables in the enclosing code.</p>
+
+<p>Note that, while you cannot change the values of captured variables, you can still call methods on them if they are objects. It can also be interesting to know that the variable of an enhanced <code class="highlighter-rouge">for</code> loop is effectively final because its scope is limited to a singe iteration of the loop.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">integers</span><span class="o">;</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">processedIntegers</span><span class="o">;</span>
+
+<span class="k">for</span> <span class="o">(</span><span class="n">Integer</span> <span class="nl">integer:</span> <span class="n">integers</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">predicates</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">string</span> <span class="o">-&gt;</span> <span class="o">{</span>
+        <span class="n">processedIntegers</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">integer</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">&gt;</span> <span class="n">integer</span><span class="o">;</span>
+    <span class="o">});</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="java-as-a-somewhat-functional-language">
+<a id="java-as-a-somewhat-functional-language" class="anchor" href="#java-as-a-somewhat-functional-language" aria-hidden="true"><span class="octicon octicon-link"></span></a>Java as a (somewhat) functional language</h2>
+
+<p>With the introduction of lambda expressions and functional interfaces, Java gains some capabilities that are typical for functional programming languages.</p>
+
+<p>Lambda expressions and functional interfaces can be seen as a way to treat functions as first-class objects, allowing to store functions in variables or pass them around to functions.</p>
+
+<p>This way, Java supports the creation of <em>higher-order functions</em>, which are methods/functions that process or return other functions (although, in reality, those functions are just objects of classes implementing a functional interface). An example of this would be a static method that accepts a boolean indicating a direction and returns a <code class="highlighter-rouge">Comparator</code> based on the input. We could also have a method that takes a <code class="highlighter-rouge">Comparator</code> and returns a new <code class="highlighter-rouge">Comparator</code> reversing the order of the initial <code class="highlighter-rouge">Comparator</code> (the <code class="highlighter-rouge">Comparator</code> interface actually has a default method <code class="highlighter-rouge">reversed()</code> which reverses the current <code class="highlighter-rouge">Comparator</code>).</p>
+
+<p>Java now also has a powerful mechanism to pass regular methods around as objects, which is essentially a shorthand for writing lambda expressions invoking the same methods. This is the mechanism of <em>method references</em>. There are three variations here:</p>
+
+<ul>
+  <li>
+<em>Class::staticMethod</em>: a reference to a static method of a class</li>
+  <li>
+<em>Class::instanceMethod</em>: a reference to an instance method of a class. The first argument specifies the object on which the instance method is invoked.</li>
+  <li>
+<em>object::instanceMethod</em>: a reference to an instance method of a class which will be invoked an a specific object.</li>
+</ul>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Test</span> <span class="o">{</span>    
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">staticMethod</span><span class="o">(</span><span class="n">String</span> <span class="n">input</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"static:"</span> <span class="o">+</span> <span class="n">input</span><span class="o">);</span>
+    <span class="o">}</span>
+    
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">instanceMethod</span><span class="o">(</span><span class="n">String</span> <span class="n">input</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"instance:"</span> <span class="o">+</span> <span class="n">input</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// method reference</span>
+<span class="nl">Test:</span><span class="o">:</span><span class="n">staticMethod</span>
+<span class="c1">// equivalent lambda expression</span>
+<span class="n">input</span> <span class="o">-&gt;</span> <span class="n">Test</span><span class="o">.</span><span class="na">staticMethod</span><span class="o">(</span><span class="n">input</span><span class="o">)</span>
+
+<span class="c1">// method reference</span>
+<span class="nl">Test:</span><span class="o">:</span><span class="n">instanceMethod</span>
+<span class="c1">// equivalent lambda expression (2 parameters!)</span>
+<span class="o">(</span><span class="n">instance</span><span class="o">,</span> <span class="n">input</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">instance</span><span class="o">.</span><span class="na">instanceMethod</span><span class="o">(</span><span class="n">input</span><span class="o">)</span>
+
+<span class="n">Test</span> <span class="n">testInstance</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Test</span><span class="o">();</span>
+<span class="c1">// method reference</span>
+<span class="nl">testInstance:</span><span class="o">:</span><span class="n">instanceMethod</span>
+<span class="c1">// equivalent lambda expression</span>
+<span class="n">input</span> <span class="o">-&gt;</span> <span class="n">testInstance</span><span class="o">.</span><span class="na">instanceMethod</span><span class="o">(</span><span class="n">input</span><span class="o">)</span>
+</code></pre></div></div>
+
+<p>Some more realistic examples:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;();</span>
+        
+<span class="c1">// Class::staticMethod</span>
+<span class="n">list</span><span class="o">.</span><span class="na">removeIf</span><span class="o">(</span><span class="nl">Objects:</span><span class="o">:</span><span class="n">isNull</span><span class="o">);</span>
+<span class="c1">// Class::instanceMethod</span>
+<span class="n">list</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="nl">String:</span><span class="o">:</span><span class="n">compareToIgnoreCase</span><span class="o">);</span>
+<span class="c1">// object::instanceMethod</span>
+<span class="n">list</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">::</span><span class="n">println</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p>As another practical example, consider the <code class="highlighter-rouge">Comparator.comparing</code> method. This method takes a method reference that extract the value to compare. This allows for easy construction of custom <code class="highlighter-rouge">Comparator</code> instances.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">personList</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">Comparator</span>
+    <span class="o">.</span><span class="na">comparing</span><span class="o">(</span><span class="nl">Person:</span><span class="o">:</span><span class="n">getLastName</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">thenComparing</span><span class="o">(</span><span class="nl">Person:</span><span class="o">:</span><span class="n">getFirstName</span><span class="o">))</span>
+</code></pre></div></div>
+
+<p>There is also a similar mechanism, <em>constructor references</em>, for passing around constructors. This uses the syntax <em>Class::new</em>. If there are multiple constructors, the compiler will infer which constructor to use from the context.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Dog</span> <span class="o">{</span>    
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+    
+    <span class="kd">public</span> <span class="nf">Dog</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="s">"Max"</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nf">Dog</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// no-argument constructor</span>
+<span class="n">Supplier</span><span class="o">&lt;</span><span class="n">Dog</span><span class="o">&gt;</span> <span class="n">dogSupplier</span> <span class="o">=</span> <span class="nl">Dog:</span><span class="o">:</span><span class="k">new</span><span class="o">;</span>
+
+<span class="c1">// String argument constructor</span>
+<span class="n">Function</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Dog</span><span class="o">&gt;</span> <span class="n">nameToDog</span> <span class="o">=</span> <span class="nl">Dog:</span><span class="o">:</span><span class="k">new</span><span class="o">;</span>
+</code></pre></div></div>
+
+<p>You can also use constructor references to construct arrays. In that case, the array size is determined by the single parameter passed to the constructor reference.</p>
+
+<h2 id="alternatives-to-lambda-expressions">
+<a id="alternatives-to-lambda-expressions" class="anchor" href="#alternatives-to-lambda-expressions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Alternatives to lambda expressions</h2>
+
+<p>Before the introduction of lambda expressions, Java already had a concise way to define a class implementing an interface. The way to do this was to use local or anonymous classes.</p>
+
+<p>A <em>local class</em> is a class defined inside a method. A typical use case is if you want to provide an object conforming to an interface and it doesn’t really matter what the implementing class is.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">localVariable</span> <span class="o">=</span> <span class="mi">10</span><span class="o">;</span>
+        
+<span class="kd">class</span> <span class="nc">LengthPredicate</span> <span class="kd">implements</span> <span class="n">Predicate</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">test</span><span class="o">(</span><span class="n">String</span> <span class="n">string</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">&gt;</span> <span class="n">localVariable</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="n">Predicate</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">predicate</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LengthPredicate</span><span class="o">();</span>
+</code></pre></div></div>
+
+<p>If you use your local class only once, it makes more sense to remove the name and to define it as an <em>anonymous class</em>.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">localVariable</span> <span class="o">=</span> <span class="mi">10</span><span class="o">;</span>        
+
+<span class="n">Predicate</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">predicate</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Predicate</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;()</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">test</span><span class="o">(</span><span class="n">String</span> <span class="n">string</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">&gt;</span> <span class="n">localVariable</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">};</span>
+</code></pre></div></div>
+
+<p>Just like with lambda expressions, the code in local and anonymous classes can access local variables defined in their enclosing scope. Also just like with lambda expressions, this is only allowed if those local variables are effectively final.</p>
+
+<p>There are, however, some important differences between lambda expressions and local/anonymous classes.</p>
+
+<p>First of all, you can use local/anonymous classes to implement interfaces with more than one abstract method. You are not restricted to functional interfaces.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">TwoMethodInterface</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">methodA</span><span class="o">();</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">methodB</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">TwoMethodInterface</span> <span class="n">twoMethodInterface</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TwoMethodInterface</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">methodA</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"methodA"</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">methodB</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"methodB"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">};</span>
+</code></pre></div></div>
+
+<p>A second difference is that local/anonymous classes actually allow you to define local variables with the same name as local variables in the enclosing scope. This hides the variable in the enclosing scope from the code in the local/anonymous class (this is called <em>shadowing</em>). Lambda expressions forbid this.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">localVariable</span> <span class="o">=</span> <span class="mi">10</span><span class="o">;</span>        
+
+<span class="n">Predicate</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">predicate</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Predicate</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;()</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">test</span><span class="o">(</span><span class="n">String</span> <span class="n">string</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">localVariable</span><span class="o">);</span> <span class="c1">// 10</span>
+        <span class="kt">int</span> <span class="n">localVariable</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>    
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">localVariable</span><span class="o">);</span> <span class="c1">// 1</span>
+        <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">&gt;</span> <span class="n">localVariable</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">};</span>
+</code></pre></div></div>
+
+<p>Another important thing to note is that local/anonymous classes are actual classes. Unlike lambda expressions, they can define and access their own instance variables. This also means that, if you use the <code class="highlighter-rouge">this</code> keyword in a method of a local/anonymous class, it refers to the instance of the class itself and not to the <code class="highlighter-rouge">this</code> reference of the method creating the local/anonymous class. You can also call default methods on the interface that you are implementing.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">InterfaceA</span> <span class="o">{</span>    
+    <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">void</span> <span class="nf">doSomething</span><span class="o">();</span>
+    
+    <span class="kd">public</span> <span class="k">default</span> <span class="kt">void</span> <span class="nf">logCount</span><span class="o">(</span><span class="kt">int</span> <span class="n">count</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">count</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">InterfaceA</span> <span class="n">interfaceA</span> <span class="o">=</span> <span class="k">new</span> <span class="n">InterfaceA</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">doSomething</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">count</span><span class="o">++;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">logCount</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">count</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">};</span>
+</code></pre></div></div>
+
+<p>While this can be useful, it does make it harder to access the <code class="highlighter-rouge">this</code> reference of the enclosing method. However, we can still access that <code class="highlighter-rouge">this</code> reference by using local variables.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Test</span> <span class="o">{</span>    
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">instanceVariable</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getInstanceVariable</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">instanceVariable</span><span class="o">;</span>
+    <span class="o">}</span>
+    
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">// using method reference</span>
+        <span class="n">IntSupplier</span> <span class="n">supplier</span> <span class="o">=</span> <span class="k">this</span><span class="o">::</span><span class="n">getInstanceVariable</span><span class="o">;</span>
+        <span class="c1">// using a local variable referring to this</span>
+        <span class="n">Test</span> <span class="n">outer</span> <span class="o">=</span> <span class="k">this</span><span class="o">;</span>
+        <span class="c1">// available from Java 10</span>
+        <span class="c1">// also works if this is instance of anonymous class</span>
+        <span class="n">var</span> <span class="n">outer2</span> <span class="o">=</span> <span class="k">this</span><span class="o">;</span>
+        
+        <span class="n">InterfaceA</span> <span class="n">interfaceA</span> <span class="o">=</span> <span class="k">new</span> <span class="n">InterfaceA</span><span class="o">()</span> <span class="o">{</span>            
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">doSomething</span><span class="o">()</span> <span class="o">{</span>
+                <span class="kt">int</span> <span class="n">outerInstanceVariable</span> <span class="o">=</span> <span class="n">supplier</span><span class="o">.</span><span class="na">getAsInt</span><span class="o">();</span>
+                <span class="n">outer</span><span class="o">.</span><span class="na">instanceVariable</span><span class="o">++;</span>
+            <span class="o">}</span>
+        <span class="o">};</span>
+        
+        <span class="n">interfaceA</span><span class="o">.</span><span class="na">doSomething</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="functional-interfaces-and-instantiation">
+<a id="functional-interfaces-and-instantiation" class="anchor" href="#functional-interfaces-and-instantiation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Functional interfaces and instantiation</h2>
+
+<p>Lambda expressions can be used as the value for variables or parameters that have a functional interface as a type. So, does this mean that lambda expressions violate the rule that interfaces cannot be directly instantiated?</p>
+
+<p>Well, not quite. When you write a lambda expression, Java uses that to create an instance of some class that implements the relevant functional interface. This is similar to what happens when using an anonymous class. The way these objects and classes are managed depends on the specific Java implementation and can be highly optimized.</p>
+
+<p>In order to see this in action, let’s use a lambda expression and an anonymous function to fill a variable that has a functional interface as its type.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Predicate</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">pred1</span> <span class="o">=</span> <span class="o">(</span><span class="n">string</span> <span class="o">-&gt;</span> <span class="n">string</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="o">);</span>
+
+<span class="n">Predicate</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">pred2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Predicate</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;()</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">test</span><span class="o">(</span><span class="n">String</span> <span class="n">string</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">};</span>
+
+<span class="c1">// class misc.Main$$Lambda$1/834600351</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">pred1</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span> 
+
+<span class="c1">// class misc.Main$4</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">pred2</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+</code></pre></div></div>
+
+<h2 id="resources">
+<a id="resources" class="anchor" href="#resources" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resources</h2>
+
+<ul>
+  <li>Core Java SE 9 for the Impatient (book by Cay S. Horstmann)</li>
+  <li><a href="https://en.wikipedia.org/wiki/Anonymous_function">Anonymous function</a></li>
+  <li><a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html">Package java.util.function</a></li>
+  <li><a href="https://stackoverflow.com/questions/42942351/do-you-have-a-list-of-java-8-functional-interfaces-not-the-ones-listed-in-java">Java 8 Functional interfaces (not the ones listed in java.util.function)</a></li>
+  <li><a href="https://stackoverflow.com/questions/22637900/java8-lambdas-vs-anonymous-classes">Java 8 Lambdas vs Anonymous classes</a></li>
+  <li><a href="https://stackoverflow.com/questions/53211917/access-method-of-outer-anonymous-class-from-inner-anonymous-class">Access method of outer anonymous class from inner anonymous class</a></li>
+</ul>
+
+    </div>
+
+    
+</article>
+
+		</div>
+		
+		<div class="sticky-footer-push"></div>
+	</div>
+
+    <div class="wrapper-footer sticky-footer-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/thehumanmicrophone/thehumanmicrophone.github.io-source"><i class="svg-icon github"></i></a>
+
+
+
+
+<a href="https://www.twitter.com/thehumanmicrop1"><i class="svg-icon twitter"></i></a>
+
+
+
+        </footer>
+      </div>
+    </div>
+
+		
+	<!-- Google Analytics -->
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-130247825-1', 'auto');
+		ga('send', 'pageview', {
+		  'page': '/2019/01/05/Lambda-expressions-Java/',
+		  'title': 'Lambda expressions in Java'
+		});
+	</script>
+	<!-- End Google Analytics -->
+
+
+		
+		<script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script>
+<script>addBackToTop({
+  diameter: 50,
+  backgroundColor: '#2f2f2f',
+  textColor: '#fff'
+})</script> 
+  </body>
+</html>
