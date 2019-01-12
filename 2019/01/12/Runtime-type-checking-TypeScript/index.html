@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Runtime type checking for TypeScript applications – The Human Microphone – Software development blog with a focus on Java and JavaScript</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@thehumanmicrop1" />
+    <meta name="twitter:creator" content="@thehumanmicrop1" />
+    
+    <meta property="og:url" content="https://thehumanmicrophone.github.io/2019/01/12/Runtime-type-checking-TypeScript/" />
+
+    
+    <meta name="description" content="This post will discuss some possibilities for adding runtime type checking to TypeScript applications." />
+    <meta property="og:description" content="This post will discuss some possibilities for adding runtime type checking to TypeScript applications." />
+    
+    <meta name="author" content="The Human Microphone" />
+
+    
+    <meta property="og:title" content="Runtime type checking for TypeScript applications" />
+    <meta property="twitter:title" content="Runtime type checking for TypeScript applications" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="The Human Microphone - Software development blog with a focus on Java and JavaScript" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+	<!-- using Ryan Fait's sticky footer to stick the footer at the bottom of the page or content, whichever is lower -->
+	
+	<div class="sticky-footer-wrapper">
+		<div class="wrapper-masthead">
+		  <div class="container">
+			<header class="masthead clearfix">
+			  <a href="/" class="site-avatar"><img src="/images/microphone.png" /></a>
+
+			  <div class="site-info">
+				<h1 class="site-name"><a href="/">The Human Microphone</a></h1>
+				<p class="site-description">Software development blog with a focus on Java and JavaScript</p>
+			  </div>
+
+			  <nav>
+				<a href="/">Blog</a>
+				<a href="/about">About</a>
+			  </nav>
+			</header>
+		  </div>
+		</div>
+
+		<div id="main" role="main" class="container">
+		  <article class="post">
+    <h1>Runtime type checking for TypeScript applications</h1>
+    
+    <div class="date">
+        2019-01-12
+    </div>
+
+    <div class=post-tags>
+               
+                 
+            <a href="/tag/typescript" class="tag">typescript</a>
+               
+                 
+            <a href="/tag/javascript" class="tag">javascript</a>
+        
+    </div>
+
+    <div class="entry">
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#isnt-typescript-enough">Isn’t TypeScript enough?</a></li>
+<li class="toc-entry toc-h2"><a href="#manual-checks-in-custom-code">Manual checks in custom code</a></li>
+<li class="toc-entry toc-h2"><a href="#manually-creating-json-schemas">Manually creating JSON Schemas</a></li>
+<li class="toc-entry toc-h2"><a href="#automatically-generating-json-schemas">Automatically generating JSON Schemas</a></li>
+<li class="toc-entry toc-h2"><a href="#a-transpilation-approach">A transpilation approach</a></li>
+<li class="toc-entry toc-h2"><a href="#combining-runtime-and-static-type-assertion-using-io-ts">Combining runtime and static type assertion using io-ts</a></li>
+<li class="toc-entry toc-h2"><a href="#a-typescript-alternative-to-javas-bean-validation">A TypeScript alternative to Java’s Bean Validation</a></li>
+</ul><p>This post will discuss some possibilities for adding runtime type checking to TypeScript applications.</p>
+
+<h2 id="isnt-typescript-enough">
+<a id="isnt-typescript-enough" class="anchor" href="#isnt-typescript-enough" aria-hidden="true"><span class="octicon octicon-link"></span></a>Isn’t TypeScript enough?</h2>
+
+<p>You might wonder why it’s even needed to add additional type checking if you’re already using TypeScript. Isn’t type checking exactly what TypeScript is about? Well, TypeScript only performs static type checking at compile time. The generated JavaScript, which is what actually runs when you run your code, does not know anything about the types. While this works fine for type checking within your codebase, it doesn’t provide any kind of protection against malformed input.</p>
+
+<p>An example is an API that you expose. Even though you can use TypeScript to describe the input structure that your code should expect, TypeScript itself doesn’t provide any way to check that the input that is provided at runtime actually matches that structure. This is by design: the TypeScript team has limited their scope to compile-time checking only. Therefore, if you receive any kind of input from the outside world, it is typically a good idea to perform some additional runtime type checking.</p>
+
+<p>As an example to use throughout this post, let’s say we have a simple API accepting a person with the following structure:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">Person</span> <span class="p">{</span>
+    <span class="nl">firstName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+    <span class="nl">lastName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+    <span class="nl">age</span><span class="p">:</span> <span class="nx">number</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="manual-checks-in-custom-code">
+<a id="manual-checks-in-custom-code" class="anchor" href="#manual-checks-in-custom-code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Manual checks in custom code</h2>
+
+<p>An obvious approach here would be to manually write code that checks the input for the existence of the required properties and checks their type as well. However, writing such code can be tedious and error-prone. There is also a possibility for the error-checking code to get out of sync with your static types as changes are made to the codebase.</p>
+
+<h2 id="manually-creating-json-schemas">
+<a id="manually-creating-json-schemas" class="anchor" href="#manually-creating-json-schemas" aria-hidden="true"><span class="octicon octicon-link"></span></a>Manually creating JSON Schemas</h2>
+
+<p>JSON Schemas are a standard way of constraining the format of JSON input that you receive. Several non-TypeScript applications already use this approach to validate received input.</p>
+
+<p>A very simple JSON Schema describing our input could be the following:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"$schema"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://json-schema.org/draft-07/schema#"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"firstName"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"lastName"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"age"</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="s2">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="s2">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="s2">"age"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"integer"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"minimum"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>You may have noticed that this JSON Schema is actually stricter than our original TypeScript type, as we are now requiring <code class="highlighter-rouge">age</code> to be an integer with at least a value of zero. This is perfectly fine: as long as our runtime type checking is at least as restrictive as our static type checking, we are sure that the data we receive fits the static type and the static type checking within our codebase is sufficient to prevent further type errors. This does not work if the runtime type checking is less strict than the static checking. For example, if our JSON Schema allows <code class="highlighter-rouge">firstName</code> to be anything, some of our code that depends on it being a string may fail.</p>
+
+<p>Using JSON Schemas definitely has some advantages. There are lots of libraries that you can use to validate input based on the schema. Because the schema itself is JSON, it’s also easy to store or share.</p>
+
+<p>A drawback of JSON Schemas is that they can become very verbose and they can be tedious to generate by hand.</p>
+
+<h2 id="automatically-generating-json-schemas">
+<a id="automatically-generating-json-schemas" class="anchor" href="#automatically-generating-json-schemas" aria-hidden="true"><span class="octicon octicon-link"></span></a>Automatically generating JSON Schemas</h2>
+
+<p>There are libraries that automatically generate JSON Schemas for you based on your TypeScript code. One of those libraries is <a href="https://github.com/YousefED/typescript-json-schema">typescript-json-schema</a>. It works either programmatically or from the command line.</p>
+
+<p>This library is intended to be run on some existing code containing the types to generate JSON Schemas for. That means that, if you are changing your code, you need to make sure that your JSON Schemas are generated again if needed.</p>
+
+<p>As an alternative, there are also tools that automatically infer JSON Schemas from JSON input you provide. Of course, this doesn’t use the type information you have already defined in your TypeScript code and can lead to errors if there is a mismatch between the input JSON you provide to the tool and the actual TypeScript type definitions.</p>
+
+<h2 id="a-transpilation-approach">
+<a id="a-transpilation-approach" class="anchor" href="#a-transpilation-approach" aria-hidden="true"><span class="octicon octicon-link"></span></a>A transpilation approach</h2>
+
+<p>Using JSON Schemas is not the only way to check types at runtime. The <a href="https://github.com/fabiandev/ts-runtime">ts-runtime</a> library uses a completely different approach. Like typescript-json-schema, it processes your existing TypeScript code. However, instead of generating some kind of schemas, it actually transpiles the code into equivalent code that contains runtime type checks.</p>
+
+<p>Let’s say that we start from the following TypeScript code:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">Person</span> <span class="p">{</span>
+    <span class="nl">firstName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+    <span class="nl">lastName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+    <span class="nl">age</span><span class="p">:</span> <span class="nx">number</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">test</span><span class="p">:</span> <span class="nx">Person</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">firstName</span><span class="p">:</span> <span class="s2">"Foo"</span><span class="p">,</span>
+    <span class="na">lastName</span><span class="p">:</span> <span class="s2">"Bar"</span><span class="p">,</span>
+    <span class="na">age</span><span class="p">:</span> <span class="mi">55</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>If we run ts-runtime on this code, we get the following transpiled code:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">t</span> <span class="k">from</span> <span class="s2">"ts-runtime/lib"</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">Person</span> <span class="o">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">type</span><span class="p">(</span>
+    <span class="s2">"Person"</span><span class="p">,</span>
+    <span class="nx">t</span><span class="p">.</span><span class="nx">object</span><span class="p">(</span>
+        <span class="nx">t</span><span class="p">.</span><span class="nx">property</span><span class="p">(</span><span class="s2">"firstName"</span><span class="p">,</span> <span class="nx">t</span><span class="p">.</span><span class="nx">string</span><span class="p">()),</span>
+        <span class="nx">t</span><span class="p">.</span><span class="nx">property</span><span class="p">(</span><span class="s2">"lastName"</span><span class="p">,</span> <span class="nx">t</span><span class="p">.</span><span class="nx">string</span><span class="p">()),</span>
+        <span class="nx">t</span><span class="p">.</span><span class="nx">property</span><span class="p">(</span><span class="s2">"age"</span><span class="p">,</span> <span class="nx">t</span><span class="p">.</span><span class="nx">number</span><span class="p">())</span>
+    <span class="p">)</span>
+<span class="p">);</span>
+
+<span class="kd">const</span> <span class="nx">test</span> <span class="o">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">ref</span><span class="p">(</span><span class="nx">Person</span><span class="p">).</span><span class="nx">assert</span><span class="p">({</span>
+    <span class="na">firstName</span><span class="p">:</span> <span class="s2">"Foo"</span><span class="p">,</span>
+    <span class="na">lastName</span><span class="p">:</span> <span class="s2">"Bar"</span><span class="p">,</span>
+    <span class="na">age</span><span class="p">:</span> <span class="mi">55</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>A drawback of this approach is that you have no control over the locations where the type checking happens: every type check is converted into a runtime type check. This is typically overkill, as you only need runtime type checking at the boundaries of your program to check input structure.</p>
+
+<p>Also note that this library is currently still in an experimental stage and not recommended for production use.</p>
+
+<h2 id="combining-runtime-and-static-type-assertion-using-io-ts">
+<a id="combining-runtime-and-static-type-assertion-using-io-ts" class="anchor" href="#combining-runtime-and-static-type-assertion-using-io-ts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Combining runtime and static type assertion using io-ts</h2>
+
+<p>Where ts-runtime generates runtime type checks based on static ones, <a href="https://github.com/gcanti/io-ts">io-ts</a> takes the opposite approach. You use this library to define runtime type checks, which look very similar to the ones generated by ts-runtime, and the library actually allows TypeScript to infer the corresponding static types automatically.</p>
+
+<p>This is what our <code class="highlighter-rouge">Person</code> type looks like in io-ts:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">t</span> <span class="k">from</span> <span class="s2">"io-ts"</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">PersonType</span> <span class="o">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">type</span><span class="p">({</span>
+  <span class="na">firstName</span><span class="p">:</span> <span class="nx">t</span><span class="p">.</span><span class="nx">string</span><span class="p">,</span>
+  <span class="na">lastName</span><span class="p">:</span> <span class="nx">t</span><span class="p">.</span><span class="nx">string</span><span class="p">,</span>
+  <span class="na">age</span><span class="p">:</span> <span class="nx">t</span><span class="p">.</span><span class="nx">refinement</span><span class="p">(</span><span class="nx">t</span><span class="p">.</span><span class="nx">number</span><span class="p">,</span> <span class="nx">n</span> <span class="o">=&gt;</span> <span class="nx">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'Positive'</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Note that, like in our JSON Schemas example, we added the restriction that the person’s age should be at least zero.</p>
+
+<p>In our code, we can use this runtime type to check input against the <code class="highlighter-rouge">Person</code> type. Once we have defined this runtime type, we can also extract the corresponding static type from it.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">Person</span> <span class="kd">extends</span> <span class="nx">t</span><span class="p">.</span><span class="nx">TypeOf</span><span class="o">&lt;</span><span class="k">typeof</span> <span class="nx">PersonType</span><span class="o">&gt;</span> <span class="p">{}</span>
+</code></pre></div></div>
+
+<p>The above code is equivalent to our regular interface definition:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">interface</span> <span class="nx">Person</span> <span class="p">{</span>
+    <span class="nl">firstName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+    <span class="nl">lastName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+    <span class="nl">age</span><span class="p">:</span> <span class="nx">number</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This is a very nice approach for working with interfaces. Because the static types are inferred from the runtime types, both kinds of types do not get out of sync when you are changing your code. The library also allows for a lot of flexibility when defining types, including the definition of recursive types.</p>
+
+<p>A drawback of io-ts is that it requires you to define your types as io-ts runtime types, which does not work when you are defining classes. One way to handle this could be to define an interface using io-ts and then make the class implement the interface. However, this means you need to make sure to update the io-ts type whenever you are adding properties to your class.</p>
+
+<p>The fact that your code specifies interfaces as io-ts types rather than plain TypeScript interfaces can also be a drawback. While plain TypeScript interfaces can easily be shared, for example between backend and frontend, this becomes harder to achieve with io-ts types.</p>
+
+<h2 id="a-typescript-alternative-to-javas-bean-validation">
+<a id="a-typescript-alternative-to-javas-bean-validation" class="anchor" href="#a-typescript-alternative-to-javas-bean-validation" aria-hidden="true"><span class="octicon octicon-link"></span></a>A TypeScript alternative to Java’s Bean Validation</h2>
+
+<p>As a final candidate, I am including the <a href="https://github.com/typestack/class-validator">class-validator</a> library. This library uses decorators on class properties, making it very similar to Java’s JSR-380 Bean Validation 2.0 (implemented by, for example, Hibernate Validator). It is part of a family of libraries that also includes <a href="https://github.com/typeorm/typeorm">typeorm</a> (ORM, similar to Java’s JPA) and <a href="https://github.com/typestack/routing-controllers">routing-controllers</a> (similar to Java’s JAX-RS for defining APIs).</p>
+
+<p>As an example, consider the following code:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">plainToClass</span> <span class="p">}</span> <span class="k">from</span> <span class="s2">"class-transformer"</span><span class="p">;</span>
+
+<span class="k">import</span> <span class="p">{</span> 
+    <span class="nx">validate</span><span class="p">,</span> <span class="nx">IsString</span><span class="p">,</span> <span class="nx">IsInt</span><span class="p">,</span> <span class="nx">Min</span> 
+<span class="p">}</span> <span class="k">from</span> <span class="s2">"class-validator"</span><span class="p">;</span>
+
+<span class="kd">class</span> <span class="nx">Person</span> <span class="p">{</span>
+    <span class="p">@</span><span class="nd">IsString</span><span class="p">()</span>
+    <span class="nx">firstName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+
+    <span class="p">@</span><span class="nd">IsString</span><span class="p">()</span>
+    <span class="nx">lastName</span><span class="p">:</span> <span class="nx">string</span><span class="p">;</span>
+
+    <span class="p">@</span><span class="nd">IsInt</span><span class="p">()</span>
+    <span class="p">@</span><span class="nd">Min</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="nx">age</span><span class="p">:</span> <span class="nx">number</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">input</span><span class="p">:</span> <span class="nx">any</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">firstName</span><span class="p">:</span> <span class="s2">"Foo"</span><span class="p">,</span>
+    <span class="na">age</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span>
+<span class="p">};</span>
+
+<span class="kd">const</span> <span class="nx">inputAsClassInstance</span> <span class="o">=</span> <span class="nx">plainToClass</span><span class="p">(</span>
+    <span class="nx">Person</span><span class="p">,</span> <span class="nx">input</span> <span class="k">as</span> <span class="nx">Person</span>
+<span class="p">);</span>
+
+<span class="nx">validate</span><span class="p">(</span><span class="nx">inputAsClassInstance</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">errors</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="c1">// handle errors if needed</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>Note that class-validator needs actual class instances to work on. Here, we used its sister library class-transformer to transform our plain input into an actual <code class="highlighter-rouge">Person</code> instance. That transformation in itself does not perform any kind of type checking.</p>
+
+<p>This approach works well with classes, but setting up classes with the decorators that class-validator needs and converting the objects you receive to instances of those classes can feel like overkill if all you need to check is a simple interface. You may want to consider other approaches, like for example the one using io-ts.</p>
+
+    </div>
+
+    
+</article>
+
+		</div>
+		
+		<div class="sticky-footer-push"></div>
+	</div>
+
+    <div class="wrapper-footer sticky-footer-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/thehumanmicrophone/thehumanmicrophone.github.io-source"><i class="svg-icon github"></i></a>
+
+
+
+
+<a href="https://www.twitter.com/thehumanmicrop1"><i class="svg-icon twitter"></i></a>
+
+
+
+        </footer>
+      </div>
+    </div>
+
+		
+	<!-- Google Analytics -->
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-130247825-1', 'auto');
+		ga('send', 'pageview', {
+		  'page': '/2019/01/12/Runtime-type-checking-TypeScript/',
+		  'title': 'Runtime type checking for TypeScript applications'
+		});
+	</script>
+	<!-- End Google Analytics -->
+
+
+		
+		<script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script>
+<script>addBackToTop({
+  diameter: 50,
+  backgroundColor: '#2f2f2f',
+  textColor: '#fff'
+})</script> 
+  </body>
+</html>
