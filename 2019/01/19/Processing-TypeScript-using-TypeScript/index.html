@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Processing TypeScript using TypeScript – The Human Microphone – Software development blog with a focus on Java and JavaScript</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@thehumanmicrop1" />
+    <meta name="twitter:creator" content="@thehumanmicrop1" />
+    
+    <meta property="og:url" content="https://thehumanmicrophone.github.io/2019/01/19/Processing-TypeScript-using-TypeScript/" />
+
+    
+    <meta name="description" content="One of the interesting things about TypeScript is that it exposes a compiler API that you can use to process TypeScript code programmatically, from your own TypeScript code. This post will give you some idea of how this can be done and why it can be useful." />
+    <meta property="og:description" content="One of the interesting things about TypeScript is that it exposes a compiler API that you can use to process TypeScript code programmatically, from your own TypeScript code. This post will give you some idea of how this can be done and why it can be useful." />
+    
+    <meta name="author" content="The Human Microphone" />
+
+    
+    <meta property="og:title" content="Processing TypeScript using TypeScript" />
+    <meta property="twitter:title" content="Processing TypeScript using TypeScript" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="The Human Microphone - Software development blog with a focus on Java and JavaScript" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+	<!-- using Ryan Fait's sticky footer to stick the footer at the bottom of the page or content, whichever is lower -->
+	
+	<div class="sticky-footer-wrapper">
+		<div class="wrapper-masthead">
+		  <div class="container">
+			<header class="masthead clearfix">
+			  <a href="/" class="site-avatar"><img src="/images/microphone.png" /></a>
+
+			  <div class="site-info">
+				<h1 class="site-name"><a href="/">The Human Microphone</a></h1>
+				<p class="site-description">Software development blog with a focus on Java and JavaScript</p>
+			  </div>
+
+			  <nav>
+				<a href="/">Blog</a>
+				<a href="/about">About</a>
+			  </nav>
+			</header>
+		  </div>
+		</div>
+
+		<div id="main" role="main" class="container">
+		  <article class="post">
+    <h1>Processing TypeScript using TypeScript</h1>
+    
+    <div class="date">
+        2019-01-19
+    </div>
+
+    <div class=post-tags>
+               
+                 
+            <a href="/tag/typescript" class="tag">typescript</a>
+               
+                 
+            <a href="/tag/javascript" class="tag">javascript</a>
+        
+    </div>
+
+    <div class="entry">
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#the-typescript-compiler-api">The TypeScript compiler API</a></li>
+<li class="toc-entry toc-h2"><a href="#sourcefiles-and-the-abstract-syntax-tree-ast">SourceFiles and the abstract syntax tree (AST)</a></li>
+<li class="toc-entry toc-h2"><a href="#turning-code-into-a-program">Turning code into a Program</a></li>
+<li class="toc-entry toc-h2"><a href="#transpiling-code">Transpiling code</a></li>
+<li class="toc-entry toc-h2"><a href="#getting-diagnostics">Getting diagnostics</a></li>
+<li class="toc-entry toc-h2"><a href="#getting-type-information">Getting type information</a></li>
+<li class="toc-entry toc-h2"><a href="#use-case-creating-a-custom-linter">Use case: creating a custom linter</a></li>
+<li class="toc-entry toc-h2"><a href="#use-case-extracting-type-documentation">Use case: extracting type documentation</a></li>
+<li class="toc-entry toc-h2"><a href="#use-case-altering-or-creating-code-programmatically">Use case: altering or creating code programmatically</a></li>
+<li class="toc-entry toc-h2"><a href="#resources">Resources</a></li>
+</ul><p>One of the interesting things about TypeScript is that it exposes a compiler API that you can use to process TypeScript code programmatically, from your own TypeScript code. This post will give you some idea of how this can be done and why it can be useful.</p>
+
+<h2 id="the-typescript-compiler-api">
+<a id="the-typescript-compiler-api" class="anchor" href="#the-typescript-compiler-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>The TypeScript compiler API</h2>
+
+<p>When writing an application using TypeScript, you typically use the “typescript” module as a build tool to transpile your TypeScript code into JavaScript. This is usually all you need. However, if you import the “typescript” module in your application code, you get access to the compiler API. This compiler API provides some very powerful tools for interacting with TypeScript code. Some of its features are documented on the TypeScript wiki: <a href="https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API">Using the Compiler API</a>.</p>
+
+<h2 id="sourcefiles-and-the-abstract-syntax-tree-ast">
+<a id="sourcefiles-and-the-abstract-syntax-tree-ast" class="anchor" href="#sourcefiles-and-the-abstract-syntax-tree-ast" aria-hidden="true"><span class="octicon octicon-link"></span></a>SourceFiles and the abstract syntax tree (AST)</h2>
+
+<p>A SourceFile is perhaps the most basic form of processed TypeScript code. A TypeScript SourceFile contains a representation of the source code itself, from which you can extract the <em>abstract syntax tree (AST)</em> for the code. An AST represents the syntactical structure of the program as a tree, starting from the SourceFile itself and drilling down into the statements and their building blocks. In general, compilers or interpreters typically construct an AST as an initial step in the processing of the source code.</p>
+
+<p>As an example, consider the following simple TypeScript code:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">test</span><span class="p">:</span> <span class="nx">number</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Now, let’s write some code that creates a SourceFile for this code and prints the AST.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">ts</span> <span class="k">from</span> <span class="s2">"typescript"</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">filename</span> <span class="o">=</span> <span class="s2">"test.ts"</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">code</span> <span class="o">=</span> <span class="s2">`const test: number = 1 + 2;`</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">sourceFile</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">createSourceFile</span><span class="p">(</span>
+    <span class="nx">filename</span><span class="p">,</span> <span class="nx">code</span><span class="p">,</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">ScriptTarget</span><span class="p">.</span><span class="nx">Latest</span>
+<span class="p">);</span>
+
+<span class="kd">function</span> <span class="nx">printRecursiveFrom</span><span class="p">(</span>
+    <span class="nx">node</span><span class="p">:</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">Node</span><span class="p">,</span> <span class="nx">indentLevel</span><span class="p">:</span> <span class="nx">number</span><span class="p">,</span> <span class="nx">sourceFile</span><span class="p">:</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">SourceFile</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">indentation</span> <span class="o">=</span> <span class="s2">"-"</span><span class="p">.</span><span class="nx">repeat</span><span class="p">(</span><span class="nx">indentLevel</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">syntaxKind</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">SyntaxKind</span><span class="p">[</span><span class="nx">node</span><span class="p">.</span><span class="nx">kind</span><span class="p">];</span>
+    <span class="kd">const</span> <span class="nx">nodeText</span> <span class="o">=</span> <span class="nx">node</span><span class="p">.</span><span class="nx">getText</span><span class="p">(</span><span class="nx">sourceFile</span><span class="p">);</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">`</span><span class="p">${</span><span class="nx">indentation</span><span class="p">}${</span><span class="nx">syntaxKind</span><span class="p">}</span><span class="s2">: </span><span class="p">${</span><span class="nx">nodeText</span><span class="p">}</span><span class="s2">`</span><span class="p">);</span>
+
+    <span class="nx">node</span><span class="p">.</span><span class="nx">forEachChild</span><span class="p">(</span><span class="nx">child</span> <span class="o">=&gt;</span>
+        <span class="nx">printRecursiveFrom</span><span class="p">(</span><span class="nx">child</span><span class="p">,</span> <span class="nx">indentLevel</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">sourceFile</span><span class="p">)</span>
+    <span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nx">printRecursiveFrom</span><span class="p">(</span><span class="nx">sourceFile</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">sourceFile</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>This prints the following AST:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SourceFile: const test: number = 1 + 2;
+-VariableStatement: const test: number = 1 + 2;
+--VariableDeclarationList: const test: number = 1 + 2
+---VariableDeclaration: test: number = 1 + 2
+----Identifier: test
+----NumberKeyword: number
+----BinaryExpression: 1 + 2
+-----FirstLiteralToken: 1
+-----PlusToken: +
+-----FirstLiteralToken: 2
+-EndOfFileToken:
+</code></pre></div></div>
+
+<p>Here, we used <code class="highlighter-rouge">ts.Node.forEachChild()</code> to get the children for a node in the AST. There is an alternative to this, <code class="highlighter-rouge">ts.Node.getChildren(sourceFile).forEach()</code>, which creates a more detailed AST:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SourceFile: const test: number = 1 + 2;
+-SyntaxList: const test: number = 1 + 2;
+--VariableStatement: const test: number = 1 + 2;
+---VariableDeclarationList: const test: number = 1 + 2
+----ConstKeyword: const
+----SyntaxList: test: number = 1 + 2
+-----VariableDeclaration: test: number = 1 + 2
+------Identifier: test
+------ColonToken: :
+------NumberKeyword: number
+------FirstAssignment: =
+------BinaryExpression: 1 + 2
+-------FirstLiteralToken: 1
+-------PlusToken: +
+-------FirstLiteralToken: 2
+---SemicolonToken: ;
+-EndOfFileToken:
+</code></pre></div></div>
+
+<p>Looking at generated ASTs is an interesting way to learn more about the TypeScript language and how the compiler represents source code internally. If you want to look at ASTs in a more interactive way and view more information for the nodes in the tree, I recommend using <a href="https://ts-ast-viewer.com/">TypeScript AST Viewer</a>.</p>
+
+<h2 id="turning-code-into-a-program">
+<a id="turning-code-into-a-program" class="anchor" href="#turning-code-into-a-program" aria-hidden="true"><span class="octicon octicon-link"></span></a>Turning code into a Program</h2>
+
+<p>While SourceFiles are easy to create, the functionality they offer doesn’t always suffice. In order to do more interesting things like getting diagnostics or using the type checker, you need a Program.</p>
+
+<p>Obtaining a Program from a file on disk is pretty straightforward. As the following example shows, this can be a one-liner in very simple cases.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">program</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">createProgram</span><span class="p">([</span><span class="s2">"src/test.ts"</span><span class="p">],</span> <span class="p">{});</span>
+</code></pre></div></div>
+
+<p>Getting a Program from a simple string of TypeScript code is a bit more tricky. In order to accomplish this, we need to specify a custom CompilerHost instance that will be used by the compiler to retrieve and write files.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">ts</span> <span class="k">from</span> <span class="s2">"typescript"</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">filename</span> <span class="o">=</span> <span class="s2">"test.ts"</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">code</span> <span class="o">=</span> <span class="s2">`const test: number = 1 + 2;`</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">sourceFile</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">createSourceFile</span><span class="p">(</span>
+    <span class="nx">filename</span><span class="p">,</span> <span class="nx">code</span><span class="p">,</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">ScriptTarget</span><span class="p">.</span><span class="nx">Latest</span>
+<span class="p">);</span>
+
+<span class="kd">const</span> <span class="nx">defaultCompilerHost</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">createCompilerHost</span><span class="p">({});</span>
+
+<span class="kd">const</span> <span class="nx">customCompilerHost</span><span class="p">:</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">CompilerHost</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">getSourceFile</span><span class="p">:</span> <span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">languageVersion</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">`getSourceFile </span><span class="p">${</span><span class="nx">name</span><span class="p">}</span><span class="s2">`</span><span class="p">);</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nx">name</span> <span class="o">===</span> <span class="nx">filename</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">sourceFile</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nx">defaultCompilerHost</span><span class="p">.</span><span class="nx">getSourceFile</span><span class="p">(</span>
+                <span class="nx">name</span><span class="p">,</span> <span class="nx">languageVersion</span>
+            <span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="na">writeFile</span><span class="p">:</span> <span class="p">(</span><span class="nx">filename</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{},</span>
+    <span class="na">getDefaultLibFileName</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="s2">"lib.d.ts"</span><span class="p">,</span>
+    <span class="na">useCaseSensitiveFileNames</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="na">getCanonicalFileName</span><span class="p">:</span> <span class="nx">filename</span> <span class="o">=&gt;</span> <span class="nx">filename</span><span class="p">,</span>
+    <span class="na">getCurrentDirectory</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="s2">""</span><span class="p">,</span>
+    <span class="na">getNewLine</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="s2">"</span><span class="err">\</span><span class="s2">n"</span><span class="p">,</span>
+    <span class="na">getDirectories</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">[],</span>
+    <span class="na">fileExists</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="na">readFile</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="s2">""</span>
+<span class="p">};</span>
+
+<span class="kd">const</span> <span class="nx">program</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">createProgram</span><span class="p">(</span>
+    <span class="p">[</span><span class="s2">"test.ts"</span><span class="p">],</span> <span class="p">{},</span> <span class="nx">customCompilerHost</span>
+<span class="p">);</span>
+
+<span class="c1">// getSourceFile test.ts</span>
+<span class="c1">// getSourceFile lib.d.ts</span>
+</code></pre></div></div>
+
+<p>As you can see, the <code class="highlighter-rouge">getSourceFile</code> method of the CompilerHost is called twice: once for getting the actual code we want to compile and once for getting <code class="highlighter-rouge">lib.d.ts</code>, the default library specifying the JavaScript/TypeScript features that are available to the code.</p>
+
+<h2 id="transpiling-code">
+<a id="transpiling-code" class="anchor" href="#transpiling-code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Transpiling code</h2>
+
+<p>Transpiling code from TypeScript to plain JavaScript using the compiler API is pretty straightforward. In its simplest form, it takes one line of code.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">code</span> <span class="o">=</span> <span class="s2">`const test: number = 1 + 2;`</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">transpiledCode</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">transpileModule</span><span class="p">(</span><span class="nx">code</span><span class="p">,</span> <span class="p">{}).</span><span class="nx">outputText</span><span class="p">;</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">transpiledCode</span><span class="p">);</span> <span class="c1">// var test = 1 + 2;</span>
+</code></pre></div></div>
+
+<p>It is possible to pass several options to the <code class="highlighter-rouge">transpileModule</code> method, including the compiler options to use.</p>
+
+<p>You can also transpile code by invoking the <code class="highlighter-rouge">emit()</code> method on a Program. If you do this for a program created in the most simple way from an actual file on disk, this will put a transpiled .js file next to it. As an example, let’s write a piece of TypeScript code that will transpile itself when run.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// file test.ts</span>
+
+<span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">ts</span> <span class="k">from</span> <span class="s2">"typescript"</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">program</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">createProgram</span><span class="p">([</span><span class="s2">"src/test.ts"</span><span class="p">],</span> <span class="p">{});</span>
+<span class="nx">program</span><span class="p">.</span><span class="nx">emit</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>When this code is transpiled and run, it creates the following JavaScript file next to the test.ts file:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// file test.js</span>
+
+<span class="s2">"use strict"</span><span class="p">;</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">__esModule</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">ts</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">"typescript"</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">program</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">createProgram</span><span class="p">([</span><span class="s2">"src/test.ts"</span><span class="p">],</span> <span class="p">{});</span>
+<span class="nx">program</span><span class="p">.</span><span class="nx">emit</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>It is also interesting to note that, if the file you transpile imports other TypeScript files, those will also be transpiled if the compiler can find them.</p>
+
+<h2 id="getting-diagnostics">
+<a id="getting-diagnostics" class="anchor" href="#getting-diagnostics" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting diagnostics</h2>
+
+<p>If you have a Program, you can use that Program to obtain diagnostics for the code. In order to get the compiler errors or warnings, use the <code class="highlighter-rouge">getPreEmitDiagnostics()</code> method. As an example, take a look at the following code which prints its own diagnostics.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">ts</span> <span class="k">from</span> <span class="s2">"typescript"</span><span class="p">;</span>
+
+<span class="kd">let</span> <span class="nx">test</span><span class="p">:</span> <span class="nx">number</span> <span class="o">=</span> <span class="s2">"test"</span><span class="p">;</span> <span class="c1">// compiler error</span>
+
+<span class="kd">const</span> <span class="nx">program</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">createProgram</span><span class="p">([</span><span class="s2">"src/test.ts"</span><span class="p">],</span> <span class="p">{});</span>
+<span class="kd">const</span> <span class="nx">diagnostics</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">getPreEmitDiagnostics</span><span class="p">(</span><span class="nx">program</span><span class="p">);</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="kd">const</span> <span class="nx">diagnostic</span> <span class="k">of</span> <span class="nx">diagnostics</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">message</span> <span class="o">=</span> <span class="nx">diagnostic</span><span class="p">.</span><span class="nx">messageText</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">file</span> <span class="o">=</span> <span class="nx">diagnostic</span><span class="p">.</span><span class="nx">file</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">filename</span> <span class="o">=</span> <span class="nx">file</span><span class="p">.</span><span class="nx">fileName</span><span class="p">;</span>
+
+    <span class="kd">const</span> <span class="nx">lineAndChar</span> <span class="o">=</span> <span class="nx">file</span><span class="p">.</span><span class="nx">getLineAndCharacterOfPosition</span><span class="p">(</span>
+        <span class="nx">diagnostic</span><span class="p">.</span><span class="nx">start</span>
+    <span class="p">);</span>
+
+    <span class="kd">const</span> <span class="nx">line</span> <span class="o">=</span> <span class="nx">lineAndChar</span><span class="p">.</span><span class="nx">line</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="kd">const</span> <span class="nx">character</span> <span class="o">=</span> <span class="nx">lineAndChar</span><span class="p">.</span><span class="nx">character</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">`(</span><span class="p">${</span><span class="nx">filename</span><span class="p">}</span><span class="s2">:</span><span class="p">${</span><span class="nx">line</span><span class="p">}</span><span class="s2">:</span><span class="p">${</span><span class="nx">character</span><span class="p">}</span><span class="s2">)`</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Type '"test"' is not assignable to type 'number'.</span>
+<span class="c1">// (src/test.ts:3:5)</span>
+</code></pre></div></div>
+
+<h2 id="getting-type-information">
+<a id="getting-type-information" class="anchor" href="#getting-type-information" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting type information</h2>
+
+<p>Another thing that a Program allows you to do is to obtain a TypeChecker for extracting type information from nodes in the AST. The following code obtains a TypeChecker for itself and uses the checker to emit the types of all variable declarations in the code.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">ts</span> <span class="k">from</span> <span class="s2">"typescript"</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">filename</span> <span class="o">=</span> <span class="s2">"src/test.ts"</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">program</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">createProgram</span><span class="p">([</span><span class="nx">filename</span><span class="p">],</span> <span class="p">{});</span>
+<span class="kd">const</span> <span class="nx">sourceFile</span> <span class="o">=</span> <span class="nx">program</span><span class="p">.</span><span class="nx">getSourceFile</span><span class="p">(</span><span class="nx">filename</span><span class="p">);</span>
+<span class="kd">const</span> <span class="nx">typeChecker</span> <span class="o">=</span> <span class="nx">program</span><span class="p">.</span><span class="nx">getTypeChecker</span><span class="p">();</span>
+
+<span class="kd">function</span> <span class="nx">recursivelyPrintVariableDeclarations</span><span class="p">(</span>
+    <span class="nx">node</span><span class="p">:</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">Node</span><span class="p">,</span> <span class="nx">sourceFile</span><span class="p">:</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">SourceFile</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">kind</span> <span class="o">===</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">SyntaxKind</span><span class="p">.</span><span class="nx">VariableDeclaration</span><span class="p">)</span>  <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">nodeText</span> <span class="o">=</span> <span class="nx">node</span><span class="p">.</span><span class="nx">getText</span><span class="p">(</span><span class="nx">sourceFile</span><span class="p">);</span>
+        <span class="kd">const</span> <span class="nx">type</span> <span class="o">=</span> <span class="nx">typeChecker</span><span class="p">.</span><span class="nx">getTypeAtLocation</span><span class="p">(</span><span class="nx">node</span><span class="p">);</span>
+        <span class="kd">const</span> <span class="nx">typeName</span> <span class="o">=</span> <span class="nx">typeChecker</span><span class="p">.</span><span class="nx">typeToString</span><span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="nx">node</span><span class="p">);</span>
+
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">nodeText</span><span class="p">);</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">`(</span><span class="p">${</span><span class="nx">typeName</span><span class="p">}</span><span class="s2">)`</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">node</span><span class="p">.</span><span class="nx">forEachChild</span><span class="p">(</span><span class="nx">child</span> <span class="o">=&gt;</span>
+        <span class="nx">recursivelyPrintVariableDeclarations</span><span class="p">(</span><span class="nx">child</span><span class="p">,</span> <span class="nx">sourceFile</span><span class="p">)</span>
+    <span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nx">recursivelyPrintVariableDeclarations</span><span class="p">(</span><span class="nx">sourceFile</span><span class="p">,</span> <span class="nx">sourceFile</span><span class="p">);</span>
+
+<span class="c1">// filename = "src/test.ts"</span>
+<span class="c1">// ("src/test.ts")</span>
+<span class="c1">// program = ts.createProgram([filename], {})</span>
+<span class="c1">// (ts.Program)</span>
+<span class="c1">// sourceFile = program.getSourceFile(filename)</span>
+<span class="c1">// (ts.SourceFile)</span>
+<span class="c1">// typeChecker = program.getTypeChecker()</span>
+<span class="c1">// (ts.TypeChecker)</span>
+<span class="c1">// nodeText = node.getText(sourceFile)</span>
+<span class="c1">// (string)</span>
+<span class="c1">// type = typeChecker.getTypeAtLocation(node)</span>
+<span class="c1">// (ts.Type)</span>
+<span class="c1">// typeName = typeChecker.typeToString(type, node)</span>
+<span class="c1">// (string)</span>
+</code></pre></div></div>
+
+<h2 id="use-case-creating-a-custom-linter">
+<a id="use-case-creating-a-custom-linter" class="anchor" href="#use-case-creating-a-custom-linter" aria-hidden="true"><span class="octicon octicon-link"></span></a>Use case: creating a custom linter</h2>
+
+<p>The TypeScript compiler API makes it pretty straightforward to create your own custom linter that generates errors or warnings if it finds certain things in the code. For an example, see this part of the compiler API documentation: <a href="https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API#traversing-the-ast-with-a-little-linter">Traversing the AST with a little linter</a>. Note that the code uses the kind SyntaxKind of the node (<code class="highlighter-rouge">node.kind</code>) to determine the kind of node and then casts the node to its specific type, allowing for convenient access to certain child nodes.</p>
+
+<p>The example above doesn’t create a Program, because there is no need to create one. If the information in the AST suffices for your linter, it is easier and more efficient to just create a SourceFile directly. More advanced linters may need type checking, which means you will need to generate a Program for the code to be linted in order to obtain a TypeChecker.</p>
+
+<h2 id="use-case-extracting-type-documentation">
+<a id="use-case-extracting-type-documentation" class="anchor" href="#use-case-extracting-type-documentation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Use case: extracting type documentation</h2>
+
+<p>The documentation for the compiler API includes an example that uses a TypeChecker to extract and emit type documentation for the code: <a href="https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API#using-the-type-checker">Using the Type Checker</a></p>
+
+<h2 id="use-case-altering-or-creating-code-programmatically">
+<a id="use-case-altering-or-creating-code-programmatically" class="anchor" href="#use-case-altering-or-creating-code-programmatically" aria-hidden="true"><span class="octicon octicon-link"></span></a>Use case: altering or creating code programmatically</h2>
+
+<p>It is possible that you want to analyze some TypeScript source code and then alter it in some cases. One way to do this is to traverse the AST and generate a list of changes you want to perform on the code (e.g., remove 2 characters starting from position 11 and insert the string “test” instead). Then, take the source code as a string and apply the changes in reverse order (starting from the end of the source code, so your changes don’t affect the positions where the other changes need to happen).</p>
+
+<p>You can also programmatically create AST nodes and use them to programmatically generate new TypeScript code.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">ts</span> <span class="k">from</span> <span class="s2">"typescript"</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">statement</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">createVariableStatement</span><span class="p">(</span>
+    <span class="p">[],</span>
+    <span class="nx">ts</span><span class="p">.</span><span class="nx">createVariableDeclarationList</span><span class="p">(</span>
+        <span class="p">[</span><span class="nx">ts</span><span class="p">.</span><span class="nx">createVariableDeclaration</span><span class="p">(</span>
+            <span class="nx">ts</span><span class="p">.</span><span class="nx">createIdentifier</span><span class="p">(</span><span class="s2">"testVar"</span><span class="p">),</span>
+            <span class="nx">ts</span><span class="p">.</span><span class="nx">createKeywordTypeNode</span><span class="p">(</span><span class="nx">ts</span><span class="p">.</span><span class="nx">SyntaxKind</span><span class="p">.</span><span class="nx">StringKeyword</span><span class="p">),</span>
+            <span class="nx">ts</span><span class="p">.</span><span class="nx">createStringLiteral</span><span class="p">(</span><span class="s2">"test"</span><span class="p">)</span>
+        <span class="p">)],</span>
+        <span class="nx">ts</span><span class="p">.</span><span class="nx">NodeFlags</span><span class="p">.</span><span class="nx">Const</span>
+    <span class="p">)</span>
+<span class="p">);</span>
+
+<span class="kd">const</span> <span class="nx">printer</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">createPrinter</span><span class="p">();</span>
+
+<span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">printer</span><span class="p">.</span><span class="nx">printNode</span><span class="p">(</span>
+    <span class="nx">ts</span><span class="p">.</span><span class="nx">EmitHint</span><span class="p">.</span><span class="nx">Unspecified</span><span class="p">,</span>
+    <span class="nx">statement</span><span class="p">,</span>
+    <span class="kc">undefined</span>
+<span class="p">);</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span> <span class="c1">// const testVar: string = "test";</span>
+</code></pre></div></div>
+
+<h2 id="resources">
+<a id="resources" class="anchor" href="#resources" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resources</h2>
+
+<ul>
+  <li><a href="https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API">Using the Compiler API</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">Abstract syntax tree</a></li>
+  <li><a href="https://ts-ast-viewer.com/">TypeScript AST Viewer</a></li>
+</ul>
+
+    </div>
+
+    
+</article>
+
+		</div>
+		
+		<div class="sticky-footer-push"></div>
+	</div>
+
+    <div class="wrapper-footer sticky-footer-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/thehumanmicrophone/thehumanmicrophone.github.io-source"><i class="svg-icon github"></i></a>
+
+
+
+
+<a href="https://www.twitter.com/thehumanmicrop1"><i class="svg-icon twitter"></i></a>
+
+
+
+        </footer>
+      </div>
+    </div>
+
+		
+	<!-- Google Analytics -->
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-130247825-1', 'auto');
+		ga('send', 'pageview', {
+		  'page': '/2019/01/19/Processing-TypeScript-using-TypeScript/',
+		  'title': 'Processing TypeScript using TypeScript'
+		});
+	</script>
+	<!-- End Google Analytics -->
+
+
+		
+		<script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script>
+<script>addBackToTop({
+  diameter: 50,
+  backgroundColor: '#2f2f2f',
+  textColor: '#fff'
+})</script> 
+  </body>
+</html>
