@@ -1,4 +1,120 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2019-01-19T12:42:49+01:00</updated><id>http://0.0.0.0:4000/</id><title type="html">thehumanmicrophone.github.io-source.git</title><subtitle>Software development blog with a focus on Java and JavaScript</subtitle><entry><title type="html">Processing TypeScript using TypeScript</title><link href="http://0.0.0.0:4000/2019/01/19/Processing-TypeScript-using-TypeScript/" rel="alternate" type="text/html" title="Processing TypeScript using TypeScript" /><published>2019-01-19T00:00:00+01:00</published><updated>2019-01-19T00:00:00+01:00</updated><id>http://0.0.0.0:4000/2019/01/19/Processing-TypeScript-using-TypeScript</id><content type="html" xml:base="http://0.0.0.0:4000/2019/01/19/Processing-TypeScript-using-TypeScript/">&lt;p&gt;One of the interesting things about TypeScript is that it exposes a compiler API that you can use to process TypeScript code programmatically, from your own TypeScript code. This post will give you some idea of how this can be done and why it can be useful.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2019-02-02T21:09:58+01:00</updated><id>http://0.0.0.0:4000/</id><title type="html">thehumanmicrophone.github.io-source.git</title><subtitle>Software development blog with a focus on Java and JavaScript</subtitle><entry><title type="html">Code review and collaboration workflows</title><link href="http://0.0.0.0:4000/2019/02/02/Code-review-collaboration-workflows/" rel="alternate" type="text/html" title="Code review and collaboration workflows" /><published>2019-02-02T00:00:00+01:00</published><updated>2019-02-02T00:00:00+01:00</updated><id>http://0.0.0.0:4000/2019/02/02/Code-review-collaboration-workflows</id><content type="html" xml:base="http://0.0.0.0:4000/2019/02/02/Code-review-collaboration-workflows/">&lt;p&gt;When writing code alone, it is sometimes easy to make mistakes or forget to take something into account. Therefore, the quality of your code as a team can greatly improve if developers collaborate on writing code. This post talks about some ways to handle code review and collaboration when writing code in a team.&lt;/p&gt;
+
+&lt;h2 id=&quot;instant-review-pair-programming&quot;&gt;Instant review (pair programming)&lt;/h2&gt;
+
+&lt;p&gt;The first type of review, instant review, means that all code is instantly reviewed as it is being written. This is what happens when doing pair programming. One programmer, the driver, writes the actual code. The other programmer, the navigator, reviews the code immediately. While the driver and navigator will be switching roles pretty often, the fact remains that there will always be someone writing the code and someone instantly reviewing it. Often, for teams that require code to be reviewed, a pairing partner counts as reviewer. This means that, if only one reviewer’s approval is needed, a pair can commit code without further review.&lt;/p&gt;
+
+&lt;h3 id=&quot;advantages-of-pair-programming&quot;&gt;Advantages of pair programming&lt;/h3&gt;
+
+&lt;p&gt;Pairing is a good way to create joint ownership of the code, preventing the very dangerous situation where there are parts of the codebase that only one developer is willing, allowed or able to maintain. Because all code was written jointly by at least two people, you have at least two people who know the idea behind the code and the details about how it works. By mixing up the pairs frequently, this knowledge gets spread across the team.&lt;/p&gt;
+
+&lt;p&gt;Another advantage of pair programming is that it helps with focus. While there is a lot of interaction within a pair, this interaction does not require context switching because both members of the pair are already working on the same thing. The pair can also keep each other on track and prevent each other from slacking off or being tempted to write quick-and-dirty code.&lt;/p&gt;
+
+&lt;p&gt;The fact that there is a driver and navigator also means that you have different levels of overview. When you are writing code alone, it is sometimes hard to keep an overview of what you are doing when you are deep into some specific part of the code. In pair programming, there is always someone (the navigator) who can help the driver keep track of the bigger picture. The roles also switch frequently, which means that both members of the pair have experienced the process of writing the code from different levels of overview.&lt;/p&gt;
+
+&lt;p&gt;Classical pair programming (with a driver and a navigator) works well when you need to write some code solving a complex business problem with lots of possible scenarios. While the driver codes, the navigator can provide guidance and help with making sure that all scenarios and edge cases are taken into account.&lt;/p&gt;
+
+&lt;h3 id=&quot;pair-programming-and-junior-developers&quot;&gt;Pair programming and junior developers&lt;/h3&gt;
+
+&lt;p&gt;The advantages mentioned above apply especially to pairs consisting of relatively experienced people with a similar level of experience.&lt;/p&gt;
+
+&lt;p&gt;Pairing a senior with a junior can work, but changes the dynamic of the pair to be more focused on mentoring. Typically, the junior developer will be the driver most of the time and the senior will help the junior keep track of the different cases to handle and provide instant help when the junior is stuck. This can be a very good way to get the junior developer up to speed quickly. In order for the junior to learn, the senior developer should try not to give too much guidance or tell the junior exactly how to tackle the problem. Instead, the senior can give some hints or ask some questions to the junior, allowing the junior to figure out what to do. Sometimes, it can even make sense to let the junior wander down a path that the senior knows to be a dead end. The basic idea is that the junior should be allowed to make mistakes, while the senior can then help the junior to learn from those mistakes by really understanding what went wrong and why.&lt;/p&gt;
+
+&lt;p&gt;For a senior developer, mentoring a junior in this way can be exhausting and sometimes frustrating. However, pairing with a junior also provides benefits for the senior. Junior developers typically spend a lot of time learning, and in doing so they might have picked up on something that benefits the senior as well. Additionally, the questions asked by the junior developer force the senior to be explicit about the reasoning behind certain best practices, the way the codebase was designed, the approaches used for certain problems, … Sometimes, being forced to be explain things that are obvious to you can be a learning experience in itself, and it can help expose some potential gaps in your knowledge or even flaws in the design that went unnoticed. Despite these benefits, junior-senior pairing is likely still exhausting to the senior, so it probably helps to switch things up after a while.&lt;/p&gt;
+
+&lt;p&gt;Pairing two junior developers is more risky. While there is a chance that they can fill in the gaps in each other’s knowledge and reasoning, there is also a big chance that you will just have two people being stuck for hours on a problem that could have been solved quickly with a bit of guidance from a senior developer. Forbidding less experienced developers to pair with each other is a bit harsh, but it should be the responsibility of the team to make sure that pairs of less experienced devs receive sufficient guidance. The team should help them estimate how much time they should allow themselves to spend on a task and how quickly they should ask for help.&lt;/p&gt;
+
+&lt;h3 id=&quot;mobbing&quot;&gt;Mobbing&lt;/h3&gt;
+
+&lt;p&gt;Mobbing is similar to pair programming, but involves more people. Some types of mobbing:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Code jam: This is basically pairing, but with more navigators. The driver still switches frequently. Often, code jams are time-boxed sessions dedicated to solving a specifically hairy challenge.&lt;/li&gt;
+  &lt;li&gt;Randori: Here, you have one regular pair (driver + navigator, switching roles often). The rest of the people just observe. However, every so often, one of the observers replaces one member of the pair.&lt;/li&gt;
+  &lt;li&gt;Mob programming: This is similar to a code jam. However, instead of having time-boxed sessions, the team sees this type of collaboration as their main way of working. Teams using this approach say it helps with learning, quick decision making, communication, preventing technical debt, etc. If you want to know more about this, you could have a look at this video:  &lt;a href=&quot;https://vimeo.com/131643015&quot;&gt;Mob Programming, A Whole Team Approach - Woody Zuill&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;when-not-to-use-pair-programming&quot;&gt;When not to use pair programming&lt;/h3&gt;
+
+&lt;p&gt;While pair programming has a lot of benefits, it can be intense and exhausting if done all the time. Additionally, there are situations where it would be way more productive to have people do (some of) their work separately instead of looking at the same screen together.&lt;/p&gt;
+
+&lt;p&gt;One example where pair programming doesn’t really make sense is solving a technical problem requiring lots of research, exploration and experimentation. Googling stuff, playing around and building small experiments or quick proof of concepts works way better if developers work on their own machine. Of course, this doesn’t mean that they can’t check in regularly to discuss their findings.&lt;/p&gt;
+
+&lt;h2 id=&quot;synchronous-review&quot;&gt;Synchronous review&lt;/h2&gt;
+
+&lt;p&gt;Synchronous review is an approach were you first create something (code, design, …) on your own and then call someone over in order to get feedback. It’s called synchronous because it requires both you and your reviewer to be looking at your work at the same time. We will later compare this to asynchronous review, where that is not the case.&lt;/p&gt;
+
+&lt;h3 id=&quot;advantages-of-synchronous-review&quot;&gt;Advantages of synchronous review&lt;/h3&gt;
+
+&lt;p&gt;Synchronous review is helpful if the reviewer is not very familiar with the problem you are solving, because direct communication is a convenient way of explaining the context of the problem.&lt;/p&gt;
+
+&lt;p&gt;Direct communication is also very helpful if there is the need to have a real discussion about the code instead of just receiving a few remarks.&lt;/p&gt;
+
+&lt;p&gt;Another benefit of synchronous review, when compared to pair programming, is that you still get the chance to work on something separately, explore and make your own mistakes.&lt;/p&gt;
+
+&lt;h3 id=&quot;synchronous-review-and-pairing&quot;&gt;Synchronous review and pairing&lt;/h3&gt;
+
+&lt;p&gt;Synchronous review is clearly different from classical pair programming where a driver and navigator sit together to write the code. However, even when working in pairs, synchronous review can be helpful for situations where classical pair programming doesn’t make sense or when you and your pairing partner need a break from the constant interaction for a while.&lt;/p&gt;
+
+&lt;p&gt;One way of using synchronous review with your pairing partner is the “divide and conquer” strategy. Instead of solving a problem together as a driver and navigator, you divide the problem into some smaller tasks and divide them amongst the two of you. Each person works separately on their tasks, but you are there to support each other where needed and you frequently sit together to review what you have done and attempt to improve each other’s work. This approach can be a good idea when doing some research and experimentation.&lt;/p&gt;
+
+&lt;p&gt;An alternative is “supported soloing”. This is similar so “divide and conquer”, except for the fact that you are now working on completely separate things. However, you are still regularly providing each other with support and feedback. This can work well for seniors working together, a senior supporting a junior or even a small number of seniors supporting a pool of juniors. In this case, it’s very important to actually be available for providing feedback and support.&lt;/p&gt;
+
+&lt;p&gt;Finally, even when doing classical pair programming, synchronous review can be used if the pair needs some support from the rest of the team to solve a particularly hairy problem or make an important decision.&lt;/p&gt;
+
+&lt;h3 id=&quot;drawbacks-of-synchronous-review&quot;&gt;Drawbacks of synchronous review&lt;/h3&gt;
+
+&lt;p&gt;Synchronous review means that both you and your reviewer need to be looking at the work at the same time. While this is sometimes very valuable, it has the drawback of requiring context switches. At the point in time when you would like some feedback, your teammate may fully focused on another problem. This means that you either need to break your colleague’s focus, or wait until the colleague is free (and at that moment, you may actually be fully focused on something). Context switches and interruptions can have a huge effect on productivity, especially for tasks that require deep focus and concentration.&lt;/p&gt;
+
+&lt;p&gt;Another drawback of synchronous review is that it does not allow the reviewer to have a look at the code or the problem before actually coming over to review. Without being able to take some time to have good look at the code and let it sink in, the reviewer may fail to spot some potential problems.&lt;/p&gt;
+
+&lt;h2 id=&quot;asynchronous-review&quot;&gt;Asynchronous review&lt;/h2&gt;
+
+&lt;p&gt;Asynchronous review is very similar to synchronous review, in the sense that you still first create something (code, design, …) on your own and then ask for feedback. The big difference is that asynchronous review does not require you and the reviewer to be looking at the code at the same moment.&lt;/p&gt;
+
+&lt;p&gt;Asynchronous review processes typically use some sort of technology that allows you to make your work available for people to review and allows reviewers to provide feedback. A very popular form of this are the pull requests provided by tools as GitHub and Bitbucket. You can push a branch and attach a description of what the goal of your change is, why you made certain decisions, and so on. You and your reviewers can then discuss (parts of) your code through the tool. The pull request also tracks additional changes you make in response to feedback.&lt;/p&gt;
+
+&lt;h3 id=&quot;advantages-of-asynchronous-review&quot;&gt;Advantages of asynchronous review&lt;/h3&gt;
+
+&lt;p&gt;A big advantage of asynchronous review is the fact that it is asynchronous. You can finish and push your code when it is convenient for you, while your reviewer can look at it when it’s convenient for them. This also allows the reviewer to have a proper look at the code, taking as much time as needed to really understand what the code does, how it handles certain situations and how it could affect the rest of the system.&lt;/p&gt;
+
+&lt;p&gt;Another advantage is that asynchronous review makes it easier to check the readability of the code. With nobody being there to talk the reviewer through the code, they will immediately experience how easy it is to understand what the code is actually doing without additional explanation. And, if the person who wrote the code has actually provided some documentation and explanation when submitting their code, this means there is actually some written documentation which can help future maintainers of the code as well. In fact, most processes involving pull requests are set up in such a way that you can easily find the relevant pull request (including additional documentation) that introduced a certain piece of code into the codebase.&lt;/p&gt;
+
+&lt;h3 id=&quot;asynchronous-review-and-pairing&quot;&gt;Asynchronous review and pairing&lt;/h3&gt;
+
+&lt;p&gt;When applying the pairing strategies described in the section on synchronous review, asynchronous review could be used instead of synchronous review if there is a need or desire to handle things in an asynchronous fashion.&lt;/p&gt;
+
+&lt;h3 id=&quot;drawbacks-of-asynchronous-review&quot;&gt;Drawbacks of asynchronous review&lt;/h3&gt;
+
+&lt;p&gt;In an asynchronous reviewing process, you may have to wait a while for feedback from you reviewer(s). This means that you will likely need to start working on something different and later switch back to the code that was awaiting review. This is a form of context switching, although you can wait to process the feedback until a time that is convenient for you. For the reviewer, the situation is similar: there is still some context switching going on, but at least they are not interrupted during moments of deep focus.&lt;/p&gt;
+
+&lt;p&gt;Deciding what to do while waiting for feedback can sometimes be challenging. The simplest option is often to work on something unrelated to your code change, like other issues, documentation, learning, … However, if you are keeping commits and issues small (which is typically a good thing), you may run into the situation where the only thing that makes sense to work on is something that depends directly on the code awaiting feedback. This means that, if you later need to make significant changes to your earlier code because of the feedback you received, your new code may need significant changes as well. In this case, it’s probably not a good idea to submit your new code as long as the initial code has not been properly reviewed and approved yet. If you come to the point where you would like to submit your new changes but you have still not received proper feedback on the changes they depend on, it may be right time to start asking your colleagues for a synchronous review of the original changes and potentially the new code as well.&lt;/p&gt;
+
+&lt;p&gt;In general, the team should make sure that code and comments are reviewed and processed fairly quickly, meaning that the feedback loop stays relatively short. Otherwise, asynchronous review will negatively affect the productivity of the team. The longer the feedback loop gets, the harder it is for a committer or reviewer to switch contexts when they receive feedback on their code or comments. A longer feedback loop  also increases the chance that other changes in the codebase will conflict with the code under review.&lt;/p&gt;
+
+&lt;p&gt;When doing asynchronous review, you should specifically look out for excessive back-and-forth discussion. If it is taking a long time and a lot of discussion to review a piece of code, it is probably a better idea to look at the code together (synchronous review) and possibly even do some pair programming. Some companies also have guidelines asking you to just accept the changes if the code is reasonable and to offer your ideas for improvement as suggestions for new changes rather than reasons for rejecting the current changes.&lt;/p&gt;
+
+&lt;h2 id=&quot;review-after-the-fact&quot;&gt;Review after the fact&lt;/h2&gt;
+
+&lt;p&gt;Review after the fact means that code is reviewed after it is committed or pulled into the main branch. One example is a mob review where the entire team sits together to have a look at a piece of code in order to share knowledge and possibly get suggestions for further improvement. It is also an option that developers are notified when commits are made to the main branch and can then have a look at the code and potentially suggest some improvements.&lt;/p&gt;
+
+&lt;p&gt;While it is often not ideal to have this as the only kind of review, it could be useful to combine this with some other way of reviewing. For example, you could set up a process where code can be pushed directly to the main branch by a pair, but other developers can check the changes afterwards and suggest additional improvements or request a knowledge sharing session. Review after the fact can also make sense if the current availability of qualified reviewers would not allow for timely review of changes. In that case, it is probably a good idea to explicitly make the team aware that the code has not been reviewed yet.&lt;/p&gt;
+
+&lt;h2 id=&quot;automated-review&quot;&gt;Automated review&lt;/h2&gt;
+
+&lt;p&gt;This one is a bit different, in the sense that there are no humans involved here. Automated review is a great addition to any reviewing process. Some examples are automated code formatting, a linter enforcing a certain coding style and forbidding some bad practices, a script that automatically checks dependencies for security vulnerabilities and licensing issues, … The more checks you can perform automatically, the more time and energy developers can spend thinking about the actual behavior of the code.&lt;/p&gt;
+
+&lt;h2 id=&quot;resources&quot;&gt;Resources&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://dzone.com/articles/4-types-of-code-reviews-any-professional-developer&quot;&gt;4 Types Of Code Reviews Any Professional Developer Should Know About&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://madeintandem.com/blog/2015-1-pairing-with-junior-developers/&quot;&gt;Pairing with Junior Developers&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://vimeo.com/131643015&quot;&gt;Mob Programming, A Whole Team Approach - Woody Zuill&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://simpleprogrammer.com/code-review-trunk-based-development/&quot;&gt;Why Code Reviews Hurt Your Code Quality and Team Productivity&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.thoughtworks.com/insights/blog/pairing-are-you-doing-it-wrong&quot;&gt;Pairing, Are You Doing it Wrong?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://dev.to/itsjoekent/what-should-a-developer-do-while-waiting-for-a-pull-request-review&quot;&gt;What should a developer do while waiting for a pull request review?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://hackernoon.com/the-art-of-pull-requests-6f0f099850f9&quot;&gt;The Art of Pull Requests&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><category term="software-development" /><summary type="html">When writing code alone, it is sometimes easy to make mistakes or forget to take something into account. Therefore, the quality of your code as a team can greatly improve if developers collaborate on writing code. This post talks about some ways to handle code review and collaboration when writing code in a team.</summary></entry><entry><title type="html">Processing TypeScript using TypeScript</title><link href="http://0.0.0.0:4000/2019/01/19/Processing-TypeScript-using-TypeScript/" rel="alternate" type="text/html" title="Processing TypeScript using TypeScript" /><published>2019-01-19T00:00:00+01:00</published><updated>2019-01-19T00:00:00+01:00</updated><id>http://0.0.0.0:4000/2019/01/19/Processing-TypeScript-using-TypeScript</id><content type="html" xml:base="http://0.0.0.0:4000/2019/01/19/Processing-TypeScript-using-TypeScript/">&lt;p&gt;One of the interesting things about TypeScript is that it exposes a compiler API that you can use to process TypeScript code programmatically, from your own TypeScript code. This post will give you some idea of how this can be done and why it can be useful.&lt;/p&gt;
 
 &lt;h2 id=&quot;the-typescript-compiler-api&quot;&gt;The TypeScript compiler API&lt;/h2&gt;
 
@@ -1919,181 +2035,4 @@ It is also possible to have a handler that can handle several exception classes.
   &lt;li&gt;&lt;a href=&quot;https://stackoverflow.com/a/39210371&quot;&gt;Living Without Transactions&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;https://stackoverflow.com/questions/5029580/patterns-for-schema-changes-in-document-databases&quot;&gt;Patterns for Schema Changes in Document Databases&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/NewSQL&quot;&gt;NewSQL&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><author><name></name></author><category term="sql" /><category term="nosql" /><category term="newsql" /><summary type="html">This post is my attempt at providing a very high-level overview of the data store landscape, covering relational databases (SQL), NoSQL and NewSQL data stores.</summary></entry><entry><title type="html">Optimistic and pessimistic locking with SQL</title><link href="http://0.0.0.0:4000/2018/09/01/Optimistic-pessimistic-locking-sql/" rel="alternate" type="text/html" title="Optimistic and pessimistic locking with SQL" /><published>2018-09-01T00:00:00+02:00</published><updated>2018-09-01T00:00:00+02:00</updated><id>http://0.0.0.0:4000/2018/09/01/Optimistic-pessimistic-locking-sql</id><content type="html" xml:base="http://0.0.0.0:4000/2018/09/01/Optimistic-pessimistic-locking-sql/">&lt;p&gt;This post explains the optimistic and pessimistic locking strategies with a focus on their application in systems interacting with relational databases. Regardless of the focus on SQL, the main concepts discussed here are not SQL-specific and are also applicable in other areas.&lt;/p&gt;
-
-&lt;h2 id=&quot;why-locking&quot;&gt;Why locking?&lt;/h2&gt;
-
-&lt;p&gt;In order to explain why you would need locking, I will provide some examples of undesirable situations that you can prevent using locking.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Your application lets users manage items. Each item has a long description. One of your users starts editing the description of item A at 10:00 and saves his changes at 10:02. Meanwhile, another user starts editing the same item’s description at 10:01 and saves it at 10:03. Because the original description that the second user started from did not yet contain the changes made by the first user, the changes made by the first user are lost without either user being notified about it.&lt;/li&gt;
-  &lt;li&gt;Your application communicates with the database through an ORM using the common approach where you retrieve the current version of an object, make some changes to it and then save the resulting object to the database. Some user or process changes the same object right after you retrieved it, so the object you are saving does not contain those changes. This leads to your application overwriting the changes with stale data.&lt;/li&gt;
-  &lt;li&gt;Your application allows linking items to a group, but only if the group has status “Active”. This restriction is not enforced at the database-level. Before linking an item to a group, you verify that the group has the correct status. However, just before you save the item, another user or process changes the status of the group to “Inactive”. Once you commit, the item is now linked to an inactive group.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;As you may have deduced from these examples, locking is primarily relevant in dealing with conflicts caused by multiple users or processes concurrently interacting with your application or database.&lt;/p&gt;
-
-&lt;h2 id=&quot;locking-strategies&quot;&gt;Locking strategies&lt;/h2&gt;
-
-&lt;p&gt;There are two main types of locking: optimistic and pessimistic.&lt;/p&gt;
-
-&lt;h3 id=&quot;optimistic-locking&quot;&gt;Optimistic locking&lt;/h3&gt;
-
-&lt;p&gt;The optimistic locking strategy performs most of an operation’s logic under the assumption that no conflict has occurred (which explains the name “optimistic”). Then, when actually saving/committing your changes, you verify that indeed no conflict has occurred. If you detect that there was actually a conflict, you abort your operation.&lt;/p&gt;
-
-&lt;p&gt;When interacting with a relational database, checking if a conflict has occurred is typically done by either comparing the actual data for an object to the data you based yourself on or by checking a version number or timestamp that you update every time a change is made to the object. It seems that the approach with the version number is the most commonly used one.&lt;/p&gt;
-
-&lt;p&gt;The typical use case for optimistic locking is retrieving an object, making some changes to it (possibly done by a user) and then saving the result while verifying that no other changes have been made in the meantime. However, it also allows you to lock objects that you need to stay unchanged until after you complete your operation. You can achieve this by simply saving the object as you retrieved it. If this doesn’t yield a conflict, you know that the object hasn’t changed in the meantime. This strategy could be applicable to our example with items being linked to a group.&lt;/p&gt;
-
-&lt;h4 id=&quot;benefits-and-drawbacks&quot;&gt;Benefits and drawbacks&lt;/h4&gt;
-
-&lt;p&gt;A big benefit of optimistic locking is the flexibility it offers. You don’t have to care about when and where the “base version” of your object was retrieved. There’s no need for it to be retrieved inside the same transaction where you save the object. This is especially desirable when you need to wait for user input to make the changes, like in our example with users editing descriptions. In such a case, it would be very impractical to keep a database transaction open while a users edits an item. Typically, the user will make separate calls to retrieve the item and to save it, which may even be handled by different instances of your application in a cluster.&lt;/p&gt;
-
-&lt;p&gt;Some sources claim that, when using optimistic locking, deadlocks are not possible because it never issues any database-level locks. Further down this post, I will show that this is not true and that optimistic locking (combined with the common transaction isolation level Read Committed) actually acquires a database-level lock from when you save data until your transaction is committed. However, the flexibility of optimistic locking makes it straightforward to prevent deadlocks by always saving objects in the same order (and thus always acquiring database-level locks in the same order).&lt;/p&gt;
-
-&lt;p&gt;An important drawback of optimistic locking is that, if a conflict does occur, you need to deal with your operation being aborted. If your operation simply retrieves an object and immediately changes and saves it, it can make sense to retry your entire operation (retrieve current version, change and save it). However, in our example with users concurrently editing descriptions, that wouldn’t make any sense. It would just lead to users unknowingly overwriting each other’s changes again. Instead, the best option would probably be to alert the user of the conflict and ideally allow him to merge his changes with the other changes.&lt;/p&gt;
-
-&lt;h3 id=&quot;pessimistic-locking&quot;&gt;Pessimistic locking&lt;/h3&gt;
-
-&lt;p&gt;Pessimistic locking, as the name implies, uses a less optimistic approach. It assumes that conflicts will occur and it actively blocks anything that could possibly cause a conflict.&lt;/p&gt;
-
-&lt;p&gt;When interacting with a relational database, this is done by actively locking database rows or even database tables when you retrieve the data you will operate on. The locks will be held until your transaction completes. There are generally two types of locks: shared locks (read locks) and exclusive locks (write locks). Shared locks are used for reading data that you simply need to stay the same until your operation completes. A shared lock allows others to take a shared lock as well (you still allow others to read the object as this does not create a conflict). Exclusive locks are used for reading and updating data that you want to change. Exclusive locks do not allow anyone else to take a lock on the same data. Any attempts to obtain a lock when it’s not allowed at the time will block until the conflicting locks are released.&lt;/p&gt;
-
-&lt;h4 id=&quot;benefits-and-drawbacks-1&quot;&gt;Benefits and drawbacks&lt;/h4&gt;
-
-&lt;p&gt;The main benefit of pessimistic locking is that you can completely prevent conflicts from occurring, meaning that you don’t have to deal with the situation where you have a conflict. This can also make it the best-performing strategy in high-concurrency environments where the chance of having conflicts is high.&lt;/p&gt;
-
-&lt;p&gt;A drawback of pessimistic locking is that you miss the flexibility of optimistic locking: when using pessimistic locking, everything needs to happen inside a single database transaction. This makes it less applicable to situations where you need to wait for user input or an expensive operation between retrieving and saving an object. It can also limit your options for organizing your code.&lt;/p&gt;
-
-&lt;p&gt;Pessimistic locking may also unnecessarily limit concurrency, preventing possibly conflicting operations from occurring concurrently even if there is a very low chance that there will actually be a conflict.&lt;/p&gt;
-
-&lt;p&gt;When using pessimistic locking, you need to take special care to prevent deadlocks. First of all, you typically acquire database-level locks at the start of your operation and you keep them until the operation completes, making for a relatively large time window for deadlocks to occur. Additionally, when retrieving multiple objects, the actual objects to retrieve may depend on objects retrieved earlier. This means that you have less flexibility regarding the order in which you obtain locks. It may be tempting to “solve” this by first retrieving an object without any locking and later retrieving it again with the required lock. However, in that case, you need to check for changes made in the meantime, which is basically optimistic locking and introduces the possibility of conflicts occurring.&lt;/p&gt;
-
-&lt;p&gt;Additionally, if you use pessimistic locking in situations where you need to wait for user input, you need to deal with situations in which the user doesn’t provide that input in a timely fashion (e.g., the user goes for lunch or forgets about what he was doing, blocking other users while nothing is happening).&lt;/p&gt;
-
-&lt;h2 id=&quot;combining-different-strategies&quot;&gt;Combining different strategies&lt;/h2&gt;
-
-&lt;p&gt;Note that it is possible for different locking strategies to exist at different levels in your application. As an example, let’s take the application where users can edit items and their descriptions. A possible approach could be to require users to “check out” items before editing them, blocking other users from editing those items while they are checked out. The system would use an additional table to store which item is checked out by which user. This is a form of pessimistic locking. However, at the level of the communication with the database, conflicts caused by users concurrently trying to check out the same item could be dealt with using optimistic locking.&lt;/p&gt;
-
-&lt;h2 id=&quot;implementation-using-sql&quot;&gt;Implementation using SQL&lt;/h2&gt;
-
-&lt;p&gt;Note: for my comments regarding database-level locking in this section, I am assuming a transaction isolation level of Read Committed, which is the default level in several popular relational databases (and even the lowest available level for some). For SQL that differs between databases, I am using the PostgreSQL dialect here.&lt;/p&gt;
-
-&lt;h3 id=&quot;optimistic-locking-using-where&quot;&gt;Optimistic locking using WHERE&lt;/h3&gt;
-
-&lt;p&gt;One way of implementing optimistic locking when updating an objects is by using a WHERE clause including the data you need to check for conflicts (in this case, the version number of the version you base yourself on). Such an UPDATE statement normally returns the number of affected rows. If that number is 0, we know that a conflict has occurred and we can roll back our transaction.&lt;/p&gt;
-
-&lt;p&gt;If you use this strategy, it actually acquires a database-level lock on the row you update. As stated above, this could lead to deadlocks if you are not careful. For example, consider the two transactions below.&lt;/p&gt;
-
-&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;--Transaction A                 -- Transaction B&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;BEGIN&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TRANSACTION&lt;/span&gt;               &lt;span class=&quot;k&quot;&gt;BEGIN&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TRANSACTION&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;UPDATE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;                    &lt;span class=&quot;k&quot;&gt;UPDATE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;items&lt;/span&gt; 
-&lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'newNameA'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;          &lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'newNameB'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;          &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;UPDATE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;                    &lt;span class=&quot;k&quot;&gt;UPDATE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;items&lt;/span&gt; 
-&lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'newNameD'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;          &lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'newNameC'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;          &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;AND&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;COMMIT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TRANSACTION&lt;/span&gt;              &lt;span class=&quot;k&quot;&gt;COMMIT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TRANSACTION&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;Let’s assume that these transactions execute concurrently and that both have executed their first UPDATE statement. If transaction A then executes its second update statement, it will block and wait for transaction B to either commit or roll back (the result of the statement depends on uncommitted changes made by transaction B). If transaction B then executes its second update statement, we have a deadlock. Fortunately, the flexibility of optimistic locking makes it easy to prevent deadlocks by always locking rows in the same order.&lt;/p&gt;
-
-&lt;h3 id=&quot;optimistic-locking-using-outputreturning-or-a-separate-select-query&quot;&gt;Optimistic locking using OUTPUT/RETURNING or a separate SELECT query&lt;/h3&gt;
-
-&lt;p&gt;Another way of implementing optimistic locking is by obtaining the resulting version number after the update. If it’s more than one higher than the original version, you know there has been another change in the meantime. This strategy can be implemented using the OUTPUT (SQL Server) or RETURNING (PostgreSQL) statement that allows an UPDATE statement to return the updated data. Note that not all relational databases offer this kind of statement. Here is an example of such a statement.&lt;/p&gt;
-
-&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;UPDATE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;SET&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'newName'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;RETURNING&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;version&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;In this case, the update returns the actual version resulting from the update and your application can check if this matches the expected new version number. Just like the first implementation, this locks the updated rows until the end of the transaction.&lt;/p&gt;
-
-&lt;p&gt;For databases not supporting the OUTPUT or RETURNING clause, a separate SELECT statement can be used. Note that, even without the RETURNING statement, the above query locks the row until the end of the transaction.&lt;/p&gt;
-
-&lt;h3 id=&quot;pessimistic-locking-1&quot;&gt;Pessimistic locking&lt;/h3&gt;
-
-&lt;p&gt;Pessimistic locking is usually performed at the row-level, although similar locks can be obtained for an entire table (if you are only interested in some specific rows, use row-level locking so you don’t unnecessarily limit concurrency).&lt;/p&gt;
-
-&lt;p&gt;The following statement retrieves a row and obtains a shared lock on it until the end of the current transaction. Other transactions can still obtain a shared lock on the row, but transactions attempting to obtain an exclusive lock will be blocked until no transaction is locking the row anymore.&lt;/p&gt;
-
-&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;description&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the_table&lt;/span&gt; 
-&lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;FOR&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;SHARE&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;The following statement retrieves a row and obtains an exclusive lock on it until the end of the current transaction. No other transaction will be able to obtain a lock on the row until this transaction is either committed or rolled back.&lt;/p&gt;
-
-&lt;div class=&quot;language-sql highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;SELECT&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;description&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;FROM&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the_table&lt;/span&gt; 
-&lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;FOR&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;UPDATE&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h2 id=&quot;locking-rows-versus-locking-objects&quot;&gt;Locking rows versus locking objects&lt;/h2&gt;
-
-&lt;p&gt;This post mostly assumed an object to correspond to a single row in the database. However, objects can be more complex than that.&lt;/p&gt;
-
-&lt;p&gt;For example, let’s assume that we have an order that contains several order lines. Each order line corresponds to a row in the &lt;code class=&quot;highlighter-rouge&quot;&gt;order_line&lt;/code&gt; table with an order id, item and price. Each order corresponds to a row in the &lt;code class=&quot;highlighter-rouge&quot;&gt;order&lt;/code&gt; table with a total price for the entire order (probably not the best design, but it makes for a simple example). Now, we need to implement a functionality to add an order line to an order, also immediately updating the total price for the order.&lt;/p&gt;
-
-&lt;p&gt;If this can happen concurrently, we need some form of locking. Otherwise, it can happen that we we retrieve an order with its order lines, then another user adds an order line and updates the total price, and then we add an order line as well but calculate the total price based on what we retrieved initially (so without the other user’s order line).&lt;/p&gt;
-
-&lt;p&gt;We could solve this using optimistic locking by assigning a version number to each order, always updating an order (including order lines) as a whole and incrementing the version number when we do so.&lt;/p&gt;
-
-&lt;p&gt;Another approach could be to use pessimistic locking. The simplest option is to take an exclusive lock on an order row whenever we update the order or its order lines. That makes sense for this functionality, because we update the order row anyway. Explicitly locking the order’s order lines is also possible, but in that case, we need to lock the entire &lt;code class=&quot;highlighter-rouge&quot;&gt;order_line&lt;/code&gt; table. For the order lines, row-level locks are not sufficient because we also need to prevent new order lines from being added.&lt;/p&gt;
-
-&lt;h2 id=&quot;alternatives&quot;&gt;Alternatives&lt;/h2&gt;
-
-&lt;h3 id=&quot;atomic-updates-and-database-level-restrictions&quot;&gt;Atomic updates and database-level restrictions&lt;/h3&gt;
-
-&lt;p&gt;One alternative to optimistic and pessimistic locking is to structure your data and application in such a way that all of your updates are made using atomic UPDATE statements that only update the actually changed data. If an item has both a code and a name, you could foresee separate calls to update either one of them and implement those using simple UPDATE statements that update only the new code or name. This could be a good solution for concurrency issues encountered in a simple CRUD application where the typical retrieve-modify-save approach of ORMs can lead to data being lost. Do note, however, that this may get tricky when relations are involved. There may also be situations where the new value to save depends on other existing values.&lt;/p&gt;
-
-&lt;p&gt;This approach could also be applicable when the validity of an update depends on the status of a related object, but only if we move the checks for that to the database. For example, if we want to update an item’s group and be entirely sure that we don’t link to an inactive group, we could foresee a separate table with the IDs of active groups and link items to that table.&lt;/p&gt;
-
-&lt;p&gt;An important remark is that this approach does not solve the problem of data being lost if multiple users concurrently edit the description for the same item based on the same initial version.&lt;/p&gt;
-
-&lt;h3 id=&quot;transaction-isolation-levels&quot;&gt;Transaction isolation levels&lt;/h3&gt;
-
-&lt;p&gt;Up until now, this post assumed a transaction isolation level of Read Committed. As already stated above, this is a commonly used transaction isolation level and is the default one in several popular relational databases. The Read Committed isolation level forbids the occurrence of &lt;em&gt;dirty reads&lt;/em&gt;, where a transaction sees data that has not yet been committed. The SQL standard defines two more restrictive isolation levels: Repeatable Read and Serializable. These more restrictive transaction isolation levels could, to some extent, be an alternative to optimistic and pessimistic locking implemented through SQL as in the above examples.&lt;/p&gt;
-
-&lt;p&gt;For this to work, everything you do as part of an operation needs to happens inside the same database transaction (as is the case with pessimistic locking). Additionally, when relying on transaction isolation levels, you lose some control over what exactly is locked and when. This increases the likelihood of deadlocks if database-level locking is used.&lt;/p&gt;
-
-&lt;p&gt;Also note that the behavior of more restrictive transaction isolation levels varies widely between database vendors and sometimes even between different versions of the same database. Therefore, they are probably not the best option for applications that need to support multiple databases.&lt;/p&gt;
-
-&lt;p&gt;Finally, note that these transaction levels do not solve the problem of lost updates in the example with multiple users concurrently editing the same item’s description.&lt;/p&gt;
-
-&lt;h4 id=&quot;repeatable-read&quot;&gt;Repeatable Read&lt;/h4&gt;
-
-&lt;p&gt;The Repeatable Read isolation level is more restrictive than the Read Committed isolation level. In addition to &lt;em&gt;dirty reads&lt;/em&gt;, it also forbids &lt;em&gt;non-repeatable reads&lt;/em&gt;, where a transaction rereads data it has read before and finds that that data has changed. Note that this restriction only applies to the contents of rows that were previously read. The Repeatable Read isolation as defined in the SQL standard does not forbid &lt;em&gt;phantom reads&lt;/em&gt;, where a transaction repeats a query with certain search criteria (e.g., all &lt;code class=&quot;highlighter-rouge&quot;&gt;order_line&lt;/code&gt; rows belonging to a certain &lt;code class=&quot;highlighter-rouge&quot;&gt;order&lt;/code&gt;) and finds that the set of returned rows has changed (new order line inserted by another transaction).&lt;/p&gt;
-
-&lt;p&gt;In SQL Server, the Repeatable Read isolation level is implemented using locking. If you read a row, you obtain a shared lock on that row, causing other transactions attempting to update the row to block until you commit or roll back your transaction. This behavior is very similar to pessimistic locking.&lt;/p&gt;
-
-&lt;p&gt;In PostgreSQL, the Repeatable Read isolation level behaves quite differently. Your transaction sees a snapshot of the database taken at the start of your transaction (also preventing &lt;em&gt;phantom reads&lt;/em&gt;). However, this does not guarantee that the data has not changed in the meantime. Let’s say that transaction A reads a row and transaction B then updates that row. This update is not blocked. If transaction A now reads the row again, it will still see the original data (before transaction B changed it). However, if transaction A then tries to make a change to that row, transaction A will fail. This behavior is similar to optimistic locking, but only if transaction A actually tries to update the row.&lt;/p&gt;
-
-&lt;p&gt;Note that SQL Server also offers a Snapshot isolation level which behaves similarly to the PostgreSQL Repeatable Read isolation level.&lt;/p&gt;
-
-&lt;h4 id=&quot;serializable&quot;&gt;Serializable&lt;/h4&gt;
-
-&lt;p&gt;The Serializable transaction isolation level is the most restrictive level. It forbids &lt;em&gt;dirty reads&lt;/em&gt;, &lt;em&gt;non-repeatable reads&lt;/em&gt; and &lt;em&gt;phantom reads&lt;/em&gt;. Additionally, it requires concurrent transactions to behave in a serializable fashion. This means that, when a set of transactions execute concurrently, there must be some possible sequential execution of the transactions that yields the same results as the results of the concurrent execution. This is a very strong guarantee, which essentially prevents all phenomena caused by concurrent execution.&lt;/p&gt;
-
-&lt;p&gt;In SQL Server, this isolation level is implemented using locks. As simple row locks are not sufficient for preventing &lt;em&gt;phantom reads&lt;/em&gt;, it can also acquire &lt;em&gt;key-range locks&lt;/em&gt; which are specifically aimed at preventing the insertion of rows that would match a query previously executed by an active Serializable transaction. Again, this behavior is very similar to pessimistic locking and it is more powerful than Repeatable read. For example, if a Serializable transaction queries for an order and its order lines, the database will prevent other transactions from inserting order lines for the order until the transaction is completed.&lt;/p&gt;
-
-&lt;p&gt;In PostgreSQL, the Serializable isolation level is similar to its Repeatable Read isolation level. However, it now checks for all situations that prevent the results of the executed transactions to match some sequential order of execution. If such a situation is detected, the transaction fails. Note that, when using this isolation level, even the results of SELECT queries are not guaranteed to be valid until the transaction is successfully committed. As an alternative, a Serializable Read-only Deferrable transaction can be used. In that case, SELECT statements block until they can return a result that is guaranteed to be valid.&lt;/p&gt;
-
-&lt;h2 id=&quot;resources&quot;&gt;Resources&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Concurrency_control&quot;&gt;Concurrency Control&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://www.postgresql.org/docs/current/static/dml-returning.html&quot;&gt;PostgreSQL Returning Data From Modified Rows&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://www.postgresql.org/docs/current/static/transaction-iso.html&quot;&gt;PostgreSQL Transaction Isolation&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://www.postgresql.org/docs/current/static/explicit-locking.html&quot;&gt;PostgreSQL Explicit Locking&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/sql/t-sql/statements/set-transaction-isolation-level-transact-sql?view=sql-server-2017&quot;&gt;SQL Server SET TRANSACTION ISOLATION LEVEL&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/sql/relational-databases/sql-server-transaction-locking-and-row-versioning-guide?view=sql-server-2017&quot;&gt;SQL Server Transaction Locking and Row Versioning Guide&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><author><name></name></author><category term="concurrency" /><category term="sql" /><summary type="html">This post explains the optimistic and pessimistic locking strategies with a focus on their application in systems interacting with relational databases. Regardless of the focus on SQL, the main concepts discussed here are not SQL-specific and are also applicable in other areas.</summary></entry></feed>
+&lt;/ul&gt;</content><author><name></name></author><category term="sql" /><category term="nosql" /><category term="newsql" /><summary type="html">This post is my attempt at providing a very high-level overview of the data store landscape, covering relational databases (SQL), NoSQL and NewSQL data stores.</summary></entry></feed>
