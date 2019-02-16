@@ -1,4 +1,181 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2019-02-02T21:09:58+01:00</updated><id>http://0.0.0.0:4000/</id><title type="html">thehumanmicrophone.github.io-source.git</title><subtitle>Software development blog with a focus on Java and JavaScript</subtitle><entry><title type="html">Code review and collaboration workflows</title><link href="http://0.0.0.0:4000/2019/02/02/Code-review-collaboration-workflows/" rel="alternate" type="text/html" title="Code review and collaboration workflows" /><published>2019-02-02T00:00:00+01:00</published><updated>2019-02-02T00:00:00+01:00</updated><id>http://0.0.0.0:4000/2019/02/02/Code-review-collaboration-workflows</id><content type="html" xml:base="http://0.0.0.0:4000/2019/02/02/Code-review-collaboration-workflows/">&lt;p&gt;When writing code alone, it is sometimes easy to make mistakes or forget to take something into account. Therefore, the quality of your code as a team can greatly improve if developers collaborate on writing code. This post talks about some ways to handle code review and collaboration when writing code in a team.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2019-02-16T00:41:01+01:00</updated><id>http://0.0.0.0:4000/</id><title type="html">thehumanmicrophone.github.io-source.git</title><subtitle>Software development blog with a focus on Java and JavaScript</subtitle><entry><title type="html">Trunk Based Development</title><link href="http://0.0.0.0:4000/2019/02/16/Trunk-based-development/" rel="alternate" type="text/html" title="Trunk Based Development" /><published>2019-02-16T00:00:00+01:00</published><updated>2019-02-16T00:00:00+01:00</updated><id>http://0.0.0.0:4000/2019/02/16/Trunk-based-development</id><content type="html" xml:base="http://0.0.0.0:4000/2019/02/16/Trunk-based-development/">&lt;p&gt;Trunk Based Development is a source-control branching model that limits developer collaboration to a single branch, the “trunk”. This can feel quite restrictive, but it can actually help teams increase the quality of their code base and their ease of deployment. This post aims to give a high-level overview of what practicing Trunk Based Development looks like.&lt;/p&gt;
+
+&lt;h2 id=&quot;what-is-trunk-based-development&quot;&gt;What is Trunk Based Development?&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Collaboration between developers happens through regular commits to a single branch, the “trunk” (ideally, several commits per developer per day)&lt;/li&gt;
+  &lt;li&gt;Developers strive to keep the code in the trunk working at all times (builds, passes tests, etc.). Every commit on the trunk should be releasable without much additional effort.&lt;/li&gt;
+  &lt;li&gt;Developers either commit directly to the trunk or commit to short-lived feature branches that are merged into the trunk after successful review&lt;/li&gt;
+  &lt;li&gt;If used, feature branches don’t last more than a few days max and only a single developer (or pair of developers) commits to a single feature branch&lt;/li&gt;
+  &lt;li&gt;Releasing happens either directly from the trunk (tagging a commit) or from release branches branched off of the trunk&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;trunk-based-development-advantages&quot;&gt;Trunk Based Development advantages&lt;/h2&gt;
+
+&lt;h3 id=&quot;reducing-distance-between-developers&quot;&gt;Reducing distance between developers&lt;/h3&gt;
+
+&lt;p&gt;Perhaps the biggest advantage of trunk-based development is that it limits distances between developers.&lt;/p&gt;
+
+&lt;p&gt;In a branching model with long-lived feature branches, one or more developers can work in separation from the rest of the team for days, weeks, or even months. Being able to work in isolation from the rest of the team can seem like a blessing. However, someday, your code will have to be integrated with the rest of the codebase. The more pain you avoided (or should I say postponed) by choosing not to adjust to changes others were making, the more pain you are saving up until the time has come to merge your feature branch.&lt;/p&gt;
+
+&lt;p&gt;Some people have argued that, as version control systems get better and better at merging code, we really shouldn’t be afraid of big merges anymore. What they seem to be overlooking is the following:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;There will alway be cases where source control systems cannot perform the merge automatically. These merge conflicts need to resolve manually, and this becomes more and more difficult as the scope of the merge increases.&lt;/li&gt;
+  &lt;li&gt;Even worse than this are the conflicts that your source control system does &lt;em&gt;not&lt;/em&gt; pick up on. These conflicts are called &lt;a href=&quot;https://martinfowler.com/bliki/SemanticConflict.html&quot;&gt;semantic conflicts&lt;/a&gt;. The merge seems successful, but the code will either fail to compile, fail to run or (most dangerously) succeed to run but produce incorrect results.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Some examples of semantic conflicts:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;I rename a method, letting my IDE help me to change its name everywhere it is used. Meanwhile, you create some new code that calls the method (by its old name). Note that this will trigger compiler errors once we merge our code (if using a statically typed language), unless there is now another method with the old name and same signature that does something else than the renamed method (more dangerous).&lt;/li&gt;
+  &lt;li&gt;There is a method that has a certain side effect. I decide to split out the side effect into a separate method, potentially because I have a new case where it is not needed. Then, I make sure to update all existing calls to the method to call the method for the side effect separately. Meanwhile, you write some new code calling the original method and expecting the side effect. The compiler doesn’t detect anything once we merge our code, we can only hope our tests will.&lt;/li&gt;
+  &lt;li&gt;I change an abstraction while you build some code on top of the original abstraction. This one will probably trigger some compiler errors once we merge (if our language is statically typed), but could require you to completely change your approach.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;If developers collaborate on a single branch, these types of issues are less likely to occur because developers try to stay up to date with the trunk and analyze if any changes made by other developers affect them. And, if semantic conflicts do occur, Trunk Based Development will make sure they are detected sooner rather than later, making them much easier to solve.&lt;/p&gt;
+
+&lt;h3 id=&quot;commitment-to-quality-of-code-and-build-process&quot;&gt;Commitment to quality of code and build process&lt;/h3&gt;
+
+&lt;p&gt;The fact that the team strives to keep the code in the trunk working at all times automatically means a dedication to the quality of code and the build process.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;There will likely be more communication regarding changes, especially if they are likely to affect other developers. Developers can also chop up changes into several commits with the sole purpose of making it more clear what they are changing and helping other developers consume and adjust to these changes.&lt;/li&gt;
+  &lt;li&gt;Dedication to working code in the trunk means that there is a high bar for code changes and typically also some kind of reviewing process. Developers are typically also more careful with their changes if they know they immediately affect the entire team.&lt;/li&gt;
+  &lt;li&gt;Keeping the code in the trunk working also means there is a strong incentive to set up a good build process that performs as many automated checks as possible to make sure the code actually does work. Developers should also run this build process locally in order to make sure their changes work &lt;em&gt;before&lt;/em&gt; actually pushing their code.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This part also highlights a possible challenge: Trunk Based Development does require a certain level of dedication to quality from everyone in the team and the team needs to be able to self-police if necessary.&lt;/p&gt;
+
+&lt;h3 id=&quot;flexibility-regarding-releases&quot;&gt;Flexibility regarding releases&lt;/h3&gt;
+
+&lt;p&gt;In principle, every commit on the trunk should be a working version of the software, very close to being releasable. This means that Trunk Based Development provides a lot of flexibility regarding when and what to release.&lt;/p&gt;
+
+&lt;h2 id=&quot;commits-and-reviewing&quot;&gt;Commits and reviewing&lt;/h2&gt;
+
+&lt;h3 id=&quot;committing-straight-to-the-trunk&quot;&gt;Committing straight to the trunk&lt;/h3&gt;
+
+&lt;p&gt;Especially for smaller teams, committing straight to the trunk can work. Typically, there will be some kind of review (on top of the automated build process that developers can run on their machines as well). If the team uses pair programming, a pair is often allowed to commit directly to the trunk because two pairs of eyes looked at the code. Synchronous review, where the committer calls a colleague over to check the code before actually committing, is also a possibility.&lt;/p&gt;
+
+&lt;h3 id=&quot;short-lived-feature-branches-for-review&quot;&gt;Short-lived feature branches for review&lt;/h3&gt;
+
+&lt;p&gt;Trunk Based Development allow feature branches as a tool for code review, with some restrictions:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Feature branches are short-lived (shorter is better, definitely not more than a few days)&lt;/li&gt;
+  &lt;li&gt;Only one developer commits to a given feature branch.&lt;/li&gt;
+  &lt;li&gt;Merging from the feature branch to trunk is also allowed once and also means the end of the feature branch&lt;/li&gt;
+  &lt;li&gt;Merging from trunk to bring the feature branch up to date with new changes is allowed anytime. It is especially recommended to bring your feature branch fully up to date with the trunk (and check that it builds) before actually merging into trunk&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2019-02-16-Trunk-based-development/feature-branch.png&quot; alt=&quot;Feature branch&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Pull requests (as offered by GitHub and Bitbucket) are a good way to handle this, and they make it easy to delete the branch when you merge it.&lt;/p&gt;
+
+&lt;h3 id=&quot;review-after-the-fact&quot;&gt;Review after the fact&lt;/h3&gt;
+
+&lt;p&gt;As it is the team’s responsibility to keep the code in the trunk working, team members may choose to review commits that were pushed to the trunk. In case of any issues, the team can quickly coordinate on how to fix them.&lt;/p&gt;
+
+&lt;h2 id=&quot;trunk-based-development-and-continuous-integration&quot;&gt;Trunk Based Development and Continuous Integration&lt;/h2&gt;
+
+&lt;p&gt;Depending on who you ask, Continuous Integration can mean two things:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Developers very regularly integrate their changes into a single place where changes from all developers come together, making sure that they are of sufficient quality before doing so. You could argue this was the initially intended meaning of Continuous Integration, and it is more or less the same as the main premise of Trunk Based Development.&lt;/li&gt;
+  &lt;li&gt;There is some kind of process that watches the source control repository for changes and runs new commits through the build process (including tests etc.), alerting the team if the build does not pass.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The second meaning is something very useful to have if practicing Trunk Based Development. If it somehow occurs that the code in the trunk does not build, the team can take action immediately. Note that this should in principle never happen, as developers should run the same build process locally before pushing their code. This kind of automated build is also useful to have on feature branches and can be one of the deciding factors in the decision to merge. For checking commits on feature branches, it is important that the branches are sufficiently up to date with the trunk. This is especially the case right before merging.&lt;/p&gt;
+
+&lt;h2 id=&quot;trunk-based-development-and-continuous-delivery&quot;&gt;Trunk Based Development and Continuous Delivery&lt;/h2&gt;
+
+&lt;p&gt;Once a team has set up Continuous Integration (in every sense of the word), it can choose to move on to the next step: &lt;em&gt;Continuous Delivery&lt;/em&gt;. This means that commits that build successfully are automatically deployed to a quality assurance or acceptance testing environment.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Continuous Deployment&lt;/em&gt; takes it a step further: here, commits that build successfully are actually pushed all the way to production. Not that this requires very extensive checking as part of the build process.&lt;/p&gt;
+
+&lt;h2 id=&quot;releases&quot;&gt;Releases&lt;/h2&gt;
+
+&lt;h3 id=&quot;branching-for-release&quot;&gt;Branching for release&lt;/h3&gt;
+
+&lt;p&gt;The concept of branching for release is relatively simple:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;The decision is made to release a state of the trunk&lt;/li&gt;
+  &lt;li&gt;A release branch is created, starting from the commit representing that state of the trunk&lt;/li&gt;
+  &lt;li&gt;Potentially, some very limited work happens in the release branch in order to fully make it release-ready&lt;/li&gt;
+  &lt;li&gt;The code is released and the released commit is tagged&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;If the release contains bugs, the process is as follows:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Fix the bugs on the trunk and cherry-pick them into the release branch, and not the other way around! This helps prevent regression bugs caused by applying a fix in a release branch but forgetting to apply the fix on the trunk as well. Exceptions are only allowed if it is really not possible to reproduce the bug on the trunk.&lt;/li&gt;
+  &lt;li&gt;The code is released and the released commit is tagged&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2019-02-16-Trunk-based-development/branch-for-release.png&quot; alt=&quot;Branch for release&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;releasing-straight-from-trunk&quot;&gt;Releasing straight from trunk&lt;/h3&gt;
+
+&lt;p&gt;Some teams release straight from the trunk, without creating a new release branch. This is doable if commits on the trunk are really release-ready. In this case, there are often een no real version numbers. Instead, commit identifiers can be used. This approach is often seen in teams that release very often. In case of bugs in a release, these teams typically choose a fix-forward strategy where they fix the bug as soon as possible and then push a new release.&lt;/p&gt;
+
+&lt;h3 id=&quot;creating-a-release-branch-only-when-needed&quot;&gt;Creating a release branch only when needed&lt;/h3&gt;
+
+&lt;p&gt;Teams following this approach release directly from trunk, tagging the commit with a release number. If a bug exists in the release, a release branch is retroactively created from that commit (modern source control systems allow this) and fixes can be cherry-picked into that branch.&lt;/p&gt;
+
+&lt;p&gt;This is what this looks like when releasing version 1.1 directly from the trunk:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2019-02-16-Trunk-based-development/release-from-trunk.png&quot; alt=&quot;Release from trunk&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Then, if a fix is needed for the release, a branch is created retroactively from the release commit.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2019-02-16-Trunk-based-development/release-from-trunk-then-branch.png&quot; alt=&quot;Release from trunk, then branch&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;dealing-with-larger-changes&quot;&gt;Dealing with larger changes&lt;/h2&gt;
+
+&lt;p&gt;In principle, every commit in the trunk should be releasable. When introducing new features or performing other large changes, it is often not feasible to make all of the changes in a single commit of reasonable size (and smaller commits are seen as better). Fortunately, there are some strategies that can be used to spread out changes while keeping each commit potentially releasable. There will be some follow-up posts where these are discussed in more detail.&lt;/p&gt;
+
+&lt;h3 id=&quot;feature-flags&quot;&gt;Feature flags&lt;/h3&gt;
+
+&lt;p&gt;Feature flags (also known as feature toggles) are a mechanism to alter system behavior without changing code. They can be thought of as light switches that switch on or switch off some parts of the system. As long as a new feature that is being built is not release ready yet, the feature can be hidden behind a feature flag in a configuration file or command line parameter. Inside the code, there is then some logic that looks at the flag and decides which behavior to enable. This makes it possible to ship the product containing the code for the new feature without the new feature actually being enabled in production. Meanwhile, the development team can enable the feature for testing purposes by switching on the feature flag.&lt;/p&gt;
+
+&lt;p&gt;It is also possible to use feature flags to make an application behave differently for different users, which can be helpful for A/B-testing.&lt;/p&gt;
+
+&lt;p&gt;Note that feature flags do introduce some complexity in the codebase. It can also be challenging to ensure that all relevant flag combinations have been tested properly. If possible, prevent the need for feature flags by designing features in such a way that even the earliest work on a feature either already has some value or simply does not change the experience of the user.&lt;/p&gt;
+
+&lt;h3 id=&quot;branch-by-abstraction&quot;&gt;Branch by Abstraction&lt;/h3&gt;
+
+&lt;p&gt;Branch by Abstraction is useful if the team needs to replace a certain component of the system, but this needs to be spread out over multiple commits.&lt;/p&gt;
+
+&lt;p&gt;Basically, this is how it works:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Write a layer of indirection on top of the component you need to replace&lt;/li&gt;
+  &lt;li&gt;Make clients call the indirection instead of the original component&lt;/li&gt;
+  &lt;li&gt;Now, use the layer of indirection to switch over to the new component as it is being built. The new layer of indirection could already forward some calls to the new component, or there could be a toggle indicating which component implementation to use.&lt;/li&gt;
+  &lt;li&gt;Once the new component is fully built and the layer of indirection doesn’t call the old component anymore, get rid of the old component&lt;/li&gt;
+  &lt;li&gt;If it makes sense, get rid of the layer of indirection&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;application-strangulation&quot;&gt;Application strangulation&lt;/h3&gt;
+
+&lt;p&gt;Application strangulation is very similar to Branch by Abstraction, but it works at the level of different applications or processes. An example is the migration of an API to a completely different programming language. You could then put a reverse proxy in front of the old API and have it start forwarding some calls to the new API as that one is being built. Once the new API is fully operational and all calls are routed to it, you can then get rid of the old API and potentially also the reverse proxy.&lt;/p&gt;
+
+&lt;h2 id=&quot;some-good-practices-when-applying-trunk-based-development&quot;&gt;Some good practices when applying Trunk Based Development&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Quick reviews: Developers try to get their code reviewed as soon as possible.&lt;/li&gt;
+  &lt;li&gt;Chasing HEAD: Developers try to stay up to date with changes to the trunk.&lt;/li&gt;
+  &lt;li&gt;Shared nothing: Developers run the build locally before pushing their code, typically including integration and functional tests talking to real databases etc. This means individual developers must be able to run the application and all its dependencies locally, without depending on resources shared with others.&lt;/li&gt;
+  &lt;li&gt;Facilitating commits: Developers sometimes chop up their work into multiple smaller commits in order to make their changes easier for their teammates to adjust to. For example, when building a feature entails introducing a new dependency, this dependency could be introduced separately through a new commit that the developer explicitly notifies the team of.&lt;/li&gt;
+  &lt;li&gt;Thin Vertical Slices: Stories or tasks from the backlog can ideally be implemented completely by a single developer or pair of developers in a short amount of time and small number of commits. They cut across the whole stack and they do not need to be passed around between developers with specialized knowledge in order to get completed.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;resources&quot;&gt;Resources&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://trunkbaseddevelopment.com/&quot;&gt;Trunk Based Development&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://simpleprogrammer.com/code-review-trunk-based-development/&quot;&gt;Why Code Reviews Hurt Your Code Quality and Team Productivity&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://martinfowler.com/bliki/SemanticConflict.html&quot;&gt;SemanticConflict&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://martinfowler.com/articles/feature-toggles.html&quot;&gt;Feature Toggles (aka Feature Flags)&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.branchbyabstraction.com/&quot;&gt;Branch By Abstraction&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><category term="software-development" /><summary type="html">Trunk Based Development is a source-control branching model that limits developer collaboration to a single branch, the “trunk”. This can feel quite restrictive, but it can actually help teams increase the quality of their code base and their ease of deployment. This post aims to give a high-level overview of what practicing Trunk Based Development looks like.</summary></entry><entry><title type="html">Code review and collaboration workflows</title><link href="http://0.0.0.0:4000/2019/02/02/Code-review-collaboration-workflows/" rel="alternate" type="text/html" title="Code review and collaboration workflows" /><published>2019-02-02T00:00:00+01:00</published><updated>2019-02-02T00:00:00+01:00</updated><id>http://0.0.0.0:4000/2019/02/02/Code-review-collaboration-workflows</id><content type="html" xml:base="http://0.0.0.0:4000/2019/02/02/Code-review-collaboration-workflows/">&lt;p&gt;When writing code alone, it is sometimes easy to make mistakes or forget to take something into account. Therefore, the quality of your code as a team can greatly improve if developers collaborate on writing code. This post talks about some ways to handle code review and collaboration when writing code in a team.&lt;/p&gt;
 
 &lt;h2 id=&quot;instant-review-pair-programming&quot;&gt;Instant review (pair programming)&lt;/h2&gt;
 
@@ -1883,156 +2060,4 @@ It is also possible to have a handler that can handle several exception classes.
 
 &lt;ul&gt;
   &lt;li&gt;Core Java SE 9 for the Impatient (book by Cay S. Horstmann)&lt;/li&gt;
-&lt;/ul&gt;</content><author><name></name></author><category term="java" /><summary type="html">This post contains a high-level review of Java generics.</summary></entry><entry><title type="html">SQL, NoSQL and NewSQL</title><link href="http://0.0.0.0:4000/2018/09/08/SQL-NoSQL-NewSQL/" rel="alternate" type="text/html" title="SQL, NoSQL and NewSQL" /><published>2018-09-08T00:00:00+02:00</published><updated>2018-09-08T00:00:00+02:00</updated><id>http://0.0.0.0:4000/2018/09/08/SQL-NoSQL-NewSQL</id><content type="html" xml:base="http://0.0.0.0:4000/2018/09/08/SQL-NoSQL-NewSQL/">&lt;p&gt;This post is my attempt at providing a very high-level overview of the data store landscape, covering relational databases (SQL), NoSQL and NewSQL data stores.&lt;/p&gt;
-
-&lt;h2 id=&quot;relational-databases-sql&quot;&gt;Relational databases (SQL)&lt;/h2&gt;
-
-&lt;p&gt;Relational databases have been around for several decades. The first commercial relational database management system (RDBMS) was Oracle and became available in 1979, almost 40 years ago at the time of writing. Today, an enormous number of applications use an RDBMS as their main data storage. Popular RDBMSes include Oracle, MySQL, Microsoft SQL Server and PostgreSQL.&lt;/p&gt;
-
-&lt;p&gt;Today’s relational databases are mature systems and there are lots of developers and database administrators that have several years of experience in dealing with them. This means that there is a wealth of knowledge available on best practices, how to tackle certain issues, etc.&lt;/p&gt;
-
-&lt;p&gt;Although there is an SQL standard describing the query language and behavior of relational databases, different databases typically provide a different dialect of that query language and they may differ significantly in their behavior in some cases (although possibly all within the bounds of the standard).&lt;/p&gt;
-
-&lt;h3 id=&quot;tables-rows-relationships-and-schemas&quot;&gt;Tables, rows, relationships and schemas&lt;/h3&gt;
-
-&lt;p&gt;In relational databases, data is stored in tables (actually called relations in relational terminology). Each table has a set of columns, each of a certain type, that can hold data for the rows in the table. Typically, each table has a subset of columns, the table’s primary key (PK), that uniquely identifies each row in the table. There may also be other subsets of columns uniquely identifying each row in the table , known as alternate keys (AK). Indexes can be defined on columns or sets of columns. The columns in an index may or may not form a key.&lt;/p&gt;
-
-&lt;p&gt;Rows in different tables can be linked to each other through relationships. A table can link to another table by including the column(s) of that table’s primary Key. This is called a foreign key (FK). This way, it is possible to link rows in a table to rows in another table, forming one-to-one relationships and one-to-many relationships. It is also possible to represent many-to-many relationships by using an intermediate table to store foreign keys to both tables in the relationship.&lt;/p&gt;
-
-&lt;p&gt;All of the tables, columns, keys, relationships, etc. are defined in the database schema. The database actively enforces the schema and forbids data that doesn’t match it (incorrect data type for a column, foreign key linking to a row that doesn’t exist, …).&lt;/p&gt;
-
-&lt;h3 id=&quot;sql&quot;&gt;SQL&lt;/h3&gt;
-
-&lt;p&gt;All popular relational databases use SQL (Structured Query Language), a declarative language that allows performing CRUD operations on the data and the database schema as SQL queries. The fact that SQL is declarative means that you specify &lt;em&gt;what&lt;/em&gt; you want your query to do instead of &lt;em&gt;how&lt;/em&gt; to do it. The database system itself figures out a how exactly the query will be performed. This can simplify things, but it can also make it challenging to optimize queries that get executed in a sub-optimal way.&lt;/p&gt;
-
-&lt;h3 id=&quot;acid-properties&quot;&gt;ACID properties&lt;/h3&gt;
-
-&lt;p&gt;An important feature of RDBMSes is that they provide transactions. A transaction is a set of database operations that act as a single operation. Transactions have four main characteristics (also known as the ACID properties):&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;em&gt;Atomicity&lt;/em&gt;: A transaction is treated as a single unit that either succeeds completely or fails completely. If some operation fails as part of a transaction, the entire transaction is rolled back, including the changes that other operations may have performed. The system must guarantee this in every situation, even if the system crashes right after a transaction is successfully committed.&lt;/li&gt;
-  &lt;li&gt;&lt;em&gt;Consistency&lt;/em&gt;: The execution of the transaction must bring the database to a valid state, respecting the database’s schema.&lt;/li&gt;
-  &lt;li&gt;&lt;em&gt;Isolation&lt;/em&gt;: Isolation means that, although multiple transactions may be running concurrently, their effects on each other’s execution are limited. Relational database systems typically provide multiple isolation levels, where higher levels protect against more concurrency-induced phenomena than lower levels. The highest level, &lt;em&gt;Serializable&lt;/em&gt;, guarantees that the effect of multiple transactions executing concurrently is the same as the effect of some possible sequential execution of those transactions. My post about optimistic and pessimistic locking using SQL contains some more info regarding transaction levels. Note that the behavior of isolation levels may vary widely across relational database systems.&lt;/li&gt;
-  &lt;li&gt;&lt;em&gt;Durability&lt;/em&gt;: Once a transaction has been successfully committed, it will remain so, even if the system crashes, power is shut off, etc. right after the transaction has completed.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;These ACID properties provide guarantees that come in very handy when developing applications that perform concurrent operations on the database. For example, no matter how many concurrent transactions are executing, you will never be able to set a foreign key from a row to another row that does not exist (but maybe did exist when you retrieved your data).&lt;/p&gt;
-
-&lt;h3 id=&quot;normalization&quot;&gt;Normalization&lt;/h3&gt;
-
-&lt;p&gt;In designing the schema of a relational database, normalization is something to take into account. I won’t go into detail here, but basically normalization boils down to preventing the existence of redundant data in your database as it is a source of possible inconsistencies. The way to get rid of this redundant data is generally to introduce a new table.&lt;/p&gt;
-
-&lt;p&gt;As an example, consider you have a table with of items with item id, description, manufacturer name and manufacturer country. In this case, storing the manufacturer’s country in every row is a form of redundant data: if we know the manufacturer, we also know the country. And what if we change the manufacturer for a row but forget to change the country? The solution here is to create a separate table for manufacturers, with their country, and refer to that table from the items table.&lt;/p&gt;
-
-&lt;h2 id=&quot;nosql&quot;&gt;NoSQL&lt;/h2&gt;
-
-&lt;p&gt;NoSQL databases became popular in the early twenty-first century, mainly because of the limitations in the scalability of relational databases.&lt;/p&gt;
-
-&lt;p&gt;When you need to scale up because your current setup has trouble handling its load, your generally have two options:&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;Vertical scaling: make your machines more powerful by adding CPU power, memory, faster disks, etc.&lt;/li&gt;
-  &lt;li&gt;Horizontal scaling: add more machines and distribute the load between them&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Once you reach a certain scale, horizontal scaling becomes cheaper than vertical scaling (cheaper to have several modest machines than to have one extremely powerful machine). Additionally, horizontal scaling allows you to easily scale up further by adding additional machines. Unfortunately, horizontal scaling is not something that traditional relational database are good at.&lt;/p&gt;
-
-&lt;p&gt;The term NoSQL encompasses lots of different data stores with different concepts, approaches, query languages, etc. that offer a solution to some problem for which relational databases are maybe not an ideal solution. However, in order to achieve this, they generally need to make compromises in terms of features and the guarantees offered by the data store. This could lead to you having to implement some things on the application side that would just be handled by the database if you were using an RDBMS.&lt;/p&gt;
-
-&lt;h3 id=&quot;the-cap-theorem&quot;&gt;The CAP theorem&lt;/h3&gt;
-
-&lt;p&gt;NoSQL databases are often deployed in a distributed fashion, either for horizontal scalability or for high availability (failure of a few instances doesn’t bring the entire system down). A well-known concept in the world of distributed data stores is the CAP theorem. It is centered around three properties:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;em&gt;Consistency&lt;/em&gt;: Every read returns either the relevant value as it was written by the latest successful write or an error.&lt;/li&gt;
-  &lt;li&gt;&lt;em&gt;Availability&lt;/em&gt;: Every request receives a non-error response.&lt;/li&gt;
-  &lt;li&gt;&lt;em&gt;Partition tolerance&lt;/em&gt;: The system keeps working, even if any number of messages is dropped or delayed by the network that connects the different instances. Consider for example the effect of a network partition, where sections of the network get cut off from each other.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The CAP theorem states that, for a distributed data store, it is not possible to provide more than two out of the above three properties. Because no network is safe from failures, a distributed system typically has no other choice than to be partition tolerant to some extent. This means that a choice should be made between availability and consistency.&lt;/p&gt;
-
-&lt;p&gt;Different NoSQL data stores focus on different properties regarding their distributed deployment. A CP system will behave in a consistent fashion but stop working if there is a network partition. An AP system will always keep working (as long as some active nodes survive) but may behave in an inconsistent fashion (e.g., returning stale data because the most recent write was not yet replicated to the node(s) answering your query).&lt;/p&gt;
-
-&lt;h4 id=&quot;cap-consistency-vs-acid-consistency&quot;&gt;CAP consistency vs. ACID consistency&lt;/h4&gt;
-
-&lt;p&gt;Note that CAP’s consistency is not the same as ACID’s consistency. In fact, when relational databases are deployed in a distributed fashion, there are typically different modes available that can have an impact on CAP consistency. For example, when settings up a high-availability cluster for Microsoft SQL Server, you have the choice between the availability modes &lt;em&gt;synchronous commit&lt;/em&gt; and &lt;em&gt;asynchronous commit&lt;/em&gt;. Synchronous commit waits to return for a transaction until it has effectively been synchronized to the other instances (secondary replicas). Asynchronous commit, on the other hand, does not wait for the secondary replicas to catch up. If asynchronous commit is used and the cluster is configured to allow reads to go directly to the secondary replicas, it is possible that reads return stale data.&lt;/p&gt;
-
-&lt;h4 id=&quot;nosql-vs-acid&quot;&gt;NoSQL vs. ACID&lt;/h4&gt;
-
-&lt;p&gt;NoSQL systems differ in what they offer in terms of the ACID guarantees that relational databases provide. Some NoSQL systems may not even provide any form of transactions at all. Others may only provide transactional integrity at the level of a single entry (which may contain structured data or an array of values). When having to deal with a lack of transactional support, here are a couple of possible strategies:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Redesign your data model so you don’t need more transactional support than what the system offers&lt;/li&gt;
-  &lt;li&gt;Perform the required concurrency control at the level of your application&lt;/li&gt;
-  &lt;li&gt;Tolerate the possible concurrency issues caused by not having transactions and adjust your application and possibly your users’ expectations to this&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;People that are used to working with a non-distributed relational database should be especially careful when working with a system that decided to limit CAP consistency. Depending on the system and maybe its configuration, the system may introduce the possibility for inconsistencies in areas where you took consistency for granted.&lt;/p&gt;
-
-&lt;h3 id=&quot;types-of-nosql-data-stores&quot;&gt;Types of NoSQL data stores&lt;/h3&gt;
-
-&lt;p&gt;This section includes some well-known types of NoSQL data stores. This is not intended to be complete list of all possible types.&lt;/p&gt;
-
-&lt;h4 id=&quot;document-store&quot;&gt;Document store&lt;/h4&gt;
-
-&lt;p&gt;Document stores may be the first thing you think about when you think about NoSQL. They are typically the main candidate for storing your application’s domain data if you don’t want to store that data in a relational database. A very well-known example of a document store is MongoDB.&lt;/p&gt;
-
-&lt;p&gt;In a document store, your data is stored as documents containing structured data (think something JSON-like). When performing queries, you can typically retrieve or filter on data inside the documents.&lt;/p&gt;
-
-&lt;p&gt;A document store can be a good fit for data that has a hierarchical structure, as you can just put the entire structure in a document. This works well for one-to-one and one-to-many relationships, but many-to-many relationships can be hard to model in a document database. Suppose, for example, that you want to store information on actors, movies and which actors played in which movies. One option is to include the data regarding actors inside the documents for the movies or vice versa. This is denormalization (see also normalization in the SQL part) and will lead to duplicate data and the possibility for inconsistencies. Another approach is to have documents for actors, documents for movies, and storing references to movies inside actors. This is similar to the concept of foreign keys in relational databases. However, document stores often do not offer real foreign key constraints, so there is nothing on the database level preventing you from deleting an actor that a movie still refers to.&lt;/p&gt;
-
-&lt;p&gt;Often, document stores are schemaless, meaning that the database does not enforce a certain structure of the documents you store in it. Typically, this does not mean that there is no schema for the data, but it means that that schema is either implicitly or explicitly defined by your application rather than at the database level. A schemaless database offers more flexibility in the face of changes to the structure of your data. Specifically, it allows data with the old structure to sit next to data with the new structure, without forcing you to migrate the old data to the new structure (yet). The drawback of this is that your application needs to be able to handle the different structures and that the existence of documents of the same type with different structures can make maintenance difficult if you don’t take care to document the changes to the data’s structure and migrate old data when it makes sense.&lt;/p&gt;
-
-&lt;p&gt;One more thing to note with regards to document stores is that some relational databases actually offer document store capabilities. For example, newer versions of PostgreSQL allows storing JSON data and performing queries based on the contents of that JSON data. This can be a good option if some of your data is hierarchical in nature but you still want ACID capabilities. If you don’t need to query based on the actual contents of the structured data, you can even just use any relational database and store the data as text in a column.&lt;/p&gt;
-
-&lt;h4 id=&quot;key-value-store&quot;&gt;Key-value store&lt;/h4&gt;
-
-&lt;p&gt;A key-value store is made for storing data as a dictionary. This means that all the data is stored in the database as a value with a unique key identifying that value. Values for different keys can have different data types. Data types offered by a key-value store may include strings, lists of strings, sets of strings and even key-value maps. It is up to the application to determine what the keys look like. For example, if you want to store data for users, you may use the key &lt;code class=&quot;highlighter-rouge&quot;&gt;user:1&lt;/code&gt; for the user with id 1.&lt;/p&gt;
-
-&lt;p&gt;A popular use case for key-value stores is setting up clusters of key-value stores that store data in-memory and using them as a very fast distributed cache for often-retrieved data.&lt;/p&gt;
-
-&lt;h4 id=&quot;graph-database&quot;&gt;Graph database&lt;/h4&gt;
-
-&lt;p&gt;Graph databases are a good fit when your data can naturally be represented as a network of nodes connected by edges that represent relationships between nodes. An example of this are people on a social network site and their friends. If you model this as each person being a node and each friendship being an edge connecting nodes, storing the data in a graph database hep you recommend friends of friends, identify clusters of people that are all friends of each other, etc.&lt;/p&gt;
-
-&lt;p&gt;A well-known example of a graph database is Neo4j. It is also interesting to know that there actually exist extensions to RDBMSes (for example PostgreSQL) that offer graph database capabilities as well.&lt;/p&gt;
-
-&lt;h4 id=&quot;time-series-database&quot;&gt;Time-series database&lt;/h4&gt;
-
-&lt;p&gt;Time-series databases are aimed at storing values that change throughout time. An obvious use case for this is storing data obtained from sensors that are constantly measuring values like temperature, humidity, etc. Time-series databases have storage engines and query languages that are optimized for storing time-series data, making it easy and efficient to perform time-based queries. An example would be to take a year’s worth of temperature measurements (one measurement each minute) and then retrieve the maximum and minimum measured temperature per week.&lt;/p&gt;
-
-&lt;p&gt;Some examples of time-series databases are InfluxDB and SiriDB. Also note that there exist extensions to RDBMSes that offer time-series database capabilities. An example of this is Timescale, which builds upon PostgreSQL.&lt;/p&gt;
-
-&lt;h2 id=&quot;newsql&quot;&gt;NewSQL&lt;/h2&gt;
-
-&lt;p&gt;NewSQL systems are a class of relational database management systems that aim at providing the ACID guarantees of relational databases with the horizontal scalability of NoSQL databases. There are several categories of NewSQL databases:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Completely new systems, often built from scratch with distributed deployment being a major focus. They often use techniques that are similar to the techniques used by NoSQL databases. Examples include Google Spanner and CockroachDB. These systems typically have some limitations with regards to the features they support or the extent to which they provide true ACID guarantees.&lt;/li&gt;
-  &lt;li&gt;SQL storage engines optimized for horizontal scalability, replacing the default storage engines of relational databases. These storage engines may have some limitations that are not present in the database’s default storage engine.&lt;/li&gt;
-  &lt;li&gt;Middleware that sits on top of a cluster of relational database instances. An example is Vitess. Note that these systems may not offer ACID guarantees.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;which-one-to-use&quot;&gt;Which one to use?&lt;/h2&gt;
-
-&lt;p&gt;As is often the case, choosing which data store to use is a tradeoff and there is likely no “wrong” or “right” choice. Your choice will likely depend on the kind of data you need to store, the scalability you need, the consistency you need, the knowledge of your team, etc.&lt;/p&gt;
-
-&lt;p&gt;Also note that there is no rule stating that you should use either SQL, NoSQL or NewSQL. For example, it is very common to use a relational database for your application’s domain data but use a key-value store for caching purposes. Additionally, it could be a good idea to store parts of your domain data in a relational database and other parts in a document database, depending on which one is a better fit for which part of the data. Of course, using multiple systems also means having to keep multiple systems running smoothly.&lt;/p&gt;
-
-&lt;h2 id=&quot;hosted-data-stores&quot;&gt;Hosted data stores&lt;/h2&gt;
-
-&lt;p&gt;When you are evaluating data stores for your project, it is a good idea to also consider the hosted data stores that are offered by cloud providers like AWS or Microsoft Azure. These hosted data stores include SQL, NoSQL and NewSQL data stores and using one of them could save you the headaches involved in managing your own data store or data store cluster. However, you should be careful regarding the amount of vendor lock-in this generates.&lt;/p&gt;
-
-&lt;h2 id=&quot;resources&quot;&gt;Resources&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Relational_database&quot;&gt;Relational database&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/ACID_(computer_science)&quot;&gt;ACID (computer science)&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Database_normalization&quot;&gt;Database normalization&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/NoSQL&quot;&gt;NoSQL&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/CAP_theorem&quot;&gt;CAP theorem&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/sql/database-engine/availability-groups/windows/availability-modes-always-on-availability-groups?view=sql-server-2017&quot;&gt;SQL Server Availability Modes&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://docs.microsoft.com/en-us/sql/database-engine/availability-groups/windows/active-secondaries-readable-secondary-replicas-always-on-availability-groups?view=sql-server-2017&quot;&gt;Offload read-only workload to secondary replica of an Always On availability group&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://stackoverflow.com/a/39210371&quot;&gt;Living Without Transactions&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://stackoverflow.com/questions/5029580/patterns-for-schema-changes-in-document-databases&quot;&gt;Patterns for Schema Changes in Document Databases&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/NewSQL&quot;&gt;NewSQL&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><author><name></name></author><category term="sql" /><category term="nosql" /><category term="newsql" /><summary type="html">This post is my attempt at providing a very high-level overview of the data store landscape, covering relational databases (SQL), NoSQL and NewSQL data stores.</summary></entry></feed>
+&lt;/ul&gt;</content><author><name></name></author><category term="java" /><summary type="html">This post contains a high-level review of Java generics.</summary></entry></feed>
