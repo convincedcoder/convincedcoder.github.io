@@ -85,6 +85,7 @@
 <ul>
 <li class="toc-entry toc-h3"><a href="#reducing-distance-between-developers">Reducing distance between developers</a></li>
 <li class="toc-entry toc-h3"><a href="#commitment-to-quality-of-code-and-build-process">Commitment to quality of code and build process</a></li>
+<li class="toc-entry toc-h3"><a href="#flexibility-to-refactor-where-needed">Flexibility to refactor where needed</a></li>
 <li class="toc-entry toc-h3"><a href="#flexibility-regarding-releases">Flexibility regarding releases</a></li>
 </ul>
 </li>
@@ -164,6 +165,11 @@
 </ul>
 
 <p>This part also highlights a possible challenge: Trunk Based Development does require a certain level of dedication to quality from everyone in the team and the team needs to be able to self-police if necessary.</p>
+
+<h3 id="flexibility-to-refactor-where-needed">
+<a id="flexibility-to-refactor-where-needed" class="anchor" href="#flexibility-to-refactor-where-needed" aria-hidden="true"><span class="octicon octicon-link"></span></a>Flexibility to refactor where needed</h3>
+
+<p>In teams where work happens on long-lived feature branches, refactoring could turn an already challenging merge into a complete disaster. The thought of a painful merge can actually keep the team from applying the refactoring that the codebase needs. When practicing Trunk Based Development, the reduced distance between developers makes refactoring a lot easier, meaning that developers are more likely to do it when it makes sense.</p>
 
 <h3 id="flexibility-regarding-releases">
 <a id="flexibility-regarding-releases" class="anchor" href="#flexibility-regarding-releases" aria-hidden="true"><span class="octicon octicon-link"></span></a>Flexibility regarding releases</h3>
@@ -283,7 +289,7 @@
   <li>Make clients call the indirection instead of the original component</li>
   <li>Now, use the layer of indirection to switch over to the new component as it is being built. The new layer of indirection could already forward some calls to the new component, or there could be a toggle indicating which component implementation to use.</li>
   <li>Once the new component is fully built and the layer of indirection doesn’t call the old component anymore, get rid of the old component</li>
-  <li>If it makes sense, get rid of the layer of indirection</li>
+  <li>Get rid of the layer of indirection</li>
 </ul>
 
 <h3 id="application-strangulation">
