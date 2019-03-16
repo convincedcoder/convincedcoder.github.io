@@ -1,36 +1,37 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Trunk Based Development – Convinced Coder – Software development blog with a focus on Java and JavaScript</title>
-
         <meta charset="utf-8" />
     <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
 
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:site" content="@convincedcoder" />
-    <meta name="twitter:creator" content="@convincedcoder" />
-    
-    <meta property="og:url" content="https://convincedcoder.github.io/2019/02/16/Trunk-based-development/" />
+    <!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>Trunk Based Development | Convinced Coder</title>
+<meta property="og:title" content="Trunk Based Development" />
+<meta name="author" content="Maarten Michiels" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Trunk Based Development is a source-control branching model that limits developer collaboration to a single branch, the “trunk”. This can feel quite restrictive, but it can actually help teams increase the quality of their code base and their ease of deployment. This post aims to give a high-level overview of what practicing Trunk Based Development looks like." />
+<meta property="og:description" content="Trunk Based Development is a source-control branching model that limits developer collaboration to a single branch, the “trunk”. This can feel quite restrictive, but it can actually help teams increase the quality of their code base and their ease of deployment. This post aims to give a high-level overview of what practicing Trunk Based Development looks like." />
+<link rel="canonical" href="https://convincedcoder.com/2019/02/16/Trunk-based-development/" />
+<meta property="og:url" content="https://convincedcoder.com/2019/02/16/Trunk-based-development/" />
+<meta property="og:site_name" content="Convinced Coder" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-02-16T00:00:00+01:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@convincedcoder" />
+<meta name="twitter:creator" content="@convincedcoder" />
+<script type="application/ld+json">
+{"name":null,"description":"Trunk Based Development is a source-control branching model that limits developer collaboration to a single branch, the “trunk”. This can feel quite restrictive, but it can actually help teams increase the quality of their code base and their ease of deployment. This post aims to give a high-level overview of what practicing Trunk Based Development looks like.","author":{"@type":"Person","name":"Maarten Michiels"},"@type":"BlogPosting","url":"https://convincedcoder.com/2019/02/16/Trunk-based-development/","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://convincedcoder.com/images/convincedcoder.png"},"name":"Maarten Michiels"},"image":null,"headline":"Trunk Based Development","dateModified":"2019-02-16T00:00:00+01:00","datePublished":"2019-02-16T00:00:00+01:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"https://convincedcoder.com/2019/02/16/Trunk-based-development/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
 
-    
-    <meta name="description" content="Trunk Based Development is a source-control branching model that limits developer collaboration to a single branch, the “trunk”. This can feel quite restrictive, but it can actually help teams increase the quality of their code base and their ease of deployment. This post aims to give a high-level overview of what practicing Trunk Based Development looks like." />
-    <meta property="og:description" content="Trunk Based Development is a source-control branching model that limits developer collaboration to a single branch, the “trunk”. This can feel quite restrictive, but it can actually help teams increase the quality of their code base and their ease of deployment. This post aims to give a high-level overview of what practicing Trunk Based Development looks like." />
-    
-    <meta name="author" content="Convinced Coder" />
-
-    
-    <meta property="og:title" content="Trunk Based Development" />
-    <meta property="twitter:title" content="Trunk Based Development" />
-    
 
     <!--[if lt IE 9]>
       <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
     <link rel="stylesheet" type="text/css" href="/style.css" />
-		<link rel="alternate" type="application/rss+xml" title="Convinced Coder - Software development blog with a focus on Java and JavaScript" href="/feed.xml" />
+		<link rel="alternate" type="application/rss+xml" title="Convinced Coder - A blog about general software development, Java and JavaScript" href="/feed.xml" />
 		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -52,7 +53,7 @@
 
 			  <div class="site-info">
 				<h1 class="site-name"><a href="/">Convinced Coder</a></h1>
-				<p class="site-description">Software development blog with a focus on Java and JavaScript</p>
+				<p class="site-description">A blog about general software development, Java and JavaScript</p>
 			  </div>
 
 			  <nav>
@@ -301,11 +302,16 @@
 <a id="some-good-practices-when-applying-trunk-based-development" class="anchor" href="#some-good-practices-when-applying-trunk-based-development" aria-hidden="true"><span class="octicon octicon-link"></span></a>Some good practices when applying Trunk Based Development</h2>
 
 <ul>
-  <li>Quick reviews: Developers try to get their code reviewed as soon as possible.</li>
-  <li>Chasing HEAD: Developers try to stay up to date with changes to the trunk.</li>
-  <li>Shared nothing: Developers run the build locally before pushing their code, typically including integration and functional tests talking to real databases etc. This means individual developers must be able to run the application and all its dependencies locally, without depending on resources shared with others.</li>
-  <li>Facilitating commits: Developers sometimes chop up their work into multiple smaller commits in order to make their changes easier for their teammates to adjust to. For example, when building a feature entails introducing a new dependency, this dependency could be introduced separately through a new commit that the developer explicitly notifies the team of.</li>
-  <li>Thin Vertical Slices: Stories or tasks from the backlog can ideally be implemented completely by a single developer or pair of developers in a short amount of time and small number of commits. They cut across the whole stack and they do not need to be passed around between developers with specialized knowledge in order to get completed.</li>
+  <li>
+<em>Quick reviews</em>: Developers try to get their code reviewed as soon as possible.</li>
+  <li>
+<em>Chasing HEAD</em>: Developers try to stay up to date with changes to the trunk.</li>
+  <li>
+<em>Shared nothing</em>: Developers run the build locally before pushing their code, typically including integration and functional tests talking to real databases etc. This means individual developers must be able to run the application and all its dependencies locally, without depending on resources shared with others.</li>
+  <li>
+<em>Facilitating commits</em>: Developers sometimes chop up their work into multiple smaller commits in order to make their changes easier for their teammates to adjust to. For example, when building a feature entails introducing a new dependency, this dependency could be introduced separately through a new commit that the developer explicitly notifies the team of.</li>
+  <li>
+<em>Thin Vertical Slices</em>: Stories or tasks from the backlog can ideally be implemented completely by a single developer or pair of developers in a short amount of time and small number of commits. They cut across the whole stack and they do not need to be passed around between developers with specialized knowledge in order to get completed.</li>
 </ul>
 
 <h2 id="resources">

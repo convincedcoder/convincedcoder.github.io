@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+  <head>
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    <!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>Branch By Abstraction and application strangulation | Convinced Coder</title>
+<meta property="og:title" content="Branch By Abstraction and application strangulation" />
+<meta name="author" content="Maarten Michiels" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Branch By Abstraction is a development technique that allows teams to make large changes while collaborating in a single branch and without breaking the system while the change is in progress. It is an alternative to long-lived feature branches. This post will also talk about application strangulation, which is a similar technique that works at a higher level." />
+<meta property="og:description" content="Branch By Abstraction is a development technique that allows teams to make large changes while collaborating in a single branch and without breaking the system while the change is in progress. It is an alternative to long-lived feature branches. This post will also talk about application strangulation, which is a similar technique that works at a higher level." />
+<link rel="canonical" href="https://convincedcoder.com/2019/03/16/Branch-By-Abstraction-application-strangulation/" />
+<meta property="og:url" content="https://convincedcoder.com/2019/03/16/Branch-By-Abstraction-application-strangulation/" />
+<meta property="og:site_name" content="Convinced Coder" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-03-16T00:00:00+01:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@convincedcoder" />
+<meta name="twitter:creator" content="@convincedcoder" />
+<script type="application/ld+json">
+{"name":null,"description":"Branch By Abstraction is a development technique that allows teams to make large changes while collaborating in a single branch and without breaking the system while the change is in progress. It is an alternative to long-lived feature branches. This post will also talk about application strangulation, which is a similar technique that works at a higher level.","author":{"@type":"Person","name":"Maarten Michiels"},"@type":"BlogPosting","url":"https://convincedcoder.com/2019/03/16/Branch-By-Abstraction-application-strangulation/","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://convincedcoder.com/images/convincedcoder.png"},"name":"Maarten Michiels"},"image":null,"headline":"Branch By Abstraction and application strangulation","dateModified":"2019-03-16T00:00:00+01:00","datePublished":"2019-03-16T00:00:00+01:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"https://convincedcoder.com/2019/03/16/Branch-By-Abstraction-application-strangulation/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+		<link rel="alternate" type="application/rss+xml" title="Convinced Coder - A blog about general software development, Java and JavaScript" href="/feed.xml" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+		<link rel="manifest" href="/site.webmanifest">
+		<meta name="msapplication-TileColor" content="#da532c">
+		<meta name="theme-color" content="#ffffff">
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+	<!-- using Ryan Fait's sticky footer to stick the footer at the bottom of the page or content, whichever is lower -->
+	
+	<div class="sticky-footer-wrapper">
+		<div class="wrapper-masthead">
+		  <div class="container">
+			<header class="masthead clearfix">
+			  <a href="/" class="site-avatar"><img src="/images/convincedcoder.png" /></a>
+
+			  <div class="site-info">
+				<h1 class="site-name"><a href="/">Convinced Coder</a></h1>
+				<p class="site-description">A blog about general software development, Java and JavaScript</p>
+			  </div>
+
+			  <nav>
+				<a href="/">Blog</a>
+				<a href="/about">About</a>
+			  </nav>
+			</header>
+		  </div>
+		</div>
+
+		<div id="main" role="main" class="container">
+		  <article class="post">
+    <h1>Branch By Abstraction and application strangulation</h1>
+    
+    <div class="date">
+        2019-03-16
+    </div>
+
+    <div class=post-tags>
+               
+                 
+            <a href="/tag/software-development" class="tag">software-development</a>
+        
+    </div>
+
+    <div class="entry">
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#the-basic-idea">The basic idea</a></li>
+<li class="toc-entry toc-h2"><a href="#anatomy-of-the-abstraction-layer">Anatomy of the abstraction layer</a></li>
+<li class="toc-entry toc-h2"><a href="#why-not-real-branches">Why not real branches?</a></li>
+<li class="toc-entry toc-h2"><a href="#application-strangulation">Application strangulation</a></li>
+<li class="toc-entry toc-h2"><a href="#a-real-world-strangulation-example">A real-world strangulation example</a></li>
+<li class="toc-entry toc-h2"><a href="#resources">Resources</a></li>
+</ul><p>Branch By Abstraction is a development technique that allows teams to make large changes while collaborating in a single branch and without breaking the system while the change is in progress. It is an alternative to long-lived feature branches. This post will also talk about application strangulation, which is a similar technique that works at a higher level.</p>
+
+<h2 id="the-basic-idea">
+<a id="the-basic-idea" class="anchor" href="#the-basic-idea" aria-hidden="true"><span class="octicon octicon-link"></span></a>The basic idea</h2>
+
+<p>The basic idea behind Branch By Abstraction is simple. Let’s say we have some component in our system that a number of consumers depend on. Now, we want to replace our implementation of that component by a new implementation. We are also assuming that the change is so big that it requires more than a few days of work and doesn’t fit inside a single commit.</p>
+
+<p><img src="/images/2019-03-16-Branch-By-Abstraction/step-1.png" alt="Step 1"></p>
+
+<p>Our first step is to create an abstraction layer on top of the old implementation. Then, we refactor the consumers so they now call the old implementation through the abstraction layer. This could potentially happen in multiple commits, all while keeping the system working.</p>
+
+<p>Depending on the case, it could also make sense to only move some consumer(s) to the abstraction layer, then follow the rest of these steps, and then go on to the next consumer.</p>
+
+<p><img src="/images/2019-03-16-Branch-By-Abstraction/step-2.png" alt="Step 2"></p>
+
+<p>Now, we can start creating the new implementation, still sitting behind the abstraction layer. We do this in multiple, relatively small commits. We use the abstraction layer as a way to control the extent to which consumers will be using the old or new implementation. This way, we can gradually move consumers onto the new implementation while still committing regularly and keeping the system working.</p>
+
+<p><img src="/images/2019-03-16-Branch-By-Abstraction/step-3.png" alt="Step 3"></p>
+
+<p>At some point, we will find that nothing is using the old implementation anymore, which means we can safely delete it.</p>
+
+<p><img src="/images/2019-03-16-Branch-By-Abstraction/step-4.png" alt="Step 4"></p>
+
+<p>We could choose to delete the abstraction layer itself if that makes sense.</p>
+
+<p><img src="/images/2019-03-16-Branch-By-Abstraction/step-5.png" alt="Step 5"></p>
+
+<h2 id="anatomy-of-the-abstraction-layer">
+<a id="anatomy-of-the-abstraction-layer" class="anchor" href="#anatomy-of-the-abstraction-layer" aria-hidden="true"><span class="octicon octicon-link"></span></a>Anatomy of the abstraction layer</h2>
+
+<p>The abstraction layer could simply be an interface that both your old and new implementation will implement. This allows you to choose which of the implementations (old or new) to instantiate when a consumer requires an object conforming to that interface.</p>
+
+<p>It’s also possible for the abstraction layer to be an actual class that delegates to the old or new implementation as needed. This could be based on some flag (built into the code or in a configuration file) that allows developers working on the new implementation to test it while others are not affected by it yet. Alternatively, the abstraction could use the new implementation for some calls and the old implementation for others.</p>
+
+<p>Another option is that the abstraction layer is an actual layer in your application’s architecture. For example, if you are moving to a new persistence framework and you are using a layered architecture, you could already have an abstraction layer in the form of repositories that encapsulate all interaction with the database. This could allow you to make the change one repository at a time, while repositories you didn’t touch are still using the old persistence framework.</p>
+
+<h2 id="why-not-real-branches">
+<a id="why-not-real-branches" class="anchor" href="#why-not-real-branches" aria-hidden="true"><span class="octicon octicon-link"></span></a>Why not real branches?</h2>
+
+<p>The problem with using real version control branches for doing these kinds of changes is that merging the changes is almost guaranteed to be a huge pain. Making large changes means that your branch will probably touch a large part of the codebase. The fact that the changes are large also means you will probably spend a long time working on them, giving the rest of the team plenty of time to make changes to the parts of the codebase you touch in a way that conflicts with what you are doing.</p>
+
+<p>It’s even worse if your team also uses long-lived branches for regular feature development, because that increases the chances that the rest of the team are making incompatible changes that you don’t know about until the team has already invested a lot of time in them.</p>
+
+<p>With Branch By Abstraction, you don’t have these kinds of issues. You are making incremental changes that keep the system working and you regularly commit these changes into the single branch that your team collaborates on. This way, any potential conflicts will surface quickly and you don’t have to worry about colleagues making changes that will turn the step of finishing your migration into a living hell. For example, you could decide to pause the migration for a while in order to work on a new high-priority feature, without the fear that the rest of the team will use this pause to do work that conflicts with your migration work. Because the system is also working at all times, it is perfectly possible to release a new version of the system that already contains your partially-completed migration.</p>
+
+<p>For a more detailed look at the reasons for avoiding long-term feature branches, have a look at my post on <a href="/2019/02/16/Trunk-based-development/">Trunk Based Development</a>.</p>
+
+<h2 id="application-strangulation">
+<a id="application-strangulation" class="anchor" href="#application-strangulation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Application strangulation</h2>
+
+<p>Application strangulation is a technique that is very similar to Branch By Abstraction. The main difference between the two is that they operate at a different level. While Branch By Abstraction uses the abstraction mechanisms of your programming language, application strangulation could be used to migrate between different applications potentially written in completely different languages. When applying application strangulation, the abstraction layer typically comes in the form of a reverse proxy that decides whether to call the API of the old application or the API of the new application.</p>
+
+<h2 id="a-real-world-strangulation-example">
+<a id="a-real-world-strangulation-example" class="anchor" href="#a-real-world-strangulation-example" aria-hidden="true"><span class="octicon octicon-link"></span></a>A real-world strangulation example</h2>
+
+<p>The article <a href="https://www.theguardian.com/info/2018/nov/30/bye-bye-mongo-hello-postgres">Bye bye Mongo, Hello Postgres</a> describes how The Guardian used application strangulation to move from MongoDB to PostgreSQL, keeping their system working while performing the migration. MongoDB would stay their main source of truth until the migration was completed, but in the meantime they also needed to make sure that all of their data got migrated into PostgreSQL and that the system was able to run on PostgreSQL only once fully switched over.</p>
+
+<p>Potentially, Branch By Abstraction could have been an option here. The abstraction layer would then have been a layer that abstracts access to the database and chooses to interact with MongoDB, PostgreSQL or potentially both. However, as there was very little separation of concerns in the original application, introducing that kind of abstraction layer would have been costly and risky. Therefore, the team decided to create a new application, with the same API as the old one, that would talk to PostgreSQL instead of MongoDB.</p>
+
+<p>Once the new application was running next to the other one, the team created a reverse proxy that worked as follows:</p>
+<ol>
+  <li>Accept incoming traffic</li>
+  <li>Forward the traffic to the primary API and return the result to the caller</li>
+  <li>Asynchronously forward the traffic to the secondary API</li>
+  <li>Compare the results from both APIs and log any differences</li>
+</ol>
+
+<p>After migrating the existing data, any differences between the results from both APIs would indicate bugs that needed to be solved. If the team got to the point where there were no differences being logged, they could be confident that the new API works in the same way as the old API. Switching the primary and secondary API in the proxy allowed the team to essentially switch to the new API while still having a fallback in the form of the old API that was still receiving all requests.</p>
+
+<p>The migration of existing data itself also made use of the fact that both applications had the same API. The flow was as follows:</p>
+<ol>
+  <li>Get content from the API backed by MongoDB</li>
+  <li>Save that content to the API backed by PostgreSQL</li>
+  <li>Get the content from the API backed by PostgreSQL</li>
+  <li>Verify that the responses from (1) and (3) are identical</li>
+</ol>
+
+<p>Finally, when everything was working with the new API as primary, the team got rid of the proxy and the old API in order to complete the migration.</p>
+
+<p>Note that, during the period in which both APIs were running next to each other, calls for both reads and writes were being forwarded to each API and the results were compared. This is very similar to the <em>Duplicate Writes</em> and <em>Dark Reads</em> that we saw as part of the <em>Expand-Contract</em> database migration strategy in the post on <a href="/2019/03/02/Feature-flags/">Feature flags</a></p>
+
+<h2 id="resources">
+<a id="resources" class="anchor" href="#resources" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resources</h2>
+
+<ul>
+  <li><a href="https://paulhammant.com/blog/branch_by_abstraction.html">Introducing Branch By Abstraction</a></li>
+  <li><a href="https://trunkbaseddevelopment.com/branch-by-abstraction/">Branch By Abstraction</a></li>
+  <li><a href="https://martinfowler.com/bliki/BranchByAbstraction.html">BranchByAbstraction</a></li>
+  <li><a href="https://continuousdelivery.com/2011/05/make-large-scale-changes-incrementally-with-branch-by-abstraction/">Make Large Scale Changes Incrementally with Branch By Abstraction</a></li>
+  <li><a href="https://trunkbaseddevelopment.com/strangulation/">Application strangulation</a></li>
+  <li><a href="https://www.theguardian.com/info/2018/nov/30/bye-bye-mongo-hello-postgres">Bye bye Mongo, Hello Postgres</a></li>
+</ul>
+
+    </div>
+
+    
+</article>
+
+		</div>
+		
+		<div class="sticky-footer-push"></div>
+	</div>
+
+    <div class="wrapper-footer sticky-footer-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/convincedcoder/convincedcoder.github.io-source"><i class="svg-icon github"></i></a>
+
+
+
+
+<a href="https://www.twitter.com/convincedcoder"><i class="svg-icon twitter"></i></a>
+
+
+
+        </footer>
+      </div>
+    </div>
+
+		
+	<!-- Google Analytics -->
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-130247825-1', 'auto');
+		ga('send', 'pageview', {
+		  'page': '/2019/03/16/Branch-By-Abstraction-application-strangulation/',
+		  'title': 'Branch By Abstraction and application strangulation'
+		});
+	</script>
+	<!-- End Google Analytics -->
+
+
+		
+		<script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script>
+<script>addBackToTop({
+  diameter: 50,
+  backgroundColor: '#2f2f2f',
+  textColor: '#fff'
+})</script> 
+  </body>
+</html>

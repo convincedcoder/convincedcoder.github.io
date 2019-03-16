@@ -1,2 +1,0 @@
-serve with autoregeneration: bundle exec jekyll serve
-
