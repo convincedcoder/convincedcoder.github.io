@@ -1,4 +1,355 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="https://convincedcoder.com/feed.xml" rel="self" type="application/atom+xml" /><link href="https://convincedcoder.com/" rel="alternate" type="text/html" /><updated>2019-03-30T18:32:08+01:00</updated><id>https://convincedcoder.com/</id><title type="html">Convinced Coder</title><subtitle>A blog about general software development, Java and JavaScript</subtitle><author><name>Maarten Michiels</name></author><entry><title type="html">Hammock-driven development</title><link href="https://convincedcoder.com/2019/03/30/Hammock-driven-development/" rel="alternate" type="text/html" title="Hammock-driven development" /><published>2019-03-30T00:00:00+01:00</published><updated>2019-03-30T00:00:00+01:00</updated><id>https://convincedcoder.com/2019/03/30/Hammock-driven-development</id><content type="html" xml:base="https://convincedcoder.com/2019/03/30/Hammock-driven-development/">&lt;p&gt;Sometimes, the best thing you can do for your code is to stop thinking about it - at least consciously.&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.6.2">Jekyll</generator><link href="https://convincedcoder.com/feed.xml" rel="self" type="application/atom+xml" /><link href="https://convincedcoder.com/" rel="alternate" type="text/html" /><updated>2019-12-15T13:20:26+01:00</updated><id>https://convincedcoder.com/</id><title type="html">Convinced Coder</title><subtitle>A blog about general software development, Java and JavaScript</subtitle><author><name>Maarten Michiels</name></author><entry><title type="html">Creating boundaries to decouple parts of your system</title><link href="https://convincedcoder.com/2019/05/11/Creating-boundaries/" rel="alternate" type="text/html" title="Creating boundaries to decouple parts of your system" /><published>2019-05-11T00:00:00+02:00</published><updated>2019-05-11T00:00:00+02:00</updated><id>https://convincedcoder.com/2019/05/11/Creating-boundaries</id><content type="html" xml:base="https://convincedcoder.com/2019/05/11/Creating-boundaries/">&lt;p&gt;As we saw in the previous post, software architecture is all about decoupling different parts of your system through boundaries. This post presents some ideas for actually creating these boundaries.&lt;/p&gt;
+
+&lt;h2 id=&quot;source-level-boundaries&quot;&gt;Source-level boundaries&lt;/h2&gt;
+
+&lt;p&gt;This section talks about some ways to introduce boundaries at the level of the source code, using the mechanisms the programming language provides.&lt;/p&gt;
+
+&lt;h3 id=&quot;abstraction&quot;&gt;Abstraction&lt;/h3&gt;
+
+&lt;p&gt;They can also use the Dependency Inversion Principle (from the &lt;a href=&quot;/2019/04/13/SOLID-principles/&quot;&gt;SOLID principles&lt;/a&gt;) to control the direction of the dependency. For example, if the business logic calls persistence code, we could let the business logic part specify the interface that the persistence code must implement. This way, while the business logic is calling the persistence code, it is the persistence code that is dependent on the business logic part of the system.&lt;/p&gt;
+
+&lt;p&gt;If the abstraction introduced by a full-fledged source-level boundary would be too much, it may be interesting to consider the &lt;a href=&quot;https://en.wikipedia.org/wiki/Facade_pattern&quot;&gt;Facade pattern&lt;/a&gt; as an alternative. When using the Facade pattern, you take a complex subsystem and put it behind a class that exposes a nice interface to that subsystem. This does not provide the same amount of separation as the use of abstractions and does not allow you to control the direction of dependencies, but it could help with managing complexity and potentially prepare for the creation of a full boundary.&lt;/p&gt;
+
+&lt;h3 id=&quot;encapsulation&quot;&gt;Encapsulation&lt;/h3&gt;
+
+&lt;h3 id=&quot;data-transfer-objects&quot;&gt;Data transfer objects&lt;/h3&gt;
+
+&lt;h3 id=&quot;combining-the-above-building-blocks&quot;&gt;Combining the above building blocks&lt;/h3&gt;
+
+&lt;p&gt;strongest boundary will use all of them!&lt;/p&gt;
+
+&lt;h2 id=&quot;decoupling-and-the-the-database&quot;&gt;Decoupling and the the database&lt;/h2&gt;
+
+&lt;h3 id=&quot;boundaries-between-the-domain-and-the-database&quot;&gt;Boundaries between the domain and the database&lt;/h3&gt;
+
+&lt;p&gt;In most applications, it makes sense to draw a boundary between the actual domain logic and the database (unless, of course, your application is a thin layer around the database that doesn’t really have any domain logic).&lt;/p&gt;
+
+&lt;p&gt;One widespread convention is the &lt;em&gt;Repository&lt;/em&gt; pattern. Here, all interaction with the database is encapsulated inside Repository classes. The domain logic then interacts with these classes. This helps to keep any database-specific stuff out of the domain logic.&lt;/p&gt;
+
+&lt;div class=&quot;language-typescript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kr&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;UserRepository&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;getUsers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;getUser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;saveUser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;User&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;deleteUser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Promise&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;SqlServerUserRepository&lt;/span&gt; &lt;span class=&quot;kr&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;UserRepository&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// implement UserRepository methods by talking to SQL Server&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;UserService&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;constructor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kr&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;repository&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;UserRepository&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;async&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;updateName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;newName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kr&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;repository&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getUser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;setName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;newName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;kr&quot;&gt;await&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;repository&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;saveUser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;If the domain logic is using the repository interface, then it also becomes easy to swap out the &lt;code class=&quot;highlighter-rouge&quot;&gt;SqlServerUserRepository&lt;/code&gt; for a different implementation, for example an in-memory repository for testing purposes.&lt;/p&gt;
+
+&lt;div class=&quot;language-typescript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;InMemoryUserRepository&lt;/span&gt; &lt;span class=&quot;kr&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;UserRepository&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// implement UserRepository methods using in-memory storage&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;separation-at-the-database-level&quot;&gt;Separation at the database level&lt;/h3&gt;
+
+&lt;p&gt;For larger systems, it can make sense to separate different parts of the application down to the database level. Each part uses different tables or a different database, with no links between data belonging to different parts. This kind of separation is considered good practice when setting up a microservices architecture. You can also do this in monolithic applications, potentially as a stepping stone towards a feature microservices architecture.&lt;/p&gt;
+
+&lt;p&gt;Separation at the database level makes it easier to reason about separate parts of the application without having to think about other parts. It also provides more flexibility to change the schema or database technology for a certain part o the system.&lt;/p&gt;
+
+&lt;p&gt;When drawing boundaries down to the database level, some data that is relevant to two parts of the system might exist on both sides of the boundary between them. The last part of this post covers that situation in a bit more detail.&lt;/p&gt;
+
+&lt;h2 id=&quot;decoupling-and-the-web&quot;&gt;Decoupling and the web&lt;/h2&gt;
+
+&lt;h3 id=&quot;decoupling-the-domain-from-the-web&quot;&gt;Decoupling the domain from the web&lt;/h3&gt;
+
+&lt;p&gt;One boundary that almost always makes sense to draw is the separation between your domain and the actual user interface that the user interacts with. Is it typical to see &lt;code class=&quot;highlighter-rouge&quot;&gt;Controller&lt;/code&gt; classes (some other terms are used as well) that take care of the interaction with the user and delegate all real work to the code implementing the actual business logic. In principle, none of your business logic should be aware of how it is shown to the user, including whether or not the UI is a web UI.&lt;/p&gt;
+
+&lt;h3 id=&quot;different-representations-of-objects&quot;&gt;Different representations of objects&lt;/h3&gt;
+
+&lt;p&gt;As different parts of the system have different goals, they may also need different representations of the same object. When doing server-side rendering, it often makes sense to have a separate view model that simply holds the data to be shown. Data in the view model could be a transformed version of the data obtained from the domain model (e.g. formatting a date) or could aggregate data from several domain objects.&lt;/p&gt;
+
+&lt;p&gt;In the same way, data returned from the API could have a different format or structure than the actual domain objects inside the business logic part of the application. Ideally, the data returned from APIs (or expected by APIs) will be aligned with what the consumers of the API care about.&lt;/p&gt;
+
+&lt;p&gt;Even then, if your frontend is a single-page application getting data from the backend over an API, feel free to create separate representations of that data that are more comfortable for the rest of the frontend to work with.&lt;/p&gt;
+
+&lt;h3 id=&quot;micro-frontends&quot;&gt;Micro frontends&lt;/h3&gt;
+
+&lt;p&gt;When thinking of microservices, people typically think about large backend systems made up of several small services. When a call is made to the backend, those services collaborate to process the call. But what about the frontend?&lt;/p&gt;
+
+&lt;p&gt;What often happens is that the frontend sitting on top of such a microservices architecture is a single, large and feature-rich single-page app cutting across all of the functional areas represented by the backend microservices. The problem is that this frontend can become so big that it’s difficult to maintain. It is often also developed by a separate team, meaning that that team needs to coordinate with the backend teams when building functionality.&lt;/p&gt;
+
+&lt;p&gt;There is, however, an alternative approach called &lt;em&gt;Micro Frontends&lt;/em&gt;. Here, the frontend is split into different parts in the same way that the backend is. Doing this allows teams to be responsible for their functional part of the application across the entire stack, from the database up to the frontend. The actual frontend that the user interacts with is then stitched together from the functional part developed by different teams. If you want to investigate this in a bit more detail, you can look &lt;a href=&quot;https://micro-frontends.org/&quot;&gt;here&lt;/a&gt; and &lt;a href=&quot;https://medium.com/@tomsoderlund/micro-frontends-a-microservice-approach-to-front-end-web-development-f325ebdadc16&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;decoupling-from-frameworks-and-libraries&quot;&gt;Decoupling from frameworks and libraries&lt;/h2&gt;
+
+&lt;p&gt;When using a framework or library, you should take care not to let too much of your code depend on it. External dependencies evolve in a way you do not control. Their newest version including some critical bugfixes may introduce breaking changes in an API you use or even remove the functionality you use. They may stop being properly maintained. These kinds of changes, as well as changes in your own requirements, can force you to change the way you use the dependency or even replace it with another dependency.&lt;/p&gt;
+
+&lt;p&gt;If you introduce a new dependency to the system, consider creating a boundary around it that decouples the rest of the system from it. The public interface of that boundary should be written in terms of what your system needs from the dependency, while the logic inside the boundary will be specific to the interaction with that particular dependency. This way, if the API of the dependency changes or you replace it, the boundary protects you from having to change all code that used the dependency. As long as you can fulfill the contract specified by the public interface of the boundary, no code outside of the boundary has to be aware of the change.&lt;/p&gt;
+
+&lt;p&gt;Your can also use the boundary to create some automated test for the specific functionality that your system needs to get from the boundary. By testing against the boundary, you don’t have to change your tests in order to be able to test a new version of the dependency or even a replacement.&lt;/p&gt;
+
+&lt;p&gt;Having this kind of boundary is especially important if you consider the dependency to be a temporary solution that is sufficient for now but will most likely need to change in the future. By putting the boundary in place, you can make that change will be a non-event instead of something that requires changes to all code that used that particular dependency’s API or, even worse, depended on some concepts specific to that dependency. The boundary allows you to avoid premature complexity by going for a simple solution, while keeping your options open regarding the upgrade to a more complex solution.&lt;/p&gt;
+
+&lt;p&gt;Be extra careful when dealing with frameworks. Frameworks tend to dictate the structure of your application and may even ask you to base your domain objects on the abstractions they provide. If you allow this, it will be very difficult to get the framework out afterwards. One thing that could help here is to let the framework operate on some kind of separate representation of you domain objects instead of the domain objects themselves. Your boundary could then take care of performing the necessary translations between that separate representation and the actual domain objects.&lt;/p&gt;
+
+&lt;h2 id=&quot;decoupling-tech-stacks&quot;&gt;Decoupling tech stacks&lt;/h2&gt;
+
+&lt;p&gt;In an architecture with (micro)services, the service boundaries decouple the services down to the level of their tech stack. Different services should only be coupled through the API calls or events they use to communicate with each others. Sharing anything else, including the database, is considered best practice. This has the advantage that the team maintaining a service has the freedom to choose or change the technology used by the service based on what makes most sense for the service. Some service may use a relational database while another one uses a document store. A service providing information about the relationships between different users could switch to a graph database without any other service being affected by the change. A service performing very heavy calculations could switch to a different, more low-level programming language.&lt;/p&gt;
+
+&lt;p&gt;While there is definitely some value in this freedom regarding the tech stack, a system composed of microservices that are all using wildly different technologies could make it difficult to move developers between services if needed. Depending on how separated the different teams really are (maybe each team does its own hiring? what about operations?), it could be a good idea to align across teams regarding certain aspects of the technical stack.&lt;/p&gt;
+
+&lt;h2 id=&quot;boundaries-and-duplication&quot;&gt;Boundaries and duplication&lt;/h2&gt;
+
+&lt;h3 id=&quot;false-duplication&quot;&gt;False duplication&lt;/h3&gt;
+
+&lt;p&gt;Sometimes, the fear of violating DRY (Don’t Repeat Yourself) by having duplication in your system can lead to unnecessary coupling. You should especially watch out for &lt;em&gt;false duplication&lt;/em&gt;. Real duplication, which is what the DRY principle wants you to avoid, means that the duplicates always have to change together. If different “copies” may need to change at different times or for different reasons, we are not talking about real duplication anymore. The fact that two things are the same at this moment does not necessarily mean that they are real duplicates and that that apparent duplication is a bad thing. Attempts to get rid of false duplication tend to lead to unnecessary coupling through shared code, which will then come back to bite you when the “duplicates” suddenly need to change independently of each other.&lt;/p&gt;
+
+&lt;p&gt;False duplication is common when applying vertical slicing, where certain functionalities may start out looking similar but end up diverging significantly. It can also appear when applying horizontal slicing. For example, the apparent duplication between a database row and the corresponding structure we send to the UI will likely be false duplication. It may be tempting to pass the database row directly to the UI, and in some cases this can be a good idea, but it isn’t hard to imagine that the structure of the data to show in the UI or the structure of the data in the DB could have to change independently of each other.&lt;/p&gt;
+
+&lt;h3 id=&quot;data-duplication-and-bounded-contexts&quot;&gt;Data duplication and bounded contexts&lt;/h3&gt;
+
+&lt;p&gt;When different functional parts of the system are separated from each other down to the level of using separate databases, it is possible that there will be some duplication of data at both sides of the boundary. This is common when dealing with microservices. Different services may store data regarding the same thing, for a variety of reasons. Often, however, the data that different services store for that same thing will depend on what the specific service needs. The same domain concept may have completely different representations on different sides of the boundary. In that case, you could argue that this is again a case of false duplication, especially because data on different sides of the boundary will not necessarily change the same time and for the same reasons. Each side of the boundary is, in Domain-Driven-Design terms, a &lt;a href=&quot;https://www.martinfowler.com/bliki/BoundedContext.html&quot;&gt;Bounded Context&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;As an example, consider an e-commerce system using a microservices architecture. Suppose that we have a Customer service which manages a whole lot of data about each customer, including their shipping address. Let’s say we also have an Order service, which maintains orders and needs the shipping address of the customer. One thing the Order service could do is store a customer ID with each Order. Then, whenever all information for an order needs to be retrieved, it could retrieve the customer’s address from the Customer service. This approach has some drawbacks. First of all, if the Customer service is unavailable or the customer has been deleted, the Order service has no idea which address to use for the order. Additionally, if the customer’s address changes, the current shipping address for a customer may not be the address that a certain order was shipped to. A better approach might be to let the Order service store not only the customer ID but also the customer’s shipping address. If the order is retrieved from the Order service later on, the service will use the shipping address that it has stored.&lt;/p&gt;
+
+&lt;p&gt;Some services may even be entirely focused on aggregating bits of data from other services. Going back to the e-commerce site, let’s say we need to be able to view some general info about the most recent orders of customers, allowing to filter customers by some key attributes. It can make sense to put this functionality in a separate Insights service. That service can gather data from the Customer and Order services (ideally with Customer and Order pushing updates through API calls or events) and then store it in a format that includes exactly the required information. Then, when the Insights service retrieves a request, it can gather the required data directly from its own database.&lt;/p&gt;
+
+&lt;h2 id=&quot;resources&quot;&gt;Resources&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Clean Architecture (book by Robert C. Martin)&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://micro-frontends.org/&quot;&gt;Micro Frontends&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://medium.com/@tomsoderlund/micro-frontends-a-microservice-approach-to-front-end-web-development-f325ebdadc16&quot;&gt;Micro frontends—a microservice approach to front-end web development&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://research.swtch.com/deps&quot;&gt;Our Software Dependency Problem&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.martinfowler.com/bliki/BoundedContext.html&quot;&gt;BoundedContext&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://microservices.io/patterns/data/database-per-service.html&quot;&gt;Pattern: Database per service&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://softwareengineering.stackexchange.com/questions/381279/how-to-keep-relationship-integrity-with-microservice-architecture&quot;&gt;How to keep relationship integrity with Microservice Architecture&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Maarten Michiels</name></author><category term="software-architecture" /><summary type="html">As we saw in the previous post, software architecture is all about decoupling different parts of your system through boundaries. This post presents some ideas for actually creating these boundaries.</summary></entry><entry><title type="html">Software architecture and boundaries</title><link href="https://convincedcoder.com/2019/04/27/Software-architecture-boundaries/" rel="alternate" type="text/html" title="Software architecture and boundaries" /><published>2019-04-27T00:00:00+02:00</published><updated>2019-04-27T00:00:00+02:00</updated><id>https://convincedcoder.com/2019/04/27/Software-architecture-boundaries</id><content type="html" xml:base="https://convincedcoder.com/2019/04/27/Software-architecture-boundaries/">&lt;p&gt;This post covers some general ideas on software architecture, with a specific focus on the boundaries between different parts of the system.&lt;/p&gt;
+
+&lt;h2 id=&quot;architecture-is-about-boundaries&quot;&gt;Architecture is about boundaries&lt;/h2&gt;
+
+&lt;p&gt;In essence, a system’s architecture is what defines the shape of the system. More specifically, a system’s architecture defines how the system is divided into components, how those components are arranged, what of kinds boundaries exist between different components and how the components communicate across those boundaries. Basically, it’s all about the way we are using boundaries to separate parts of the system that shouldn’t know too much about each other.&lt;/p&gt;
+
+&lt;p&gt;The purpose of this kind of separation is to make it easier to develop, deploy and maintain the system. Especially the maintenance part is critical, because this is typically the most risky and expensive part. Often, the first version of a system making it to production is only the start, and most of the work will happen after that. Additional requirements will be added, existing functionality will need to be changed, etc. Adequate boundaries will provide the necessary flexibility to make this kind of maintenance possible, allowing the system to grow without exponentially increasing the work needed to add or adjust a piece of functionality.&lt;/p&gt;
+
+&lt;h2 id=&quot;boundaries-allow-for-change&quot;&gt;Boundaries allow for change&lt;/h2&gt;
+
+&lt;p&gt;Boundaries between different parts of the system allow us to create independence between these parts, reducing coupling. For example, we could create our boundaries in such a way that our main business logic is completely separated from the persistence logic. Decoupling different parts of the system like this is what allows flexibility. If the business logic doesn’t have any idea about the database we use (or potentially even the fact that we use a database), this means we have the flexibility to change the database that our system depends on without having to make any kind of changes to the main business logic. Or, if we need to make changes to the main business logic that do not influence the kind of data that needs to be persisted, we can make those changes without the persistence code having to know anything about them.&lt;/p&gt;
+
+&lt;p&gt;The creation of boundaries in our system allows us to group together things that change at the same rate and for the same reasons, while separating things that change at different rates and for different reasons. This is a manifestation of the Single Responsibility Principle (from the &lt;a href=&quot;/2019/04/13/SOLID-principles/&quot;&gt;SOLID principles&lt;/a&gt;), but this time at the architectural level. We can use boundaries to separate high level policy (the main business logic of our application) from low-level details like the communication with the user and other systems. We could also separate different functional parts of the application so they can be changed independently. Boundaries can also allow different parts of the system to be developed by different teams while keeping the required amount of coordination between teams manageable.&lt;/p&gt;
+
+&lt;p&gt;Boundaries also allow you to delay decisions until the last possible moment. As an example, you could potentially build all of the business logic without connecting to a database, simply writing code against some persistence interfaces describing what kind of data you will need to store and retrieve, and thus delay the decision of which kind of database to use. If you need some kind of persistence to get a working system, for example so you are able to show progress to management and gather valuable feedback from users, you could foresee dummy implementations of those persistence interfaces using in-memory storage or you could use a simple database which may not be robust or scalable enough for production. Then, when the time comes to really decide on a database, you already know a lot more about the system and its persistence needs. And, if you keep the clear separation you created between business logic and persistence, you can still change your decision afterwards without creating a significant impact on the business logic. Boundaries allow you to keep options open.&lt;/p&gt;
+
+&lt;p&gt;The flexibility created by boundaries is important. For almost every software system, change is inevitable. During initial development, we typically already see a lot of changes in requirements. And once the system is in production, the requirements keep evolving, which means that the system needs to keep evolving as well. This means that it’s very important for our system to allow changes. This flexibility, the ability to change, is essentially what makes software soft.&lt;/p&gt;
+
+&lt;h2 id=&quot;different-kinds-of-boundaries&quot;&gt;Different kinds of boundaries&lt;/h2&gt;
+
+&lt;h3 id=&quot;horizontal-versus-vertical-separation&quot;&gt;Horizontal versus vertical separation&lt;/h3&gt;
+
+&lt;p&gt;When looking at different kinds of boundaries, we can start by comparing boundaries creating horizontal or vertical separation.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Horizontal slicing&lt;/em&gt; creates boundaries between different technical areas of the system. This can result in a layer for the API, a layer the business logic and a layer for communicating with the database. Horizontal boundaries can help in organizing a system’s source code. However, if the boundaries between different parts of the system are also boundaries between different teams, horizontal slicing is often not the best option. Adding or changing features often requires changes in multiple layers of the technical stack. If these different layers are managed by different teams, even something as simple as adding a single field could require coordination between several teams, increasing the complexity of the development process.&lt;/p&gt;
+
+&lt;p&gt;On the other hand, &lt;em&gt;vertical slicing&lt;/em&gt; creates boundaries between different functional areas of the system. For instance, functionality for managing customers can be separated from functionality for placing orders. One particular example of vertical slicing is the microservices approach, where different small teams each maintain one or more microservices that encapsulate a certain functional area across several layers of the technical stack, even down to the database. This means that changes within a single functional domain can happen within a single team and coordination with other teams is only required if the communication with other functional domains needs changes as well.&lt;/p&gt;
+
+&lt;p&gt;As said before, boundaries are useful for scaling teams, allowing the system to be developed by several small teams with efficient internal communication rather than one single huge team with a lot of internal coordination overhead. An interesting idea regarding the division into teams is &lt;em&gt;Conway’s Law&lt;/em&gt;. This “law” states that an organization designing a system will almost inevitably design a system with a structure that matches the organization’s communication structure. It also makes sense to design it that way: if changes within a single part of the system can happen within a single team, it’s way easier to plan and execute these changes. The idea behind Conway’s Law also means that, if there is a mismatch between the team structure within your organization and the architecture of the application you’re working on, building the application is likely to be a struggle. You can use Conway’s Law to your advantage by structuring your application (and thus your teams) in such a way that changes to the system are pretty likely to be confined to a single part of the application. In practice, it seems that vertical slicing is typically the best way to do that.&lt;/p&gt;
+
+&lt;h3 id=&quot;separation-mechanisms&quot;&gt;Separation mechanisms&lt;/h3&gt;
+
+&lt;p&gt;Boundaries separate different parts of the system. There are several ways to perform this separation, each with their own benefits and drawbacks:&lt;/p&gt;
+
+&lt;h4 id=&quot;source-level-boundaries&quot;&gt;Source-level boundaries&lt;/h4&gt;
+
+&lt;p&gt;The lowest-level boundaries sit at the level of the source code. They use mechanism offered by the programming language (classes, interfaces, packages, modules, …) to allow different parts of the system to talk to each other without having to know anything about each other. Communication across source-level boundaries happens through simple method calls, which means we don’t have to worry too much about the amount of communication passing the boundaries.&lt;/p&gt;
+
+&lt;p&gt;Source-level boundaries are not visible at deployment time, but they are still important. When set up correctly, they can still help to isolate different parts of the system from each other in order to facilitate independent development by multiple persons or teams. For monolith systems, these are the only boundaries in the system.&lt;/p&gt;
+
+&lt;h4 id=&quot;dynamically-linked-deployable-components&quot;&gt;Dynamically-linked deployable components&lt;/h4&gt;
+
+&lt;p&gt;Here, the parts separated by the boundaries are separately developable and deployable components. An example of these are DLL or JAR files. They are deployed independently, but they still run in the same address space. This also means that communication can still happen through simple and efficient method calls.&lt;/p&gt;
+
+&lt;p&gt;When different components are developed independently from each other, it is typically necessary to set up some kind of versioning and release management system that allows developers depending on a component to decide if and when to upgrade to its next version. Dependencies between components also need to be managed carefully in order to prevent dependency cycles. Again, the Dependency Inversion Principle can be used to control the direction of dependencies between components.&lt;/p&gt;
+
+&lt;h4 id=&quot;local-processes&quot;&gt;Local processes&lt;/h4&gt;
+
+&lt;p&gt;Separate parts deployed as local processes still live on the same machine, but they do not share the same address space (although there may be some memory sharing involved). If the processes are not communicating through shared memory, they can use sockets or potentially some OS-specific ways of interprocess communication. The context switching between processes (and potential marshalling and unmarshalling) means that the communication between processes has more overhead than just simple method calls. Where possible, unnecessary back-and-forth should be avoided.&lt;/p&gt;
+
+&lt;h4 id=&quot;services&quot;&gt;Services&lt;/h4&gt;
+
+&lt;p&gt;Services, for example in a microservices architecture, form the strongest, highest-level boundary. Different services are assumed to live on different machines and communicate only over the network. This also means that communication between services is expensive from a performance point of view.&lt;/p&gt;
+
+&lt;p&gt;When working with services, each of those services is typically developed and operated by a separate team that takes ownership of he service, including its tech stack and data. Sharing of a database between services is generally considered bad practice, because it prevents services from independently making changes to their database structure (or independently choosing the database technology which makes the most sense for the service). When a service links to data from another service, it will likely store its own snapshot of that data rather than referring to it. All of this means that changes to a service, except for its communication with other services, do not have any effect on other services. This gives the team maintaining a service a lot if freedom and flexibility.&lt;/p&gt;
+
+&lt;p&gt;While services provide a lot of decoupling, they do not magically get rid of all possible coupling. The fact that services communicate with each other means that services will still depend on each other to some extent. If your service needs customer data, there are scenarios where a change to the Customer service could impact you. As always, these dependencies should be carefully managed.&lt;/p&gt;
+
+&lt;h3 id=&quot;combining-different-kinds-of-boundaries&quot;&gt;Combining different kinds of boundaries&lt;/h3&gt;
+
+&lt;p&gt;There is no need to choose only one kind of boundary. Different kinds of boundaries can be useful at different levels of your architecture.&lt;/p&gt;
+
+&lt;p&gt;For example, you could have a set of microservices which you have obtained using vertical slicing. However, each of those microservices could have a layered architecture using horizontal slicing to separate different technical parts, either through source-level boundaries or as separately deployable components.&lt;/p&gt;
+
+&lt;h2 id=&quot;boundaries-come-at-a-cost&quot;&gt;Boundaries come at a cost&lt;/h2&gt;
+
+&lt;p&gt;While boundaries in your system have important benefits, these benefits do not come for free. Boundaries can have some performance impact, but the most costly impact is their impact on development effort. While boundaries can help with productivity by providing flexibility and independence, they also need to be developed and maintained and their decoupling mechanisms can increase the complexity of the system as a whole. As is often the case in software development, “it depends” and you have to make a tradeoff between the benefits and costs of each boundary instead of just blindly introducing boundaries and abstraction everywhere.&lt;/p&gt;
+
+&lt;p&gt;If you have five teams working on a system, they will likely benefit from having five clearly separated parts with stable interfaces connecting them. The same architecture could be harmful to productivity if there is only a single small team working on the system. The experience and knowledge of different team members also plays a part. When in doubt, keep it simple. If there is no clear need for a boundary, it is likely that adding the boundary would be a case of over-engineering. There are already plenty of horror stories about systems with so many layers of abstraction that it is almost impossible to figure out where certain logic sits in the codebase or where a certain new feature should be implemented. This is not an indication of good architecture.&lt;/p&gt;
+
+&lt;h2 id=&quot;evolving-boundaries&quot;&gt;Evolving boundaries&lt;/h2&gt;
+
+&lt;p&gt;Boundaries are expensive. Introducing a new boundary which was not there before is typically also expensive. This means that deciding about the initial boundaries in the system requires careful consideration. Even then, it is impossible to know everything beforehand when building a system. For example, the context and requirements for the system are likely to change throughout its lifetime. This means that the architecture of the system and the boundaries defining it will need to evolve along with the system itself.&lt;/p&gt;
+
+&lt;p&gt;One thing that may have to change is the location of the boundaries. It’s possible that, as the system and the team grows, additional boundaries are needed to be able to maintain productivity. On the other hand, the cost of maintaining certain boundaries may no longer outweigh the benefits they bring.&lt;/p&gt;
+
+&lt;p&gt;The separation mechanism used by a boundary may have to change as well. An application could start as a monolith with some well-placed source-level boundaries, but over time it could make sense to start breaking up different parts into separate components or even separate services. Ideally, a boundary should allow you to move to a higher (or lower) level of separation without the majority of the code having to know anything about the change.&lt;/p&gt;
+
+&lt;p&gt;A good architect will keep on watching the system for signs of parts that need additional separation or boundaries that have become less relevant. They will then make the necessary adjustments, taking into account both the benefits and costs associated with changing boundaries. This way, the architecture of the system will keep on evolving to suit the needs of the system and team.&lt;/p&gt;
+
+&lt;h2 id=&quot;resources&quot;&gt;Resources&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Clean Architecture (book by Robert C. Martin)&lt;/li&gt;
+  &lt;li&gt;Building Evoluationary Architectures (book by Neal Ford, Rebecca Parsons and Patrick Kua) (&lt;a href=&quot;https://www.slideshare.net/thekua/building-evolutionary-architectures&quot;&gt;summary slides&lt;/a&gt;)&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.ianbicking.org/blog/2015/08/conways-corollary.html&quot;&gt;Conway’s Corollary&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Maarten Michiels</name></author><category term="software-architecture" /><summary type="html">This post covers some general ideas on software architecture, with a specific focus on the boundaries between different parts of the system.</summary></entry><entry><title type="html">SOLID principles</title><link href="https://convincedcoder.com/2019/04/13/SOLID-principles/" rel="alternate" type="text/html" title="SOLID principles" /><published>2019-04-13T00:00:00+02:00</published><updated>2019-04-13T00:00:00+02:00</updated><id>https://convincedcoder.com/2019/04/13/SOLID-principles</id><content type="html" xml:base="https://convincedcoder.com/2019/04/13/SOLID-principles/">&lt;p&gt;The SOLID principles are five software design principles that aim to make the code more clear, offer more flexibility and help with maintainability. Although they were originally aimed at object-oriented design, more specifically the design of classes, the general ideas behind most of them are universal and can also be applied to other paradigms like functional programming.&lt;/p&gt;
+
+&lt;h2 id=&quot;single-responsibility-principle&quot;&gt;Single responsibility principle&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;A class should have only one reason to change&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This principle essentially means that each class (or module, or function, or …) should be responsible for a single well-defined part of the functionality of the program, and that part of the functionality should be completely encapsulated within the class (or module, or function, or …). The basic idea behind the principle is closely related to the concept of “separation of concerns”. Each part of the software should do one well-defined thing. This idea applies practically everywhere in software development.&lt;/p&gt;
+
+&lt;p&gt;A classic example of the single responsibility principle is creating and outputting a financial report. Let’s say we first have an implementation which mixes the code for generating the contents of the report and the code that determines what the report will look like. This is a violation of the single responsibility principle.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2019-04-13-SOLID-principles/SRP-before.png&quot; alt=&quot;SRP before&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Here, there is a single method &lt;code class=&quot;highlighter-rouge&quot;&gt;getReportHtml&lt;/code&gt; that determines both the contents of the report (what data to include) and the look of the report (colors, alignment, margins, …). This means that the class needs to change if the data to include in a report changes, but it also needs to change if the report needs to look different visually. And, depending on the extent to which the code for the class’ two responsibilities is intertwined, performing changes related to one responsibility could easily break the class’ behavior with regards to the other responsibility.&lt;/p&gt;
+
+&lt;p&gt;Now, let’s have a look at a version where the two responsibilities are separated.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2019-04-13-SOLID-principles/SRP-after.png&quot; alt=&quot;SRP after&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In this version, we have one class that is responsible for determining the actual data that will be shown on the report, while another class is responsible for actually formatting that data as HTML.&lt;/p&gt;
+
+&lt;p&gt;Separating the responsibilities into classes encapsulating them has a number of benefits:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;When you need to change something, either the data to include on a report or the way it is formatted, you immediately know where to go.&lt;/li&gt;
+  &lt;li&gt;There is no chance of unintentionally messing with the formatting code when you are making changes to the data to include, and vice versa.&lt;/li&gt;
+  &lt;li&gt;Separating responsibilities into separate classes helps us to apply some of the other principles, as we will see later on.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;openclosed-principle&quot;&gt;Open–closed principle&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Classes should be open to extension and closed to modification&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This principle basically states that we should allow for extending the behavior of a part of the software (class, module, function, …) without having to touch the source code that part. One way to do this is inheritance. We could take a base class, extend it, and then override some of its behavior, potentially referring to the original implementation where appropriate. We could extend concrete classes, but we could also have abstract classes (with some abstract methods) which are specifically designed to allow subclasses to determine how certain things should happen. Even more abstract than abstract classes are interfaces; we can use those as well to allow us to change the behavior of a part of the system while minimizing the amount of existing code we need to change.&lt;/p&gt;
+
+&lt;p&gt;For example, we could make &lt;code class=&quot;highlighter-rouge&quot;&gt;FinancialReportFormatter&lt;/code&gt; an abstract class or even an interface and then provide a concrete class &lt;code class=&quot;highlighter-rouge&quot;&gt;FinancialReportHtmlFormatter&lt;/code&gt; that that formats the report as HTML.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2019-04-13-SOLID-principles/OCP-before-adding-functionality.png&quot; alt=&quot;OCP before adding functionality&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Using this setup, it is easy to add the capability for generating reports in PDF, in black and white, with page numbers, etc. We just need to create a new implementation for the &lt;code class=&quot;highlighter-rouge&quot;&gt;FinancialReportFormatter&lt;/code&gt; interface that takes care of this. There is no need for changing any existing code in the classes in our diagram.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2019-04-13-SOLID-principles/OCP-after-adding-functionality.png&quot; alt=&quot;OCP after adding functionality&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Note that “plain” inheritance, extending a base class and then overriding some of its methods as needed, is not always feasible. For example, it is possible that the class forbids subclassing (e.g. by making it &lt;code class=&quot;highlighter-rouge&quot;&gt;final&lt;/code&gt; in Java). In that case, delegation can be the answer. If the public interface of the class you want to extend is abstracted into an interface, then you can create a new class implementing that interface. That new class can then hold a reference to a “base object” of the class you wanted to extend, delegating to that base object where needed.&lt;/p&gt;
+
+&lt;p&gt;Delegation can also be useful if you don’t have control over instantiation. Let’s say you have a class that you want to extend. The class allows subclassing, but your problem is that the objects necessary to instantiate the class are encapsulated in some subsystem. You can request instances of the class from that subsystem, but there is no way to make the subsystem create instances of your own subclass directly. What you can do in this case is to create instances of your subclass that delegate to instances of the base class that you obtain from the subsystem.&lt;/p&gt;
+
+&lt;h2 id=&quot;liskov-substitution-principle&quot;&gt;Liskov substitution principle&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;An instance of a class can be substituted with an instance of any of its subclasses&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Or, in other words: code that expects to get an object of a certain class A shouldn’t need to care if it receives an instance of a subclass B of A instead.&lt;/p&gt;
+
+&lt;p&gt;A well-known example of a violation of this principle is the square/rectangle problem.&lt;/p&gt;
+
+&lt;p&gt;Let’s say we have a class &lt;code class=&quot;highlighter-rouge&quot;&gt;Rectangle&lt;/code&gt; with methods &lt;code class=&quot;highlighter-rouge&quot;&gt;setHeight()&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;setWidth()&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;getArea()&lt;/code&gt;. Now, we want to to have a class &lt;code class=&quot;highlighter-rouge&quot;&gt;Square&lt;/code&gt; as well. Since math tells us that every square is also a rectangle, we decide to make &lt;code class=&quot;highlighter-rouge&quot;&gt;Square&lt;/code&gt; inherit from &lt;code class=&quot;highlighter-rouge&quot;&gt;Rectangle&lt;/code&gt;. We then override the &lt;code class=&quot;highlighter-rouge&quot;&gt;setHeight()&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;setWidth()&lt;/code&gt; methods so they each set both the height and the width (otherwise, our square wouldn’t be a square!).&lt;/p&gt;
+
+&lt;p&gt;This becomes problematic if we have code like this:&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;Rectangle&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rect&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;codeThatActuallyReturnsASquare&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;rect&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setHeight&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;rect&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setWidth&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;assert&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rect&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getArea&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This means that we have an issue with our inheritance hierarchy, as the &lt;code class=&quot;highlighter-rouge&quot;&gt;Square&lt;/code&gt; class is not a proper substitute for &lt;code class=&quot;highlighter-rouge&quot;&gt;Rectangle&lt;/code&gt;. An example of an inheritance hierarchy without this problem would be a &lt;code class=&quot;highlighter-rouge&quot;&gt;ColoredRectangle&lt;/code&gt; that inherits from &lt;code class=&quot;highlighter-rouge&quot;&gt;Rectangle&lt;/code&gt; and allows setting and getting the rectangle’s color without influencing the behavior of the other methods. Or, we could have a &lt;code class=&quot;highlighter-rouge&quot;&gt;ReplicatedRectangle&lt;/code&gt; that extends &lt;code class=&quot;highlighter-rouge&quot;&gt;Rectangle&lt;/code&gt;’s methods so they forward any changes in the rectangle’s height and width over the network. As long as the behavior added or changed by the subclass doesn’t break the contract of the superclass, we are fine.&lt;/p&gt;
+
+&lt;h2 id=&quot;interface-segregation-principle&quot;&gt;Interface segregation principle&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Classes should present client-specific interfaces&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This principle is particularly relevant when working with languages that require classes to be recompiled and redeployed if something they depend on changes.&lt;/p&gt;
+
+&lt;p&gt;Let’s assume that we have a class &lt;code class=&quot;highlighter-rouge&quot;&gt;Provider&lt;/code&gt; that has two methods. There are two clients using the class, and each of the clients only uses one of the methods.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2019-04-13-SOLID-principles/ISP-before.png&quot; alt=&quot;ISP before&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now, what happens if I rename the second method (which is only relevant to &lt;code class=&quot;highlighter-rouge&quot;&gt;Client2&lt;/code&gt;)? If I am working in a language that requires classes to be recompiled and redeployed if something they depend on changes, I need to recompile and redeploy &lt;code class=&quot;highlighter-rouge&quot;&gt;Client1&lt;/code&gt; as well, even though nothing relevant to &lt;code class=&quot;highlighter-rouge&quot;&gt;Client1&lt;/code&gt; has changed.&lt;/p&gt;
+
+&lt;p&gt;We can prevent that by making &lt;code class=&quot;highlighter-rouge&quot;&gt;Provider&lt;/code&gt; implement two interfaces, each relevant to a particular client.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2019-04-13-SOLID-principles/ISP-after.png&quot; alt=&quot;ISP after&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;An alternative, more general formulation of the interface segregation principle would be “avoid depending on things you don’t need”. Importing a huge flexible third-party library could be suboptimal if all you’ll be using it for is some very small part of its functionality. For example, you may have to wait longer for bugfixes in the part you use because corresponding changes need to be made in other parts as wel. Careful consideration becomes even more important when the dependency you are considering also has dependencies of its own. People using Node.js may be familiar with the situation where you need to update a module you use because of a vulnerability discovered in some module that it indirectly depends on, three levels down the dependency chain, for some functionality you don’t care about.&lt;/p&gt;
+
+&lt;h2 id=&quot;dependency-inversion-principle&quot;&gt;Dependency inversion principle&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;High-level modules should not depend on low-level modules. Both should depend on abstractions.&lt;/p&gt;
+
+  &lt;p&gt;Abstractions should not depend on details. Details should depend on abstractions.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;A more relaxed formulation would be this:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Specific parts of your system should depend on general parts, not the other way around.&lt;/li&gt;
+  &lt;li&gt;Abstraction can be used as a technique to reverse the direction of dependencies if needed.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;As an example, let’s go back to our financial report again. Let’s say we split out the logic for generating the data for the report and the logic for formatting it into HTML.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2019-04-13-SOLID-principles/DIP-before.png&quot; alt=&quot;DIP before&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;While there is a clear separation of responsibilities, we see that &lt;code class=&quot;highlighter-rouge&quot;&gt;FinancialReportGenerator&lt;/code&gt; (a general class which we could consider part of the application’s business logic) depends on &lt;code class=&quot;highlighter-rouge&quot;&gt;FinancialReportHtmlFormatter&lt;/code&gt; (a specific class formatting the report in a specific format). In order to turn this around, we can introduce the &lt;code class=&quot;highlighter-rouge&quot;&gt;FinancialReportFormatter&lt;/code&gt; abstraction which we also saw in the section on the open-closed principle.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2019-04-13-SOLID-principles/DIP-after.png&quot; alt=&quot;DIP after&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now, &lt;code class=&quot;highlighter-rouge&quot;&gt;FinancialReportGenerator&lt;/code&gt; depends on an abstraction (which could be considered part of the business logic), and specific formatters depend on that abstraction. By doing this, we have reversed the direction of dependency across the boundary between business logic and presentation. While the flow of control stays the same (the business logic will invoke a specific formatter), the dependency points in the other direction.&lt;/p&gt;
+
+&lt;p&gt;Note that the same abstraction mechanism has now also allowed us to easily extend our program with different formats (see open-closed principle).&lt;/p&gt;
+
+&lt;p&gt;Because we don’t want the general &lt;code class=&quot;highlighter-rouge&quot;&gt;FinancialReportGenerator&lt;/code&gt; to depend on specific formatter classes, we also don’t allow &lt;code class=&quot;highlighter-rouge&quot;&gt;FinancialReportGenerator&lt;/code&gt; to instantiate these classes. Instead, we can use dependency injection to pass a specific formatter instance to &lt;code class=&quot;highlighter-rouge&quot;&gt;FinancialReportGenerator&lt;/code&gt;, while &lt;code class=&quot;highlighter-rouge&quot;&gt;FinancialReportGenerator&lt;/code&gt; itself doesn’t have to care which specific class it receives an instance of (Liskov substitution principle!). In cases where instantiation of specific classes needs to be triggered by the general class, we could instead pass a factory object to the general class. The general class depends on a general interface or abstract class describing what such a factory object looks like, while the specific factory object that the general class receives determines the exact type of specific classes that will be created.&lt;/p&gt;
+
+&lt;p&gt;Finally, let’s have a look at the the Observer pattern. The Observer pattern allows general classes to trigger methods on specific classes by letting the specific classes subscribe to the general class. When using this pattern, the general class does not know about the specific classes. All it knows about is an &lt;code class=&quot;highlighter-rouge&quot;&gt;Observer&lt;/code&gt; interface that the specific classes implement. In essence, this is just another manifestation of the dependency inversion principle.&lt;/p&gt;
+
+&lt;h2 id=&quot;resources&quot;&gt;Resources&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/SOLID&quot;&gt;SOLID&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Single_responsibility_principle&quot;&gt;Single responsibility principle&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Separation_of_concerns&quot;&gt;Separation of concerns&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Open%E2%80%93closed_principle&quot;&gt;Open–closed principle&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Liskov_substitution_principle&quot;&gt;Liskov substitution principle&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Interface_segregation_principle&quot;&gt;Interface segregation principle&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Dependency_inversion_principle&quot;&gt;Dependency inversion principle&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Clean Architecture (book by Robert C. Martin)&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://codemanship.wordpress.com/2019/03/15/functional-s-o-l-i-d-explained-in-5-examples/&quot;&gt;Functional S.O.L.I.D. Explained In 5 Examples&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Observer_pattern&quot;&gt;Observer pattern&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Maarten Michiels</name></author><category term="software-design" /><summary type="html">The SOLID principles are five software design principles that aim to make the code more clear, offer more flexibility and help with maintainability. Although they were originally aimed at object-oriented design, more specifically the design of classes, the general ideas behind most of them are universal and can also be applied to other paradigms like functional programming.</summary></entry><entry><title type="html">Hammock-driven development</title><link href="https://convincedcoder.com/2019/03/30/Hammock-driven-development/" rel="alternate" type="text/html" title="Hammock-driven development" /><published>2019-03-30T00:00:00+01:00</published><updated>2019-03-30T00:00:00+01:00</updated><id>https://convincedcoder.com/2019/03/30/Hammock-driven-development</id><content type="html" xml:base="https://convincedcoder.com/2019/03/30/Hammock-driven-development/">&lt;p&gt;Sometimes, the best thing you can do for your code is to stop thinking about it - at least consciously.&lt;/p&gt;
 
 &lt;h2 id=&quot;programming-creativity-and-the-hammock&quot;&gt;Programming, creativity and the hammock&lt;/h2&gt;
 
@@ -854,7 +1205,7 @@
 &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;recursivelyPrintVariableDeclarations&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
     &lt;span class=&quot;nx&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sourceFile&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;SourceFile&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;kind&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;SyntaxKind&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;VariableDeclaration&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;isVariableDeclaration&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
         &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;nodeText&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sourceFile&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
         &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;type&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;typeChecker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getTypeAtLocation&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
         &lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;typeName&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;typeChecker&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;typeToString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
@@ -925,6 +1276,51 @@
 &lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
 
 &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// const testVar: string = &quot;test&quot;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The TypeScript compiler API also allows you to define transformers that walk the AST and replace nodes by new ones as needed. The following code finds all identifiers in the &lt;code class=&quot;highlighter-rouge&quot;&gt;SourceFile&lt;/code&gt; and adds a suffix &lt;code class=&quot;highlighter-rouge&quot;&gt;suffix&lt;/code&gt; to them.&lt;/p&gt;
+
+&lt;div class=&quot;language-typescript highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;typescript&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;filename&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;test.ts&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;code&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;`const test: number = 1 + 2;`&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;sourceFile&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;createSourceFile&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;filename&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;code&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ScriptTarget&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Latest&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;transformerFactory&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;TransformerFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Node&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;TransformationContext&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;rootNode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;visit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Node&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;nx&quot;&gt;node&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;visitEachChild&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;visit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;isIdentifier&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;createIdentifier&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;suffix&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;visitNode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;rootNode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;visit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;transformationResult&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;transform&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;sourceFile&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;transformerFactory&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;transformedSourceFile&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;transformationResult&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;transformed&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;printer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;createPrinter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;printer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;printNode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;ts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;EmitHint&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Unspecified&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;transformedSourceFile&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;kc&quot;&gt;undefined&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// const testsuffix: number = 1 + 2;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;h2 id=&quot;resources&quot;&gt;Resources&lt;/h2&gt;
@@ -1116,550 +1512,4 @@
 
 &lt;p&gt;Note that class-validator needs actual class instances to work on. Here, we used its sister library class-transformer to transform our plain input into an actual &lt;code class=&quot;highlighter-rouge&quot;&gt;Person&lt;/code&gt; instance. That transformation in itself does not perform any kind of type checking.&lt;/p&gt;
 
-&lt;p&gt;This approach works well with classes, but setting up classes with the decorators that class-validator needs and converting the objects you receive to instances of those classes can feel like overkill if all you need to check is a simple interface. You may want to consider other approaches, like for example the one using io-ts.&lt;/p&gt;</content><author><name>Maarten Michiels</name></author><category term="typescript" /><category term="javascript" /><summary type="html">This post will discuss some possibilities for adding runtime type checking to TypeScript applications.</summary></entry><entry><title type="html">Lambda expressions in Java</title><link href="https://convincedcoder.com/2019/01/05/Lambda-expressions-Java/" rel="alternate" type="text/html" title="Lambda expressions in Java" /><published>2019-01-05T00:00:00+01:00</published><updated>2019-01-05T00:00:00+01:00</updated><id>https://convincedcoder.com/2019/01/05/Lambda-expressions-Java</id><content type="html" xml:base="https://convincedcoder.com/2019/01/05/Lambda-expressions-Java/">&lt;p&gt;In this post, we cover the lambda expressions which were added to the Java language in version 8.&lt;/p&gt;
-
-&lt;h2 id=&quot;lambda-expressions&quot;&gt;Lambda expressions?&lt;/h2&gt;
-
-&lt;p&gt;Before diving into the specifics of lambda expressions in Java, it’s probably not a bad idea to have a look at lambda expressions. What exactly is such a lambda expression?&lt;/p&gt;
-
-&lt;p&gt;A &lt;em&gt;lambda expression&lt;/em&gt; is a general concept in programming that is a synonym for &lt;em&gt;anonymous function&lt;/em&gt;. This indicates a function (a piece of code that accepts input, does something with it and potentially returns a result) that is not explicitly named. These anonymous functions are very useful for passing them around to be used as input for other functions that operate on functions. For example, let’s say we have an anonymous function comparing two strings and returning a number indicating their relative order. You could then pass that as input to another function that sorts a list of strings according the order specified by the anonymous function.&lt;/p&gt;
-
-&lt;p&gt;Anonymous functions were first described in a paper by Alonzo Church, written in 1936, before electronic computers even existed. In that paper, the parameters for the anonymous systems were marked using the letter λ (lambda). He picked this letter because the classic work &lt;em&gt;Principia Mathematica&lt;/em&gt;, a very important work in the field of mathematics released about 20 years earlier, used the ^ accent to mark function parameters, which kind of looked like an uppercase lambda (Λ).&lt;/p&gt;
-
-&lt;h2 id=&quot;how-java-supports-lambda-expressions&quot;&gt;How Java supports lambda expressions&lt;/h2&gt;
-
-&lt;p&gt;Instead of diving deeper into the history of computer programming, let’s fast-forward to modern Java and the way it supports the use of lambda expressions since version 8.&lt;/p&gt;
-
-&lt;p&gt;Let’s have a first look at lambda expressions with a simple example.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;second&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;second&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;As you can see, it simply consist of some code to execute (the body of the expression), together with the input parameters. You don’t need to specify the return type of the body: Java automatically infers it. If the body doesn’t fit on one line, simply create a block for it.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;second&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;second&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;second&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;The lambda expression we just described take two Strings as parameters and return an integer. This means that they conform to the &lt;code class=&quot;highlighter-rouge&quot;&gt;Comparator&amp;lt;String&amp;gt;&lt;/code&gt; interface. By specifying this, Java can infer the types of the parameters and you don’t need to specify them explicitly anymore.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;compareStrings&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Comparator&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;comp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;comp&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;compare&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;string1&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;string2&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;compareStrings&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;second&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;second&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;If there is only a single argument with an inferred type, we can even omit the parentheses around that argument.&lt;/p&gt;
-
-&lt;h2 id=&quot;functional-interfaces&quot;&gt;Functional interfaces&lt;/h2&gt;
-
-&lt;p&gt;In the last example, we really saw lambda expressions in action: we have a &lt;code class=&quot;highlighter-rouge&quot;&gt;compareStrings&lt;/code&gt;
-function taking a &lt;code class=&quot;highlighter-rouge&quot;&gt;Comparator&amp;lt;String&amp;gt;&lt;/code&gt; and we invoke it by passing an anonymous function conforming to that interface. We cannot do this for just any interface. The special thing about the &lt;code class=&quot;highlighter-rouge&quot;&gt;Comparator&amp;lt;String&amp;gt;&lt;/code&gt; interface is that it has a single abstract method (&lt;code class=&quot;highlighter-rouge&quot;&gt;compare&lt;/code&gt; in this case). Such an interface is called a &lt;em&gt;functional interface&lt;/em&gt;. Whenever a piece of code needs an object conforming to a functional interface, you can pass a lambda expression implementing the single abstract method of that interface.&lt;/p&gt;
-
-&lt;p&gt;With the introduction of lambda expressions, Java also supplied a collection of new predefined functional interfaces in the &lt;a href=&quot;https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html&quot;&gt;java.util.function&lt;/a&gt; package. These are some general interfaces specifically intended to describe common signatures for lambda expressions. The interfaces use the &lt;code class=&quot;highlighter-rouge&quot;&gt;@FunctionalInterface&lt;/code&gt; annotation to indicate that they are indeed functional interfaces.&lt;/p&gt;
-
-&lt;p&gt;An example of such an interface is the &lt;code class=&quot;highlighter-rouge&quot;&gt;Predicate&amp;lt;T&amp;gt;&lt;/code&gt; interface, which takes an object of type &lt;code class=&quot;highlighter-rouge&quot;&gt;T&lt;/code&gt; and returns a boolean value. Because it is a functional interface, it has a single abstract method. However, like several other functional interfaces, it has some (static or non-static) non-abstract methods intended for creating and combining functions. For example, if we have two &lt;code class=&quot;highlighter-rouge&quot;&gt;Predicate&lt;/code&gt; instances &lt;code class=&quot;highlighter-rouge&quot;&gt;predicate1&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;predicate2&lt;/code&gt;, we can combine them into a new &lt;code class=&quot;highlighter-rouge&quot;&gt;Predicate&lt;/code&gt; as &lt;code class=&quot;highlighter-rouge&quot;&gt;predicate1.and(predicate2)&lt;/code&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;Predicate&lt;/code&gt; interface also offers a static factory method &lt;code class=&quot;highlighter-rouge&quot;&gt;isEqual(other)&lt;/code&gt; which returning a &lt;code class=&quot;highlighter-rouge&quot;&gt;Predicate&lt;/code&gt; that compares its parameter to the &lt;code class=&quot;highlighter-rouge&quot;&gt;other&lt;/code&gt; object using its &lt;code class=&quot;highlighter-rouge&quot;&gt;equals&lt;/code&gt; method (but doesn’t throw a &lt;code class=&quot;highlighter-rouge&quot;&gt;NullPointerException&lt;/code&gt; if &lt;code class=&quot;highlighter-rouge&quot;&gt;other&lt;/code&gt; is null).&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;Predicate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;testPred&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Predicate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;isEqual&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;testPred&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;test&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// false&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;testPred&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// true&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;There are also several other interfaces in the Java standard library which are functional interfaces. Examples are &lt;code class=&quot;highlighter-rouge&quot;&gt;java.util.Comparator&lt;/code&gt;, which we saw above, and &lt;code class=&quot;highlighter-rouge&quot;&gt;java.lang.Runnable&lt;/code&gt;. These specific ones are also marked with &lt;code class=&quot;highlighter-rouge&quot;&gt;@FunctionalInterface&lt;/code&gt;, but note that that is not required to make an interface an actual interface. Any interface with a single abstract method is a functional interface. The only thing the &lt;code class=&quot;highlighter-rouge&quot;&gt;@FunctionalInterface&lt;/code&gt; annotation does is that it makes this explicit (also in generated documentation) and causes the compiler to check if there is indeed only a single abstract method.&lt;/p&gt;
-
-&lt;p&gt;Although it is considered good practice to use existing functional interfaces where possible, you can also define your own functional interfaces. This is mostly useful if you need to accept lambda expressions with some uncommon signature. An example of this is an expression taking two &lt;code class=&quot;highlighter-rouge&quot;&gt;int&lt;/code&gt; values and returning an instance of a custom &lt;code class=&quot;highlighter-rouge&quot;&gt;Color&lt;/code&gt; class. You could in principle use the &lt;code class=&quot;highlighter-rouge&quot;&gt;BiFunction&amp;lt;Integer, Integer, Color&amp;gt;&lt;/code&gt; interface, but you can avoid automatic boxing ad unboxing between &lt;code class=&quot;highlighter-rouge&quot;&gt;int&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;Integer&lt;/code&gt; by specifying your own function interface. Another use case could be an expression taking a String and potentially throwing a checked exception, which should then be declared on the abstract method of the functional interface. If you create a custom functional interface, don’t forget to mark it using the &lt;code class=&quot;highlighter-rouge&quot;&gt;@FunctionalInterface&lt;/code&gt; annotation.&lt;/p&gt;
-
-&lt;h2 id=&quot;lambda-expression-scope&quot;&gt;Lambda expression scope&lt;/h2&gt;
-
-&lt;p&gt;As we already saw, lambda expressions take inputs in the form of parameters. However, a lambda expression’s parameters are not the only way to pass data to it.&lt;/p&gt;
-
-&lt;p&gt;The body of a lambda expression has the same scope as a nested block (say, for example, the block of an if-statement). This means that, inside a lambda expression, you cannot declare a variable with the same name as a variable in the enclosing scope. It also means that, if you use the &lt;code class=&quot;highlighter-rouge&quot;&gt;this&lt;/code&gt; keyword inside a lambda expression, it denotes the &lt;code class=&quot;highlighter-rouge&quot;&gt;this&lt;/code&gt; reference of the method creating the lambda. One consequence is that lambda expressions cannot call default methods of the interface they implement.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
-    &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;instanceVariable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-    
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Predicate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getPredicate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;localVariable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-        
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-            &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;localVariable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// compiler error&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;localVariable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 10&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;instanceVariable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 1&lt;/span&gt;
-            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;localVariable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;o&quot;&gt;};&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;As demonstrated in the above example, lambda expressions allow you to access variables from the enclosing scope (the method creating the lambda expression). This may seem obvious, but something special is going on there. Our lambda expression will be executed when the &lt;code class=&quot;highlighter-rouge&quot;&gt;getPredicate()&lt;/code&gt; method creating it has already completed and the local variables inside that method are gone. How does this work?&lt;/p&gt;
-
-&lt;p&gt;Well, we saw that a lambda expression consists of a block of code and parameters for that block of code. In addition to that, the lambda expression that is passed around also contains values for the &lt;em&gt;free variables&lt;/em&gt; (variables that are not parameters and are not defined inside the lambda expression’s code). When storing a lambda expression in a variable, the object representing the lambda expression also includes the values of these free variables. Such a combination of a block of code together with the values of free variables is called a &lt;em&gt;closure&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;In Java, the capturing of free variables has an important restriction: you can only capture variables that are &lt;em&gt;effectively final&lt;/em&gt;. This means that the variables don’t change; either they are declared &lt;code class=&quot;highlighter-rouge&quot;&gt;final&lt;/code&gt; or they could have been declared &lt;code class=&quot;highlighter-rouge&quot;&gt;final&lt;/code&gt;. This also means that it is not possible to reassign captured variables from the lambda expression.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;localVariable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;predicates&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;localVariable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// compiler error&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// compiler error&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;localVariable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// ok&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;});&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;This restriction on captured variables is specific to Java. For example, closures in JavaScript do allow changing variables in the enclosing code.&lt;/p&gt;
-
-&lt;p&gt;Note that, while you cannot change the values of captured variables, you can still call methods on them if they are objects. It can also be interesting to know that the variable of an enhanced &lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; loop is effectively final because its scope is limited to a singe iteration of the loop.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Integer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;integers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Integer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;processedIntegers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Integer&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;integer:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;integers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;predicates&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;processedIntegers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;integer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;integer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;});&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h2 id=&quot;java-as-a-somewhat-functional-language&quot;&gt;Java as a (somewhat) functional language&lt;/h2&gt;
-
-&lt;p&gt;With the introduction of lambda expressions and functional interfaces, Java gains some capabilities that are typical for functional programming languages.&lt;/p&gt;
-
-&lt;p&gt;Lambda expressions and functional interfaces can be seen as a way to treat functions as first-class objects, allowing to store functions in variables or pass them around to functions.&lt;/p&gt;
-
-&lt;p&gt;This way, Java supports the creation of &lt;em&gt;higher-order functions&lt;/em&gt;, which are methods/functions that process or return other functions (although, in reality, those functions are just objects of classes implementing a functional interface). An example of this would be a static method that accepts a boolean indicating a direction and returns a &lt;code class=&quot;highlighter-rouge&quot;&gt;Comparator&lt;/code&gt; based on the input. We could also have a method that takes a &lt;code class=&quot;highlighter-rouge&quot;&gt;Comparator&lt;/code&gt; and returns a new &lt;code class=&quot;highlighter-rouge&quot;&gt;Comparator&lt;/code&gt; reversing the order of the initial &lt;code class=&quot;highlighter-rouge&quot;&gt;Comparator&lt;/code&gt; (the &lt;code class=&quot;highlighter-rouge&quot;&gt;Comparator&lt;/code&gt; interface actually has a default method &lt;code class=&quot;highlighter-rouge&quot;&gt;reversed()&lt;/code&gt; which reverses the current &lt;code class=&quot;highlighter-rouge&quot;&gt;Comparator&lt;/code&gt;).&lt;/p&gt;
-
-&lt;p&gt;Java now also has a powerful mechanism to pass regular methods around as objects, which is essentially a shorthand for writing lambda expressions invoking the same methods. This is the mechanism of &lt;em&gt;method references&lt;/em&gt;. There are three variations here:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;em&gt;Class::staticMethod&lt;/em&gt;: a reference to a static method of a class&lt;/li&gt;
-  &lt;li&gt;&lt;em&gt;Class::instanceMethod&lt;/em&gt;: a reference to an instance method of a class. The first argument specifies the object on which the instance method is invoked.&lt;/li&gt;
-  &lt;li&gt;&lt;em&gt;object::instanceMethod&lt;/em&gt;: a reference to an instance method of a class which will be invoked an a specific object.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;staticMethod&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;static:&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-    
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;instanceMethod&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;instance:&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// method reference&lt;/span&gt;
-&lt;span class=&quot;nl&quot;&gt;Test:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;staticMethod&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;// equivalent lambda expression&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;input&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;staticMethod&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;c1&quot;&gt;// method reference&lt;/span&gt;
-&lt;span class=&quot;nl&quot;&gt;Test:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;instanceMethod&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;// equivalent lambda expression (2 parameters!)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;instance&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;instance&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;instanceMethod&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;testInstance&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;// method reference&lt;/span&gt;
-&lt;span class=&quot;nl&quot;&gt;testInstance:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;instanceMethod&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;// equivalent lambda expression&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;input&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;testInstance&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;instanceMethod&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;Some more realistic examples:&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;list&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ArrayList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;();&lt;/span&gt;
-        
-&lt;span class=&quot;c1&quot;&gt;// Class::staticMethod&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;removeIf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;Objects:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;isNull&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;// Class::instanceMethod&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;sort&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;String:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;compareToIgnoreCase&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;// object::instanceMethod&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;forEach&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;As another practical example, consider the &lt;code class=&quot;highlighter-rouge&quot;&gt;Comparator.comparing&lt;/code&gt; method. This method takes a method reference that extracts the values to compare. This allows for easy construction of custom &lt;code class=&quot;highlighter-rouge&quot;&gt;Comparator&lt;/code&gt; instances.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;personList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;sort&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Comparator&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;comparing&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;Person:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getLastName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;thenComparing&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;Person:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getFirstName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;There is also a similar mechanism, &lt;em&gt;constructor references&lt;/em&gt;, for passing around constructors. This uses the syntax &lt;em&gt;Class::new&lt;/em&gt;. If there are multiple constructors, the compiler will infer which constructor to use from the context.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Dog&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
-    &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-    
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Max&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// no-argument constructor&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;Supplier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dogSupplier&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;Dog:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-
-&lt;span class=&quot;c1&quot;&gt;// String argument constructor&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;Function&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Dog&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nameToDog&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;Dog:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;You can also use constructor references to construct arrays. In that case, the array size is determined by the single parameter passed to the constructor reference.&lt;/p&gt;
-
-&lt;h2 id=&quot;alternatives-to-lambda-expressions&quot;&gt;Alternatives to lambda expressions&lt;/h2&gt;
-
-&lt;p&gt;Before the introduction of lambda expressions, Java already had a concise way to define a class implementing an interface. The way to do this was to use local or anonymous classes.&lt;/p&gt;
-
-&lt;p&gt;A &lt;em&gt;local class&lt;/em&gt; is a class defined inside a method. A typical use case is if you want to provide an object conforming to an interface and it doesn’t really matter what the implementing class is.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;localVariable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-        
-&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;LengthPredicate&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Predicate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;localVariable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;Predicate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;predicate&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LengthPredicate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;If you use your local class only once, it makes more sense to remove the name and to define it as an &lt;em&gt;anonymous class&lt;/em&gt;.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;localVariable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;        
-
-&lt;span class=&quot;n&quot;&gt;Predicate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;predicate&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Predicate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;localVariable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;};&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;Just like with lambda expressions, the code in local and anonymous classes can access local variables defined in their enclosing scope. Also just like with lambda expressions, this is only allowed if those local variables are effectively final.&lt;/p&gt;
-
-&lt;p&gt;There are, however, some important differences between lambda expressions and local/anonymous classes.&lt;/p&gt;
-
-&lt;p&gt;First of all, you can use local/anonymous classes to implement interfaces with more than one abstract method. You are not restricted to functional interfaces.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;TwoMethodInterface&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;methodA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;methodB&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;TwoMethodInterface&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;twoMethodInterface&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TwoMethodInterface&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;methodA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;methodA&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;methodB&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;methodB&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;};&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;A second difference is that local/anonymous classes actually allow you to define local variables with the same name as local variables in the enclosing scope. This hides the variable in the enclosing scope from the code in the local/anonymous class (this is called &lt;em&gt;shadowing&lt;/em&gt;). Lambda expressions forbid this.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;localVariable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;        
-
-&lt;span class=&quot;n&quot;&gt;Predicate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;predicate&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Predicate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;localVariable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 10&lt;/span&gt;
-        &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;localVariable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;    
-        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;localVariable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 1&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;localVariable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;};&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;Another important thing to note is that local/anonymous classes are actual classes. Unlike lambda expressions, they can define and access their own instance variables. This also means that, if you use the &lt;code class=&quot;highlighter-rouge&quot;&gt;this&lt;/code&gt; keyword in a method of a local/anonymous class, it refers to the instance of the class itself and not to the &lt;code class=&quot;highlighter-rouge&quot;&gt;this&lt;/code&gt; reference of the method creating the local/anonymous class. You can also call default methods on the interface that you are implementing.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;InterfaceA&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;abstract&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-    
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;logCount&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;InterfaceA&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;interfaceA&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;InterfaceA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-    
-    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++;&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;logCount&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;};&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;While this can be useful, it does make it harder to access the &lt;code class=&quot;highlighter-rouge&quot;&gt;this&lt;/code&gt; reference of the enclosing method. However, we can still access that &lt;code class=&quot;highlighter-rouge&quot;&gt;this&lt;/code&gt; reference by using local variables.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
-    &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;instanceVariable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-    
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getInstanceVariable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;instanceVariable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-    
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;c1&quot;&gt;// using method reference&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;IntSupplier&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;supplier&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getInstanceVariable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;c1&quot;&gt;// using a local variable referring to this&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;Test&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;outer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;c1&quot;&gt;// available from Java 10&lt;/span&gt;
-        &lt;span class=&quot;c1&quot;&gt;// also works if this is instance of anonymous class&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;outer2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-        
-        &lt;span class=&quot;n&quot;&gt;InterfaceA&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;interfaceA&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;InterfaceA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;            
-            &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
-            &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-                &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;outerInstanceVariable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;supplier&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getAsInt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-                &lt;span class=&quot;n&quot;&gt;outer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;instanceVariable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++;&lt;/span&gt;
-            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-        &lt;span class=&quot;o&quot;&gt;};&lt;/span&gt;
-        
-        &lt;span class=&quot;n&quot;&gt;interfaceA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h2 id=&quot;functional-interfaces-and-instantiation&quot;&gt;Functional interfaces and instantiation&lt;/h2&gt;
-
-&lt;p&gt;Lambda expressions can be used as the value for variables or parameters that have a functional interface as a type. So, does this mean that lambda expressions violate the rule that interfaces cannot be directly instantiated?&lt;/p&gt;
-
-&lt;p&gt;Well, not quite. When you write a lambda expression, Java uses that to create an instance of some class that implements the relevant functional interface. This is similar to what happens when using an anonymous class. The way these objects and classes are managed depends on the specific Java implementation and can be highly optimized.&lt;/p&gt;
-
-&lt;p&gt;In order to see this in action, let’s use a lambda expression and an anonymous class to fill a variable that has a functional interface as its type.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;Predicate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pred1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;string&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;Predicate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pred2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Predicate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;};&lt;/span&gt;
-
-&lt;span class=&quot;c1&quot;&gt;// class misc.Main$$Lambda$1/834600351&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pred1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt; 
-
-&lt;span class=&quot;c1&quot;&gt;// class misc.Main$4&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pred2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h2 id=&quot;resources&quot;&gt;Resources&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Core Java SE 9 for the Impatient (book by Cay S. Horstmann)&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Anonymous_function&quot;&gt;Anonymous function&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html&quot;&gt;Package java.util.function&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://stackoverflow.com/questions/42942351/do-you-have-a-list-of-java-8-functional-interfaces-not-the-ones-listed-in-java&quot;&gt;Java 8 Functional interfaces (not the ones listed in java.util.function)&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://stackoverflow.com/questions/22637900/java8-lambdas-vs-anonymous-classes&quot;&gt;Java 8 Lambdas vs Anonymous classes&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://stackoverflow.com/questions/53211917/access-method-of-outer-anonymous-class-from-inner-anonymous-class&quot;&gt;Access method of outer anonymous class from inner anonymous class&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Maarten Michiels</name></author><category term="java" /><summary type="html">In this post, we cover the lambda expressions which were added to the Java language in version 8.</summary></entry><entry><title type="html">Modern Java interfaces</title><link href="https://convincedcoder.com/2018/12/29/Modern-Java-interfaces/" rel="alternate" type="text/html" title="Modern Java interfaces" /><published>2018-12-29T00:00:00+01:00</published><updated>2018-12-29T00:00:00+01:00</updated><id>https://convincedcoder.com/2018/12/29/Modern-Java-interfaces</id><content type="html" xml:base="https://convincedcoder.com/2018/12/29/Modern-Java-interfaces/">&lt;p&gt;This post is a review of interfaces in Java, including modern interfaces in Java 8 and later.&lt;/p&gt;
-
-&lt;h2 id=&quot;the-idea-behind-interfaces&quot;&gt;The idea behind interfaces&lt;/h2&gt;
-
-&lt;p&gt;Interfaces have been around since the first version of Java. The main idea behind interfaces is that they are a way to specify the contract between supplier(s) of certain functionality and client code which uses that functionality.&lt;/p&gt;
-
-&lt;p&gt;The most common use case for interfaces is to define an interface declaring one or more abstract methods (without implementation). There may be several classes actually implementing the interface (and specifying concrete implementations for the methods). Client code can then require an object that conforms to a certain interface, without having to care about which implementing class the object is an instance of.&lt;/p&gt;
-
-&lt;p&gt;Initially, Java interfaces could only contain two kinds of members: public static constants and public abstract methods.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Interface&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;CONSTANT&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;    
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;abstract&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;In version 2, it became possible to include nested classes and interfaces as well (although this is often not considered good practice). Java 5 introduced generics and the new enum an annotation types. This meant that interfaces could then also be parameterized with type parameters and that they could contain nested enums and annotations.&lt;/p&gt;
-
-&lt;p&gt;If we forget about nested classes, interfaces, enums and annotations for a moment (they are not used very often anyway), not much had changed since the first version. Interfaces were still all about declaring public static constants and public abstract methods. This all changed in Java 8 and later versions.&lt;/p&gt;
-
-&lt;h2 id=&quot;interfaces-in-modern-java&quot;&gt;Interfaces in modern Java&lt;/h2&gt;
-
-&lt;p&gt;Java 8 introduced streams. This means that, starting from Java 8, every class implementing the &lt;code class=&quot;highlighter-rouge&quot;&gt;Collection&lt;/code&gt; interface now has a &lt;code class=&quot;highlighter-rouge&quot;&gt;.stream()&lt;/code&gt; method that provides powerful tools for processing and transforming the collection and its contents. Now, if that method would have been added to the &lt;code class=&quot;highlighter-rouge&quot;&gt;Collection&lt;/code&gt; interface as an abstract method, this would have meant that all of the custom &lt;code class=&quot;highlighter-rouge&quot;&gt;Collection&lt;/code&gt; classes that people had implemented would fail to compile until their authors added that &lt;code class=&quot;highlighter-rouge&quot;&gt;.stream()&lt;/code&gt; method. Additionally, if such a class was supplied in a JAR file (for example, a  reusable library) that was compiled with an earlier version of Java, the class would still load successfully but users would suddenly get runtime errors on calling the &lt;code class=&quot;highlighter-rouge&quot;&gt;.stream()&lt;/code&gt; method.&lt;/p&gt;
-
-&lt;p&gt;This was one of the reasons for the introduction of &lt;em&gt;default methods&lt;/em&gt; in Java 8 interfaces. A default method is a method defined in an interface that specifies an actual implementation. A class implementing the interface can choose to either use that implementation (this is the case by default) or override it with custom code.&lt;/p&gt;
-
-&lt;p&gt;In Java 8, the &lt;code class=&quot;highlighter-rouge&quot;&gt;.stream()&lt;/code&gt; method was added to the  &lt;code class=&quot;highlighter-rouge&quot;&gt;Collection&lt;/code&gt; interface as a default method. This means that classes that don’t specify anything regarding the &lt;code class=&quot;highlighter-rouge&quot;&gt;.stream()&lt;/code&gt; method will still continue to work without any changes. They will just use the default implementation of &lt;code class=&quot;highlighter-rouge&quot;&gt;.stream()&lt;/code&gt; that is specified in the interface.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Collection&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;E&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Iterable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;E&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;c1&quot;&gt;// ...    &lt;/span&gt;
-    
-    &lt;span class=&quot;k&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Stream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;E&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;stream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; 
-        &lt;span class=&quot;c1&quot;&gt;// default implementation&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-    &lt;span class=&quot;c1&quot;&gt;//...&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;Default methods are also a clean alternative to the widespread pattern of declaring an interface (with only abstract methods) and then offering an abstract companion class providing default implementations for most of the methods. An example of that pattern is the &lt;code class=&quot;highlighter-rouge&quot;&gt;Collection&lt;/code&gt; interface, for which there is an &lt;code class=&quot;highlighter-rouge&quot;&gt;AbstractCollection&lt;/code&gt; class providing default implementations.&lt;/p&gt;
-
-&lt;p&gt;In addition to default methods, modern Java now also allows interfaces to specify static methods and private methods (introduced in Java 9). Static methods in interfaces can be useful as factory methods. We will see examples of this in an upcoming article on lambda expressions. Private methods are useful as helper methods for the default methods specified in the interface.&lt;/p&gt;
-
-&lt;h2 id=&quot;abstract-classes-vs-interfaces&quot;&gt;Abstract classes vs. interfaces&lt;/h2&gt;
-
-&lt;p&gt;As interfaces have become more powerful, they have become more similar to abstract classes. Therefore, it can be interesting to have a look at the remaining differences between the two in order to get a feel for when to use which.&lt;/p&gt;
-
-&lt;p&gt;One big limitation (by design) of interfaces is that they cannot be instantiated. Every object, although it could conform to one or more interfaces and could even be casted to the type of those interfaces, has to be an instance of an actual class. This also means that, unlike abstract classes, interfaces cannot have any instance variables or constructors. Interfaces are made for specifying behavior, not for encapsulating state.&lt;/p&gt;
-
-&lt;p&gt;Another limitation of interfaces is that the static variables they can declare will always be &lt;code class=&quot;highlighter-rouge&quot;&gt;final&lt;/code&gt; (constant). This means that nothing, including the interface’s own static methods, can modify them.&lt;/p&gt;
-
-&lt;p&gt;An important feature of interfaces is that, while a class can only extend at most one class, a class can implement any number of interfaces. This makes sense, as an interface is intended to specify a contract and a class could potentially conform to multiple contracts.&lt;/p&gt;
-
-&lt;h2 id=&quot;default-methods-and-inheritance&quot;&gt;Default methods and inheritance&lt;/h2&gt;
-
-&lt;p&gt;As we saw above, a class can implement multiple interfaces. Before version 8 of Java, this was straightforward: as interfaces could not contain any kind of implementation code, it was impossible for implementation code from different interfaces to conflict.&lt;/p&gt;
-
-&lt;p&gt;Since default methods were introduced, this is no longer the case. Now, let’s say that we have class that implements two interfaces, both of which contain a default method &lt;code class=&quot;highlighter-rouge&quot;&gt;doSomething()&lt;/code&gt;. At that point, it becomes unclear which implementation should be used if the class does not specify its own implementation. This is known as the &lt;a href=&quot;https://en.wikipedia.org/wiki/Multiple_inheritance#The_diamond_problem&quot;&gt;diamond problem&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;The Java team has chosen to play it safe: if two interfaces that a class implements specify a method with the same signature and at least one of them specifies a default implementation for that method, the class must specify its own implementation. Even if only one of the interfaces provides a default implementation, the compiler forces you to be explicit about the specific implementation to be used. If one of the default methods already specifies the behavior you want, your implementation can simply delegate to it.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;InterfaceA&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;abstract&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;InterfaceB&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;    
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;test&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;};&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Class&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;InterfaceA&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;InterfaceB&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;c1&quot;&gt;// compiler forces us to provide an implementation&lt;/span&gt;
-    &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;c1&quot;&gt;// delegate to behavior specified in InterfaceB&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;InterfaceB&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;doSomething&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;Now, what if a class inherits from a superclass specifying a method &lt;code class=&quot;highlighter-rouge&quot;&gt;doSomething()&lt;/code&gt; but also implements an interface that specifies a default &lt;code class=&quot;highlighter-rouge&quot;&gt;doSomething()&lt;/code&gt; method? Here, the answer is simple: classes always win. In this case, Java will use the implementation defined in the superclass and simply ignore the default method implementation. This rule makes sure that default methods don’t suddenly change the behavior of code that was written before Java 8.&lt;/p&gt;
-
-&lt;p&gt;Also, remember that there cannot possibly be a conflict between method implementations from two superclasses, because a class can still only inherit from at most one superclass.&lt;/p&gt;
-
-&lt;h2 id=&quot;resources&quot;&gt;Resources&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Core Java SE 9 for the Impatient (book by Cay S. Horstmann)&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://dzone.com/articles/evolution-of-interface-in-history-of-java&quot;&gt;Evolution of Interfaces in History of Java&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://www.geeksforgeeks.org/difference-between-abstract-class-and-interface-in-java/&quot;&gt;Difference between Abstract Class and Interface in Java&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Multiple_inheritance#The_diamond_problem&quot;&gt;The diamond problem&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Maarten Michiels</name></author><category term="java" /><summary type="html">This post is a review of interfaces in Java, including modern interfaces in Java 8 and later.</summary></entry><entry><title type="html">Exception handling best practices in Java</title><link href="https://convincedcoder.com/2018/12/22/Exception-handling-best-practices-Java/" rel="alternate" type="text/html" title="Exception handling best practices in Java" /><published>2018-12-22T00:00:00+01:00</published><updated>2018-12-22T00:00:00+01:00</updated><id>https://convincedcoder.com/2018/12/22/Exception-handling-best-practices-Java</id><content type="html" xml:base="https://convincedcoder.com/2018/12/22/Exception-handling-best-practices-Java/">&lt;p&gt;This post explains some best practices for exception handling in Java. Although the post focuses on Java, some general ideas can be applied to other languages as well.&lt;/p&gt;
-
-&lt;h2 id=&quot;checked-versus-unchecked-exceptions&quot;&gt;Checked versus unchecked exceptions&lt;/h2&gt;
-
-&lt;p&gt;In Java, there is an important distinction between checked and unchecked exceptions. The way you deal with checked exceptions is checked by the compiler. If you write a method and perform a call that can potentially throw a checked exception, the compiler forces you to either catch the exception or add the exception to the signature of your method using a &lt;code class=&quot;highlighter-rouge&quot;&gt;throws&lt;/code&gt; declaration. This is not the case for unchecked exceptions: the compiler does not care whether you handle them or not.&lt;/p&gt;
-
-&lt;p&gt;Checked exceptions are intended for cases when there is a reasonable way of recovering from the failure during the execution of the program. An example is a call to open a file and write to it, which can fail if the file does not exist. A reasonable way of recovering from this is trying a different filename. If the code for opening the file throws a checked exception if the file does not exist, the compiler forces you to to decide what to do in that case. This prevents you from forgetting that this kind of failure can actually happen.&lt;/p&gt;
-
-&lt;p&gt;Unchecked exceptions are intended to be used for programming errors. A simple example is &lt;code class=&quot;highlighter-rouge&quot;&gt;NullPointerException&lt;/code&gt;: this exception is thrown when the code attempts to execute a method on a null reference, which will never occur in ideal bug-free code. Typically, there is no reasonable way to recover from these kinds of programming errors at runtime.&lt;/p&gt;
-
-&lt;p&gt;There is a school of thought that uses a slightly different set of guidelines:&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;Use checked exceptions if there is a reasonable way of recovering from the failure during the execution of the program &lt;strong&gt;and&lt;/strong&gt; the possibility for failure is unavoidable (an example is a missing file: even if you checked for its existence before, the file can still have disappeared in the meantime).&lt;/li&gt;
-  &lt;li&gt;Use unchecked exceptions in all other cases.&lt;/li&gt;
-  &lt;li&gt;Evaluate these conditions at every level in the call chain.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Then, there is a different and popular school of thought which uses the following single guideline:&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;Always use unchecked exceptions. Never use checked exceptions (unless you are maybe writing a very critical library).&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;That last school of thought is advertised in, amongst others, the &lt;em&gt;Clean Code&lt;/em&gt; book by Robert C. Martin. The reasoning behind this is that checked exceptions come at a high cost. The cost is the fact that, if you throw a checked exception from your code and the appropriate handler sits three levels higher in the call chain, you must declare the exception on every method in between. This means that a single change to a small method somewhere deep in the program can require the signature of several higher-level methods to change, breaking encapsulation and coupling the handler of the exception to the code that generates it. This actually negates a large benefit of exceptions, which is that you can decouple the code detecting a failure from the code handling the failure.&lt;/p&gt;
-
-&lt;p&gt;The people coming from that school of thought argue that the benefits of checked exceptions do not outweigh these costs. The main benefit of checked exceptions is robustness, but checked exceptions are not a requirement for robustness. It is perfectly possible to write robust software in other languages (like C#) that do not offer checked exceptions.&lt;/p&gt;
-
-&lt;h2 id=&quot;throw-early-catch-late&quot;&gt;Throw early, catch late&lt;/h2&gt;
-
-&lt;p&gt;A general best practice regarding exceptions is “Throw early, catch late”. This can roughly be translated to “Don’t catch an exception unless you are in the best position to do something useful with it”.&lt;/p&gt;
-
-&lt;p&gt;For example, if an exception occurs because there is no file at a specific path, it often makes sense to propagate the exception up to the level where the path to use is determined.&lt;/p&gt;
-
-&lt;p&gt;In general, you should only catch exceptions if:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;You can perform a useful action on the exception (possibly just logging) and then rethrow it.&lt;/li&gt;
-  &lt;li&gt;You can wrap the exception into a new exception that makes more sense to your caller and throw that new exception.&lt;/li&gt;
-  &lt;li&gt;You can make a final decision regarding what must happen to fully handle the exception.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&quot;providing-context-with-exceptions&quot;&gt;Providing context with exceptions&lt;/h2&gt;
-
-&lt;p&gt;Although exceptions contain a stack trace that shows the call chain at the time the exception occurred, it is often advisable to pass additional context. Typically, you should at least provide a meaningful message explaining the intent of the operation that failed and the reason for failure. When defining custom exception classes, you can also foresee additional data being stored with the exception.&lt;/p&gt;
-
-&lt;p&gt;If your application has logging, your exception (including stack trace) should contain enough information for creating a meaningful log message.&lt;/p&gt;
-
-&lt;h2 id=&quot;client-first-design-for-exception-classes&quot;&gt;Client-first design for exception classes&lt;/h2&gt;
-
-&lt;p&gt;When designing which and how many exception classes you need, try to consider the point of view of the caller. It is possible that things can go wrong because of different reasons but the caller only has one reasonable way of handling failures, independent of the specific reason. In that case, a good approach is typically to foresee a single exception class, potentially using exception chaining to pass on more details. You only need different error classes if the client needs to handle them differently.&lt;/p&gt;
-
-&lt;p&gt;If you are using a class with methods that can throw lots of different exception types, consider wrapping it in a class that delegates actual functionality to the wrapped class but catches a set of specific errors and wraps these into a single, more general error class. This is one of the techniques you can use to transform a library’s interface into an interface that makes more sense to your application, decoupling your application from the interface that the library provides.&lt;/p&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;wrapped&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Type1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Type2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Type3&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;WrappedException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h2 id=&quot;dealing-with-nullpointerexception&quot;&gt;Dealing with &lt;code class=&quot;highlighter-rouge&quot;&gt;NullPointerException&lt;/code&gt;&lt;/h2&gt;
-
-&lt;p&gt;One of the most dreaded Java exception types is the infamous &lt;code class=&quot;highlighter-rouge&quot;&gt;NullPointerException&lt;/code&gt;. This is an unchecked exception indicating a programming error (we called a method on a null reference). The best way of dealing with &lt;code class=&quot;highlighter-rouge&quot;&gt;NullPointerException&lt;/code&gt; is to avoid it.&lt;/p&gt;
-
-&lt;p&gt;You can make failure with a &lt;code class=&quot;highlighter-rouge&quot;&gt;NullPointerException&lt;/code&gt; less likely by using the following set of rules for your code:&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;Don’t return null from methods. Wherever possible, return a special case object (e.g. an empty list, which you can easily obtain from &lt;code class=&quot;highlighter-rouge&quot;&gt;Collections.emptyList()&lt;/code&gt;, or an instance of a dedicated class that was intended for these cases).&lt;/li&gt;
-  &lt;li&gt;Don’t pass null as a method parameter. In some other languages, for example TypeScript, the compiler can actually help you enforce this.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Objects&lt;/code&gt; class has some convenient methods for preventing problems with null pointers. These can be used for checking arguments or preventing passing null.&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Objects.requireNonNull()&lt;/code&gt; throws a &lt;code class=&quot;highlighter-rouge&quot;&gt;NullPointerException&lt;/code&gt; if the argument is null and returns the argument itself otherwise. This does not prevent the &lt;code class=&quot;highlighter-rouge&quot;&gt;NullPointerException&lt;/code&gt; from being thrown. However, the benefit here is that we throw it where the source of the problem lies (&lt;code class=&quot;highlighter-rouge&quot;&gt;null&lt;/code&gt; being passed where it is not allowed) instead of at some later point in the code where we try to invoke a method on a null reference.&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Objects.requireNonNullElse()&lt;/code&gt; returns either the first parameter or, if the first parameter is null, it returns the second parameter. It is quite similar to the &lt;code class=&quot;highlighter-rouge&quot;&gt;COALESCE&lt;/code&gt; function in SQL.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nickName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Objects&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;requireNonNull&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;nickName&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Objects&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;requireNonNullElse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nickName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;nick&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;Something else that can help is the &lt;code class=&quot;highlighter-rouge&quot;&gt;Optional&lt;/code&gt; type, which will likely be discussed in a later blog post.&lt;/p&gt;
-
-&lt;h2 id=&quot;resources&quot;&gt;Resources&lt;/h2&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Core Java SE 9 for the Impatient (book by Cay S. Horstmann)&lt;/li&gt;
-  &lt;li&gt;Clean Code (book by Robert C. Martin)&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://docs.oracle.com/javase/tutorial/essential/exceptions/runtime.html&quot;&gt;Unchecked Exceptions — The Controversy&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://stackoverflow.com/questions/27578/when-to-choose-checked-and-unchecked-exceptions&quot;&gt;When to choose checked and unchecked exceptions&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://softwareengineering.stackexchange.com/questions/231057/exceptions-why-throw-early-why-catch-late&quot;&gt;Exceptions: Why throw early? Why catch late?&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>Maarten Michiels</name></author><category term="java" /><summary type="html">This post explains some best practices for exception handling in Java. Although the post focuses on Java, some general ideas can be applied to other languages as well.</summary></entry></feed>
+&lt;p&gt;This approach works well with classes, but setting up classes with the decorators that class-validator needs and converting the objects you receive to instances of those classes can feel like overkill if all you need to check is a simple interface. You may want to consider other approaches, like for example the one using io-ts.&lt;/p&gt;</content><author><name>Maarten Michiels</name></author><category term="typescript" /><category term="javascript" /><summary type="html">This post will discuss some possibilities for adding runtime type checking to TypeScript applications.</summary></entry></feed>

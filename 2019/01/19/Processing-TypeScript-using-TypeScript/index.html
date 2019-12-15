@@ -64,6 +64,10 @@
 		  </div>
 		</div>
 
+		<div id="notice" class="container" style="background: #d28445; padding: 1em; border-radius: 0.5em; color: white;">
+			<p>Note: This blog is no longer being maintained. Most of the content has been migrated to <a href="https://github.com/mistermicheels/learning-notes" style="color: inherit; font-weight: bold;">github.com/mistermicheels/learning-notes</a>.</p>
+		</div>
+
 		<div id="main" role="main" class="container">
 		  <article class="post">
     <h1>Processing TypeScript using TypeScript</h1>
@@ -314,7 +318,7 @@
 <span class="kd">function</span> <span class="nx">recursivelyPrintVariableDeclarations</span><span class="p">(</span>
     <span class="nx">node</span><span class="p">:</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">Node</span><span class="p">,</span> <span class="nx">sourceFile</span><span class="p">:</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">SourceFile</span>
 <span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">kind</span> <span class="o">===</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">SyntaxKind</span><span class="p">.</span><span class="nx">VariableDeclaration</span><span class="p">)</span>  <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">ts</span><span class="p">.</span><span class="nx">isVariableDeclaration</span><span class="p">(</span><span class="nx">node</span><span class="p">))</span>  <span class="p">{</span>
         <span class="kd">const</span> <span class="nx">nodeText</span> <span class="o">=</span> <span class="nx">node</span><span class="p">.</span><span class="nx">getText</span><span class="p">(</span><span class="nx">sourceFile</span><span class="p">);</span>
         <span class="kd">const</span> <span class="nx">type</span> <span class="o">=</span> <span class="nx">typeChecker</span><span class="p">.</span><span class="nx">getTypeAtLocation</span><span class="p">(</span><span class="nx">node</span><span class="p">);</span>
         <span class="kd">const</span> <span class="nx">typeName</span> <span class="o">=</span> <span class="nx">typeChecker</span><span class="p">.</span><span class="nx">typeToString</span><span class="p">(</span><span class="nx">type</span><span class="p">,</span> <span class="nx">node</span><span class="p">);</span>
@@ -388,6 +392,51 @@
 <span class="p">);</span>
 
 <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span> <span class="c1">// const testVar: string = "test";</span>
+</code></pre></div></div>
+
+<p>The TypeScript compiler API also allows you to define transformers that walk the AST and replace nodes by new ones as needed. The following code finds all identifiers in the <code class="highlighter-rouge">SourceFile</code> and adds a suffix <code class="highlighter-rouge">suffix</code> to them.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">ts</span> <span class="k">from</span> <span class="s2">"typescript"</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">filename</span> <span class="o">=</span> <span class="s2">"test.ts"</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">code</span> <span class="o">=</span> <span class="s2">`const test: number = 1 + 2;`</span><span class="p">;</span>
+
+<span class="kd">const</span> <span class="nx">sourceFile</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">createSourceFile</span><span class="p">(</span>
+    <span class="nx">filename</span><span class="p">,</span> <span class="nx">code</span><span class="p">,</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">ScriptTarget</span><span class="p">.</span><span class="nx">Latest</span>
+<span class="p">);</span>
+
+<span class="kd">const</span> <span class="nx">transformerFactory</span><span class="p">:</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">TransformerFactory</span><span class="o">&lt;</span><span class="nx">ts</span><span class="p">.</span><span class="nx">Node</span><span class="o">&gt;</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="nx">context</span><span class="p">:</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">TransformationContext</span>
+<span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nx">rootNode</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+        <span class="kd">function</span> <span class="nx">visit</span><span class="p">(</span><span class="na">node</span><span class="p">:</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">Node</span><span class="p">):</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">Node</span> <span class="p">{</span>
+            <span class="nx">node</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">visitEachChild</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="nx">visit</span><span class="p">,</span> <span class="nx">context</span><span class="p">);</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="nx">ts</span><span class="p">.</span><span class="nx">isIdentifier</span><span class="p">(</span><span class="nx">node</span><span class="p">))</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">createIdentifier</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">text</span> <span class="o">+</span> <span class="s2">"suffix"</span><span class="p">);</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="nx">node</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">visitNode</span><span class="p">(</span><span class="nx">rootNode</span><span class="p">,</span> <span class="nx">visit</span><span class="p">);</span>
+    <span class="p">};</span>
+<span class="p">};</span>
+
+<span class="kd">const</span> <span class="nx">transformationResult</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">transform</span><span class="p">(</span>
+    <span class="nx">sourceFile</span><span class="p">,</span> <span class="p">[</span><span class="nx">transformerFactory</span><span class="p">]</span>
+<span class="p">);</span>
+
+<span class="kd">const</span> <span class="nx">transformedSourceFile</span> <span class="o">=</span> <span class="nx">transformationResult</span><span class="p">.</span><span class="nx">transformed</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="kd">const</span> <span class="nx">printer</span> <span class="o">=</span> <span class="nx">ts</span><span class="p">.</span><span class="nx">createPrinter</span><span class="p">();</span>
+
+<span class="kd">const</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">printer</span><span class="p">.</span><span class="nx">printNode</span><span class="p">(</span>
+    <span class="nx">ts</span><span class="p">.</span><span class="nx">EmitHint</span><span class="p">.</span><span class="nx">Unspecified</span><span class="p">,</span>
+    <span class="nx">transformedSourceFile</span><span class="p">,</span>
+    <span class="kc">undefined</span>
+<span class="p">);</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span> <span class="c1">// const testsuffix: number = 1 + 2;</span>
 </code></pre></div></div>
 
 <h2 id="resources">

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+  <head>
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    <!-- Begin Jekyll SEO tag v2.3.0 -->
+<title>SOLID principles | Convinced Coder</title>
+<meta property="og:title" content="SOLID principles" />
+<meta name="author" content="Maarten Michiels" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The SOLID principles are five software design principles that aim to make the code more clear, offer more flexibility and help with maintainability. Although they were originally aimed at object-oriented design, more specifically the design of classes, the general ideas behind most of them are universal and can also be applied to other paradigms like functional programming." />
+<meta property="og:description" content="The SOLID principles are five software design principles that aim to make the code more clear, offer more flexibility and help with maintainability. Although they were originally aimed at object-oriented design, more specifically the design of classes, the general ideas behind most of them are universal and can also be applied to other paradigms like functional programming." />
+<link rel="canonical" href="https://convincedcoder.com/2019/04/13/SOLID-principles/" />
+<meta property="og:url" content="https://convincedcoder.com/2019/04/13/SOLID-principles/" />
+<meta property="og:site_name" content="Convinced Coder" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-04-13T00:00:00+02:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@convincedcoder" />
+<meta name="twitter:creator" content="@convincedcoder" />
+<script type="application/ld+json">
+{"name":null,"description":"The SOLID principles are five software design principles that aim to make the code more clear, offer more flexibility and help with maintainability. Although they were originally aimed at object-oriented design, more specifically the design of classes, the general ideas behind most of them are universal and can also be applied to other paradigms like functional programming.","author":{"@type":"Person","name":"Maarten Michiels"},"@type":"BlogPosting","url":"https://convincedcoder.com/2019/04/13/SOLID-principles/","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://convincedcoder.com/images/convincedcoder.png"},"name":"Maarten Michiels"},"image":null,"headline":"SOLID principles","dateModified":"2019-04-13T00:00:00+02:00","datePublished":"2019-04-13T00:00:00+02:00","sameAs":null,"mainEntityOfPage":{"@type":"WebPage","@id":"https://convincedcoder.com/2019/04/13/SOLID-principles/"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+		<link rel="alternate" type="application/rss+xml" title="Convinced Coder - A blog about general software development, Java and JavaScript" href="/feed.xml" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+		<link rel="manifest" href="/site.webmanifest">
+		<meta name="msapplication-TileColor" content="#da532c">
+		<meta name="theme-color" content="#ffffff">
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+	<!-- using Ryan Fait's sticky footer to stick the footer at the bottom of the page or content, whichever is lower -->
+	
+	<div class="sticky-footer-wrapper">
+		<div class="wrapper-masthead">
+		  <div class="container">
+			<header class="masthead clearfix">
+			  <a href="/" class="site-avatar"><img src="/images/convincedcoder.png" /></a>
+
+			  <div class="site-info">
+				<h1 class="site-name"><a href="/">Convinced Coder</a></h1>
+				<p class="site-description">A blog about general software development, Java and JavaScript</p>
+			  </div>
+
+			  <nav>
+				<a href="/">Blog</a>
+				<a href="/about">About</a>
+			  </nav>
+			</header>
+		  </div>
+		</div>
+
+		<div id="notice" class="container" style="background: #d28445; padding: 1em; border-radius: 0.5em; color: white;">
+			<p>Note: This blog is no longer being maintained. Most of the content has been migrated to <a href="https://github.com/mistermicheels/learning-notes" style="color: inherit; font-weight: bold;">github.com/mistermicheels/learning-notes</a>.</p>
+		</div>
+
+		<div id="main" role="main" class="container">
+		  <article class="post">
+    <h1>SOLID principles</h1>
+    
+    <div class="date">
+        2019-04-13
+    </div>
+
+    <div class=post-tags>
+               
+                 
+            <a href="/tag/software-design" class="tag">software-design</a>
+        
+    </div>
+
+    <div class="entry">
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#single-responsibility-principle">Single responsibility principle</a></li>
+<li class="toc-entry toc-h2"><a href="#openclosed-principle">Open–closed principle</a></li>
+<li class="toc-entry toc-h2"><a href="#liskov-substitution-principle">Liskov substitution principle</a></li>
+<li class="toc-entry toc-h2"><a href="#interface-segregation-principle">Interface segregation principle</a></li>
+<li class="toc-entry toc-h2"><a href="#dependency-inversion-principle">Dependency inversion principle</a></li>
+<li class="toc-entry toc-h2"><a href="#resources">Resources</a></li>
+</ul><p>The SOLID principles are five software design principles that aim to make the code more clear, offer more flexibility and help with maintainability. Although they were originally aimed at object-oriented design, more specifically the design of classes, the general ideas behind most of them are universal and can also be applied to other paradigms like functional programming.</p>
+
+<h2 id="single-responsibility-principle">
+<a id="single-responsibility-principle" class="anchor" href="#single-responsibility-principle" aria-hidden="true"><span class="octicon octicon-link"></span></a>Single responsibility principle</h2>
+
+<blockquote>
+  <p>A class should have only one reason to change</p>
+</blockquote>
+
+<p>This principle essentially means that each class (or module, or function, or …) should be responsible for a single well-defined part of the functionality of the program, and that part of the functionality should be completely encapsulated within the class (or module, or function, or …). The basic idea behind the principle is closely related to the concept of “separation of concerns”. Each part of the software should do one well-defined thing. This idea applies practically everywhere in software development.</p>
+
+<p>A classic example of the single responsibility principle is creating and outputting a financial report. Let’s say we first have an implementation which mixes the code for generating the contents of the report and the code that determines what the report will look like. This is a violation of the single responsibility principle.</p>
+
+<p><img src="/images/2019-04-13-SOLID-principles/SRP-before.png" alt="SRP before"></p>
+
+<p>Here, there is a single method <code class="highlighter-rouge">getReportHtml</code> that determines both the contents of the report (what data to include) and the look of the report (colors, alignment, margins, …). This means that the class needs to change if the data to include in a report changes, but it also needs to change if the report needs to look different visually. And, depending on the extent to which the code for the class’ two responsibilities is intertwined, performing changes related to one responsibility could easily break the class’ behavior with regards to the other responsibility.</p>
+
+<p>Now, let’s have a look at a version where the two responsibilities are separated.</p>
+
+<p><img src="/images/2019-04-13-SOLID-principles/SRP-after.png" alt="SRP after"></p>
+
+<p>In this version, we have one class that is responsible for determining the actual data that will be shown on the report, while another class is responsible for actually formatting that data as HTML.</p>
+
+<p>Separating the responsibilities into classes encapsulating them has a number of benefits:</p>
+<ul>
+  <li>When you need to change something, either the data to include on a report or the way it is formatted, you immediately know where to go.</li>
+  <li>There is no chance of unintentionally messing with the formatting code when you are making changes to the data to include, and vice versa.</li>
+  <li>Separating responsibilities into separate classes helps us to apply some of the other principles, as we will see later on.</li>
+</ul>
+
+<h2 id="openclosed-principle">
+<a id="openclosed-principle" class="anchor" href="#openclosed-principle" aria-hidden="true"><span class="octicon octicon-link"></span></a>Open–closed principle</h2>
+
+<blockquote>
+  <p>Classes should be open to extension and closed to modification</p>
+</blockquote>
+
+<p>This principle basically states that we should allow for extending the behavior of a part of the software (class, module, function, …) without having to touch the source code that part. One way to do this is inheritance. We could take a base class, extend it, and then override some of its behavior, potentially referring to the original implementation where appropriate. We could extend concrete classes, but we could also have abstract classes (with some abstract methods) which are specifically designed to allow subclasses to determine how certain things should happen. Even more abstract than abstract classes are interfaces; we can use those as well to allow us to change the behavior of a part of the system while minimizing the amount of existing code we need to change.</p>
+
+<p>For example, we could make <code class="highlighter-rouge">FinancialReportFormatter</code> an abstract class or even an interface and then provide a concrete class <code class="highlighter-rouge">FinancialReportHtmlFormatter</code> that that formats the report as HTML.</p>
+
+<p><img src="/images/2019-04-13-SOLID-principles/OCP-before-adding-functionality.png" alt="OCP before adding functionality"></p>
+
+<p>Using this setup, it is easy to add the capability for generating reports in PDF, in black and white, with page numbers, etc. We just need to create a new implementation for the <code class="highlighter-rouge">FinancialReportFormatter</code> interface that takes care of this. There is no need for changing any existing code in the classes in our diagram.</p>
+
+<p><img src="/images/2019-04-13-SOLID-principles/OCP-after-adding-functionality.png" alt="OCP after adding functionality"></p>
+
+<p>Note that “plain” inheritance, extending a base class and then overriding some of its methods as needed, is not always feasible. For example, it is possible that the class forbids subclassing (e.g. by making it <code class="highlighter-rouge">final</code> in Java). In that case, delegation can be the answer. If the public interface of the class you want to extend is abstracted into an interface, then you can create a new class implementing that interface. That new class can then hold a reference to a “base object” of the class you wanted to extend, delegating to that base object where needed.</p>
+
+<p>Delegation can also be useful if you don’t have control over instantiation. Let’s say you have a class that you want to extend. The class allows subclassing, but your problem is that the objects necessary to instantiate the class are encapsulated in some subsystem. You can request instances of the class from that subsystem, but there is no way to make the subsystem create instances of your own subclass directly. What you can do in this case is to create instances of your subclass that delegate to instances of the base class that you obtain from the subsystem.</p>
+
+<h2 id="liskov-substitution-principle">
+<a id="liskov-substitution-principle" class="anchor" href="#liskov-substitution-principle" aria-hidden="true"><span class="octicon octicon-link"></span></a>Liskov substitution principle</h2>
+
+<blockquote>
+  <p>An instance of a class can be substituted with an instance of any of its subclasses</p>
+</blockquote>
+
+<p>Or, in other words: code that expects to get an object of a certain class A shouldn’t need to care if it receives an instance of a subclass B of A instead.</p>
+
+<p>A well-known example of a violation of this principle is the square/rectangle problem.</p>
+
+<p>Let’s say we have a class <code class="highlighter-rouge">Rectangle</code> with methods <code class="highlighter-rouge">setHeight()</code>, <code class="highlighter-rouge">setWidth()</code> and <code class="highlighter-rouge">getArea()</code>. Now, we want to to have a class <code class="highlighter-rouge">Square</code> as well. Since math tells us that every square is also a rectangle, we decide to make <code class="highlighter-rouge">Square</code> inherit from <code class="highlighter-rouge">Rectangle</code>. We then override the <code class="highlighter-rouge">setHeight()</code> and <code class="highlighter-rouge">setWidth()</code> methods so they each set both the height and the width (otherwise, our square wouldn’t be a square!).</p>
+
+<p>This becomes problematic if we have code like this:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Rectangle</span> <span class="n">rect</span> <span class="o">=</span> <span class="n">codeThatActuallyReturnsASquare</span><span class="o">();</span>
+<span class="n">rect</span><span class="o">.</span><span class="na">setHeight</span><span class="o">(</span><span class="mi">5</span><span class="o">);</span>
+<span class="n">rect</span><span class="o">.</span><span class="na">setWidth</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
+<span class="k">assert</span><span class="o">(</span><span class="n">rect</span><span class="o">.</span><span class="na">getArea</span><span class="o">()</span> <span class="o">==</span> <span class="mi">10</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p>This means that we have an issue with our inheritance hierarchy, as the <code class="highlighter-rouge">Square</code> class is not a proper substitute for <code class="highlighter-rouge">Rectangle</code>. An example of an inheritance hierarchy without this problem would be a <code class="highlighter-rouge">ColoredRectangle</code> that inherits from <code class="highlighter-rouge">Rectangle</code> and allows setting and getting the rectangle’s color without influencing the behavior of the other methods. Or, we could have a <code class="highlighter-rouge">ReplicatedRectangle</code> that extends <code class="highlighter-rouge">Rectangle</code>’s methods so they forward any changes in the rectangle’s height and width over the network. As long as the behavior added or changed by the subclass doesn’t break the contract of the superclass, we are fine.</p>
+
+<h2 id="interface-segregation-principle">
+<a id="interface-segregation-principle" class="anchor" href="#interface-segregation-principle" aria-hidden="true"><span class="octicon octicon-link"></span></a>Interface segregation principle</h2>
+
+<blockquote>
+  <p>Classes should present client-specific interfaces</p>
+</blockquote>
+
+<p>This principle is particularly relevant when working with languages that require classes to be recompiled and redeployed if something they depend on changes.</p>
+
+<p>Let’s assume that we have a class <code class="highlighter-rouge">Provider</code> that has two methods. There are two clients using the class, and each of the clients only uses one of the methods.</p>
+
+<p><img src="/images/2019-04-13-SOLID-principles/ISP-before.png" alt="ISP before"></p>
+
+<p>Now, what happens if I rename the second method (which is only relevant to <code class="highlighter-rouge">Client2</code>)? If I am working in a language that requires classes to be recompiled and redeployed if something they depend on changes, I need to recompile and redeploy <code class="highlighter-rouge">Client1</code> as well, even though nothing relevant to <code class="highlighter-rouge">Client1</code> has changed.</p>
+
+<p>We can prevent that by making <code class="highlighter-rouge">Provider</code> implement two interfaces, each relevant to a particular client.</p>
+
+<p><img src="/images/2019-04-13-SOLID-principles/ISP-after.png" alt="ISP after"></p>
+
+<p>An alternative, more general formulation of the interface segregation principle would be “avoid depending on things you don’t need”. Importing a huge flexible third-party library could be suboptimal if all you’ll be using it for is some very small part of its functionality. For example, you may have to wait longer for bugfixes in the part you use because corresponding changes need to be made in other parts as wel. Careful consideration becomes even more important when the dependency you are considering also has dependencies of its own. People using Node.js may be familiar with the situation where you need to update a module you use because of a vulnerability discovered in some module that it indirectly depends on, three levels down the dependency chain, for some functionality you don’t care about.</p>
+
+<h2 id="dependency-inversion-principle">
+<a id="dependency-inversion-principle" class="anchor" href="#dependency-inversion-principle" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dependency inversion principle</h2>
+
+<blockquote>
+  <p>High-level modules should not depend on low-level modules. Both should depend on abstractions.</p>
+
+  <p>Abstractions should not depend on details. Details should depend on abstractions.</p>
+</blockquote>
+
+<p>A more relaxed formulation would be this:</p>
+<ul>
+  <li>Specific parts of your system should depend on general parts, not the other way around.</li>
+  <li>Abstraction can be used as a technique to reverse the direction of dependencies if needed.</li>
+</ul>
+
+<p>As an example, let’s go back to our financial report again. Let’s say we split out the logic for generating the data for the report and the logic for formatting it into HTML.</p>
+
+<p><img src="/images/2019-04-13-SOLID-principles/DIP-before.png" alt="DIP before"></p>
+
+<p>While there is a clear separation of responsibilities, we see that <code class="highlighter-rouge">FinancialReportGenerator</code> (a general class which we could consider part of the application’s business logic) depends on <code class="highlighter-rouge">FinancialReportHtmlFormatter</code> (a specific class formatting the report in a specific format). In order to turn this around, we can introduce the <code class="highlighter-rouge">FinancialReportFormatter</code> abstraction which we also saw in the section on the open-closed principle.</p>
+
+<p><img src="/images/2019-04-13-SOLID-principles/DIP-after.png" alt="DIP after"></p>
+
+<p>Now, <code class="highlighter-rouge">FinancialReportGenerator</code> depends on an abstraction (which could be considered part of the business logic), and specific formatters depend on that abstraction. By doing this, we have reversed the direction of dependency across the boundary between business logic and presentation. While the flow of control stays the same (the business logic will invoke a specific formatter), the dependency points in the other direction.</p>
+
+<p>Note that the same abstraction mechanism has now also allowed us to easily extend our program with different formats (see open-closed principle).</p>
+
+<p>Because we don’t want the general <code class="highlighter-rouge">FinancialReportGenerator</code> to depend on specific formatter classes, we also don’t allow <code class="highlighter-rouge">FinancialReportGenerator</code> to instantiate these classes. Instead, we can use dependency injection to pass a specific formatter instance to <code class="highlighter-rouge">FinancialReportGenerator</code>, while <code class="highlighter-rouge">FinancialReportGenerator</code> itself doesn’t have to care which specific class it receives an instance of (Liskov substitution principle!). In cases where instantiation of specific classes needs to be triggered by the general class, we could instead pass a factory object to the general class. The general class depends on a general interface or abstract class describing what such a factory object looks like, while the specific factory object that the general class receives determines the exact type of specific classes that will be created.</p>
+
+<p>Finally, let’s have a look at the the Observer pattern. The Observer pattern allows general classes to trigger methods on specific classes by letting the specific classes subscribe to the general class. When using this pattern, the general class does not know about the specific classes. All it knows about is an <code class="highlighter-rouge">Observer</code> interface that the specific classes implement. In essence, this is just another manifestation of the dependency inversion principle.</p>
+
+<h2 id="resources">
+<a id="resources" class="anchor" href="#resources" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resources</h2>
+
+<ul>
+  <li><a href="https://en.wikipedia.org/wiki/SOLID">SOLID</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Single_responsibility_principle">Single responsibility principle</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Separation_of_concerns">Separation of concerns</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Open%E2%80%93closed_principle">Open–closed principle</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution principle</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Interface_segregation_principle">Interface segregation principle</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Dependency_inversion_principle">Dependency inversion principle</a></li>
+  <li>Clean Architecture (book by Robert C. Martin)</li>
+  <li><a href="https://codemanship.wordpress.com/2019/03/15/functional-s-o-l-i-d-explained-in-5-examples/">Functional S.O.L.I.D. Explained In 5 Examples</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Observer_pattern">Observer pattern</a></li>
+</ul>
+
+    </div>
+
+    
+</article>
+
+		</div>
+		
+		<div class="sticky-footer-push"></div>
+	</div>
+
+    <div class="wrapper-footer sticky-footer-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/convincedcoder/convincedcoder.github.io-source"><i class="svg-icon github"></i></a>
+
+
+
+
+<a href="https://www.twitter.com/convincedcoder"><i class="svg-icon twitter"></i></a>
+
+
+
+        </footer>
+      </div>
+    </div>
+
+		
+	<!-- Google Analytics -->
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-130247825-1', 'auto');
+		ga('send', 'pageview', {
+		  'page': '/2019/04/13/SOLID-principles/',
+		  'title': 'SOLID principles'
+		});
+	</script>
+	<!-- End Google Analytics -->
+
+
+		
+		<script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script>
+<script>addBackToTop({
+  diameter: 50,
+  backgroundColor: '#2f2f2f',
+  textColor: '#fff'
+})</script> 
+  </body>
+</html>
